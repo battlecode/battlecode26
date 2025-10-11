@@ -230,12 +230,12 @@ public final class GameMapIO {
             final int rounds = GameConstants.GAME_MAX_NUMBER_OF_ROUNDS;
             final String mapName = raw.name();
             int size = width*height;
-            boolean[] wallArray = new boolean[size];
+            boolean[] dirtArray = new boolean[size];
             boolean[] ruinArray = new boolean[size];
             byte[] paintArray = new byte[size];
             int[] patternArray = new int[4];
-            for (int i = 0; i < wallArray.length; i++) {
-                wallArray[i] = raw.walls(i);
+            for (int i = 0; i < dirtArray.length; i++) {
+                dirtArray[i] = raw.dirt(i);
                 paintArray[i] = possiblyReversePaint(raw.paint(i), teamsReversed);
             }
             for (int i = 0; i < patternArray.length; i++){
@@ -255,7 +255,7 @@ public final class GameMapIO {
             RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
         
             return new LiveMap(
-                width, height, origin, seed, rounds, mapName, symmetry, wallArray, paintArray, ruinArray, patternArray, initialBodies);
+                width, height, origin, seed, rounds, mapName, symmetry, dirtArray, paintArray, ruinArray, patternArray, initialBodies);
         }
 
 
@@ -269,7 +269,7 @@ public final class GameMapIO {
         public static int serialize(FlatBufferBuilder builder, LiveMap gameMap) {
             int name = builder.createString(gameMap.getMapName());
             int randomSeed = gameMap.getSeed();
-            boolean[] wallArray = gameMap.getWallArray();
+            boolean[] dirtArray = gameMap.getDirtArray();
             byte[] paintArray = gameMap.getPaintArray();
             boolean[] ruinArray = gameMap.getRuinArray();
             int[] patternArray = gameMap.getPatternArray();
@@ -281,7 +281,7 @@ public final class GameMapIO {
             ArrayList<Integer> bodyLocsXs = new ArrayList<>();
             ArrayList<Integer> bodyLocsYs = new ArrayList<>();
 
-            ArrayList<Boolean> wallArrayList = new ArrayList<>();
+            ArrayList<Boolean> dirtArrayList = new ArrayList<>();
             ArrayList<Byte> paintArrayList = new ArrayList<>();
             ArrayList<Integer> patternArrayList = new ArrayList<>();
 
@@ -298,7 +298,7 @@ public final class GameMapIO {
             }
 
             for (int i = 0; i < gameMap.getWidth() * gameMap.getHeight(); i++) {
-                wallArrayList.add(wallArray[i]);
+                dirtArrayList.add(dirtArray[i]);
                 paintArrayList.add(paintArray[i]);
                 if (ruinArray[i]){
                     MapLocation loc = gameMap.indexToLocation(i);
@@ -320,7 +320,7 @@ public final class GameMapIO {
             TIntArrayList ruinXsList = new TIntArrayList(ruinsXsArray);
             TIntArrayList ruinYsList = new TIntArrayList(ruinYsArray);
 
-            int wallArrayInt = battlecode.schema.GameMap.createWallsVector(builder, ArrayUtils.toPrimitive(wallArrayList.toArray(new Boolean[wallArrayList.size()])));
+            int dirtArrayInt = battlecode.schema.GameMap.createDirtVector(builder, ArrayUtils.toPrimitive(dirtArrayList.toArray(new Boolean[dirtArrayList.size()])));
             int paintArrayInt = battlecode.schema.GameMap.createPaintVector(builder, ArrayUtils.toPrimitive(paintArrayList.toArray(new Byte[paintArrayList.size()])));
             int patternArrayInt = battlecode.schema.GameMap.createPaintPatternsVector(builder, ArrayUtils.toPrimitive(patternArrayList.toArray(new Integer[patternArrayList.size()])));
             int ruinLocations = FlatHelpers.createVecTable(builder, ruinXsList, ruinYsList);
@@ -336,7 +336,7 @@ public final class GameMapIO {
 
             battlecode.schema.GameMap.addSymmetry(builder, gameMap.getSymmetry().ordinal());
             battlecode.schema.GameMap.addRandomSeed(builder, randomSeed);
-            battlecode.schema.GameMap.addWalls(builder, wallArrayInt);
+            battlecode.schema.GameMap.addDirt(builder, dirtArrayInt);
             battlecode.schema.GameMap.addRuins(builder, ruinLocations);
             battlecode.schema.GameMap.addInitialBodies(builder, initialBodyOffset);
             battlecode.schema.GameMap.addPaint(builder, paintArrayInt);

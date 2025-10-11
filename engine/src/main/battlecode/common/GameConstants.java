@@ -30,8 +30,8 @@ public class GameConstants {
     /** The minimum distance between ruins on the map */
     public static final int MIN_RUIN_SPACING_SQUARED = 25;
 
-    /** The maximum percentage of the map that can be walls */
-    public static final int MAX_WALL_PERCENTAGE = 20;
+    /** The maximum percentage of the map that can be dirts */
+    public static final int MAX_DIRT_PERCENTAGE = 20;
 
     /** The 32 bit representation of the special resource pattern. */
     public static final int RESOURCE_PATTERN = 28873275; 

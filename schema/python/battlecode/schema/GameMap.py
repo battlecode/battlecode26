@@ -71,7 +71,7 @@ class GameMap(object):
         return 0
 
     # GameMap
-    def Walls(self, j: int):
+    def Dirt(self, j: int):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
         if o != 0:
             a = self._tab.Vector(o)
@@ -79,21 +79,21 @@ class GameMap(object):
         return 0
 
     # GameMap
-    def WallsAsNumpy(self):
+    def DirtAsNumpy(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
         if o != 0:
             return self._tab.GetVectorAsNumpy(flatbuffers.number_types.BoolFlags, o)
         return 0
 
     # GameMap
-    def WallsLength(self) -> int:
+    def DirtLength(self) -> int:
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # GameMap
-    def WallsIsNone(self) -> bool:
+    def DirtIsNone(self) -> bool:
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
         return o == 0
 
@@ -197,17 +197,17 @@ def GameMapAddRandomSeed(builder: flatbuffers.Builder, randomSeed: int):
 def AddRandomSeed(builder: flatbuffers.Builder, randomSeed: int):
     GameMapAddRandomSeed(builder, randomSeed)
 
-def GameMapAddWalls(builder: flatbuffers.Builder, walls: int):
-    builder.PrependUOffsetTRelativeSlot(5, flatbuffers.number_types.UOffsetTFlags.py_type(walls), 0)
+def GameMapAddDirt(builder: flatbuffers.Builder, dirt: int):
+    builder.PrependUOffsetTRelativeSlot(5, flatbuffers.number_types.UOffsetTFlags.py_type(dirt), 0)
 
-def AddWalls(builder: flatbuffers.Builder, walls: int):
-    GameMapAddWalls(builder, walls)
+def AddDirt(builder: flatbuffers.Builder, dirt: int):
+    GameMapAddDirt(builder, dirt)
 
-def GameMapStartWallsVector(builder, numElems: int) -> int:
+def GameMapStartDirtVector(builder, numElems: int) -> int:
     return builder.StartVector(1, numElems, 1)
 
-def StartWallsVector(builder, numElems: int) -> int:
-    return GameMapStartWallsVector(builder, numElems)
+def StartDirtVector(builder, numElems: int) -> int:
+    return GameMapStartDirtVector(builder, numElems)
 
 def GameMapAddPaint(builder: flatbuffers.Builder, paint: int):
     builder.PrependUOffsetTRelativeSlot(6, flatbuffers.number_types.UOffsetTFlags.py_type(paint), 0)

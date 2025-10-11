@@ -29,7 +29,7 @@ public class GameWorld {
     protected final IDGenerator idGenerator;
     protected final GameStats gameStats;
 
-    private boolean[] walls;
+    private boolean[] dirtArray;
     private int[] markersA;
     private int[] markersB;
     private int[] colorLocations; // No color = 0, Team A color 1 = 1, Team A color 2 = 2, Team B color 1 = 3, Team B color 2 = 4
@@ -61,15 +61,15 @@ public class GameWorld {
     private final RobotControlProvider controlProvider;
     private Random rand;
     private final GameMaker.MatchMaker matchMaker;
-    private int areaWithoutWalls;
+    private int areaWithoutDirt;
 
     @SuppressWarnings("unchecked")
     public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
         int width = gm.getWidth();
         int height = gm.getHeight();
         int numSquares = width * height;
-        int numWalls = 0;
-        this.walls = gm.getWallArray();
+        int numDirt = 0;
+        this.dirtArray = gm.getDirtArray();
         this.markersA = new int[numSquares];
         this.markersB = new int[numSquares];
         this.robots = new InternalRobot[width][height]; // if represented in cartesian, should be height-width, but this should allow us to index x-y
@@ -80,12 +80,12 @@ public class GameWorld {
         this.objectInfo = new ObjectInfo(gm);
         this.colorLocations = new int[numSquares];
 
-        for (boolean wall : walls){
-            if (wall) {
-                numWalls += 1;
+        for (boolean dirt : dirtArray){
+            if (dirt) {
+                numDirt += 1;
             }
         }
-        this.areaWithoutWalls = numSquares - numWalls;
+        this.areaWithoutDirt = numSquares - numDirt;
 
         this.profilerCollections = new HashMap<>();
 
@@ -223,8 +223,8 @@ public class GameWorld {
         return getPatternBit(this.patternArray[towerTypeToPatternIndex(towerType)], dx, dy);
     }
 
-    public int getAreaWithoutWalls() {
-        return this.areaWithoutWalls;
+    public int getAreaWithoutDirt() {
+        return this.areaWithoutDirt;
     }
 
     public int getPatternBit(int pattern, int dx, int dy) {
@@ -426,8 +426,8 @@ public class GameWorld {
         return this.currentRound;
     }
 
-    public boolean getWall(MapLocation loc) {
-        return this.walls[locationToIndex(loc)];
+    public boolean getDirt(MapLocation loc) {
+        return this.dirtArray[locationToIndex(loc)];
     }
 
     public void setPaint(MapLocation loc, int paint) {
@@ -599,7 +599,7 @@ public class GameWorld {
         )) && (isTower || areaIsPaintable(loc)) ;
     }
 
-    // checks that location has no walls/ruins in the surrounding 5x5 area
+    // checks that location has no dirt/ruins in the surrounding 5x5 area
     public boolean areaIsPaintable(MapLocation loc){
         for (int dx = -GameConstants.PATTERN_SIZE / 2; dx < (GameConstants.PATTERN_SIZE + 1) / 2; dx++) {
             for (int dy = -GameConstants.PATTERN_SIZE / 2; dy < (GameConstants.PATTERN_SIZE + 1) / 2; dy++) {
@@ -612,7 +612,7 @@ public class GameWorld {
     }
 
     public boolean isPassable(MapLocation loc) {
-        return !(this.walls[locationToIndex(loc)] || this.hasRuin(loc));
+        return !(this.dirtArray[locationToIndex(loc)] || this.hasRuin(loc));
     }
 
     public boolean isPaintable(MapLocation loc){
@@ -973,9 +973,9 @@ public class GameWorld {
     }
 
     public void processEndOfRound() {
-        int teamACoverage = (int) Math.round(this.teamInfo.getNumberOfPaintedSquares(Team.A) * 1000.0 / this.areaWithoutWalls);
+        int teamACoverage = (int) Math.round(this.teamInfo.getNumberOfPaintedSquares(Team.A) * 1000.0 / this.areaWithoutDirt);
         this.matchMaker.addTeamInfo(Team.A, this.teamInfo.getMoney(Team.A), teamACoverage, getNumResourcePatterns(Team.A));
-        int teamBCoverage = (int) Math.round(this.teamInfo.getNumberOfPaintedSquares(Team.B) * 1000.0 / this.areaWithoutWalls);
+        int teamBCoverage = (int) Math.round(this.teamInfo.getNumberOfPaintedSquares(Team.B) * 1000.0 / this.areaWithoutDirt);
         this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getMoney(Team.B), teamBCoverage, getNumResourcePatterns(Team.B));
         this.teamInfo.processEndOfRound();
 

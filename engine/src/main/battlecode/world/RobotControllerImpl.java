@@ -83,7 +83,7 @@ public final class RobotControllerImpl implements RobotController {
             markType = PaintType.ALLY_PRIMARY;
         else if (mark == 2)
             markType = PaintType.ALLY_SECONDARY;
-        MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc), gw.getPaintType(getTeam(), loc), markType, gw.hasRuin(loc), gw.hasResourcePatternCenter(loc, getTeam()));
+        MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getDirt(loc), gw.getPaintType(getTeam(), loc), markType, gw.hasRuin(loc), gw.hasResourcePatternCenter(loc, getTeam()));
         return currentLocInfo;
     }
 
@@ -501,7 +501,7 @@ public final class RobotControllerImpl implements RobotController {
         }
 
         if (!sensePassability(loc)){
-            throw new GameActionException(CANT_DO_THAT, "Location has a wall or ruin!");
+            throw new GameActionException(CANT_DO_THAT, "Location has dirt or ruin!");
         }
     }
 
@@ -864,8 +864,8 @@ public final class RobotControllerImpl implements RobotController {
         if (this.robot.getPaint() < UnitType.SOLDIER.attackCost){
             throw new GameActionException(CANT_DO_THAT, "Unit does not have enough paint to do a soldier attack");
         }
-        if (this.gameWorld.getWall(loc))
-            throw new GameActionException(CANT_DO_THAT, "Soldiers cannot attack walls!");
+        if (this.gameWorld.getDirt(loc))
+            throw new GameActionException(CANT_DO_THAT, "Soldiers cannot attack dirt!");
     }
 
     private void assertCanAttackSplasher(MapLocation loc) throws GameActionException {
@@ -883,7 +883,7 @@ public final class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Unit does not have enough paint to do a mopper attack");
         }
         if (!this.gameWorld.isPassable(loc))
-            throw new GameActionException(CANT_DO_THAT, "Moppers cannot attack squares with walls or ruins on them!");
+            throw new GameActionException(CANT_DO_THAT, "Moppers cannot attack squares with dirt or ruins on them!");
     }
 
     private void assertCanAttackTower(MapLocation loc) throws GameActionException {

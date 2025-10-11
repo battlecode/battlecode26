@@ -36,12 +36,12 @@ public final class GameMap extends Table {
   public battlecode.schema.InitialBodyTable initialBodies() { return initialBodies(new battlecode.schema.InitialBodyTable()); }
   public battlecode.schema.InitialBodyTable initialBodies(battlecode.schema.InitialBodyTable obj) { int o = __offset(10); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
   public int randomSeed() { int o = __offset(12); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public boolean walls(int j) { int o = __offset(14); return o != 0 ? 0!=bb.get(__vector(o) + j * 1) : false; }
-  public int wallsLength() { int o = __offset(14); return o != 0 ? __vector_len(o) : 0; }
-  public BooleanVector wallsVector() { return wallsVector(new BooleanVector()); }
-  public BooleanVector wallsVector(BooleanVector obj) { int o = __offset(14); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer wallsAsByteBuffer() { return __vector_as_bytebuffer(14, 1); }
-  public ByteBuffer wallsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 14, 1); }
+  public boolean dirt(int j) { int o = __offset(14); return o != 0 ? 0!=bb.get(__vector(o) + j * 1) : false; }
+  public int dirtLength() { int o = __offset(14); return o != 0 ? __vector_len(o) : 0; }
+  public BooleanVector dirtVector() { return dirtVector(new BooleanVector()); }
+  public BooleanVector dirtVector(BooleanVector obj) { int o = __offset(14); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
+  public ByteBuffer dirtAsByteBuffer() { return __vector_as_bytebuffer(14, 1); }
+  public ByteBuffer dirtInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 14, 1); }
   public byte paint(int j) { int o = __offset(16); return o != 0 ? bb.get(__vector(o) + j * 1) : 0; }
   public int paintLength() { int o = __offset(16); return o != 0 ? __vector_len(o) : 0; }
   public ByteVector paintVector() { return paintVector(new ByteVector()); }
@@ -63,9 +63,9 @@ public final class GameMap extends Table {
   public static void addSymmetry(FlatBufferBuilder builder, int symmetry) { builder.addInt(2, symmetry, 0); }
   public static void addInitialBodies(FlatBufferBuilder builder, int initialBodiesOffset) { builder.addOffset(3, initialBodiesOffset, 0); }
   public static void addRandomSeed(FlatBufferBuilder builder, int randomSeed) { builder.addInt(4, randomSeed, 0); }
-  public static void addWalls(FlatBufferBuilder builder, int wallsOffset) { builder.addOffset(5, wallsOffset, 0); }
-  public static int createWallsVector(FlatBufferBuilder builder, boolean[] data) { builder.startVector(1, data.length, 1); for (int i = data.length - 1; i >= 0; i--) builder.addBoolean(data[i]); return builder.endVector(); }
-  public static void startWallsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
+  public static void addDirt(FlatBufferBuilder builder, int dirtOffset) { builder.addOffset(5, dirtOffset, 0); }
+  public static int createDirtVector(FlatBufferBuilder builder, boolean[] data) { builder.startVector(1, data.length, 1); for (int i = data.length - 1; i >= 0; i--) builder.addBoolean(data[i]); return builder.endVector(); }
+  public static void startDirtVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
   public static void addPaint(FlatBufferBuilder builder, int paintOffset) { builder.addOffset(6, paintOffset, 0); }
   public static int createPaintVector(FlatBufferBuilder builder, byte[] data) { return builder.createByteVector(data); }
   public static int createPaintVector(FlatBufferBuilder builder, ByteBuffer data) { return builder.createByteVector(data); }

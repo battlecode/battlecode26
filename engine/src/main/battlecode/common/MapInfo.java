@@ -6,7 +6,7 @@ public class MapInfo {
 
     private boolean isPassable;
 
-    private boolean isWall;
+    private boolean isDirt;
 
     private PaintType paint;
 
@@ -16,10 +16,10 @@ public class MapInfo {
 
     private boolean isResourcePatternCenter;
 
-    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, PaintType paint, PaintType mark, boolean hasRuin, boolean isResourcePatternCenter){
+    public MapInfo(MapLocation loc, boolean isPassable, boolean isDirt, PaintType paint, PaintType mark, boolean hasRuin, boolean isResourcePatternCenter){
         this.loc = loc;
         this.isPassable = isPassable;
-        this.isWall = isWall;
+        this.isDirt = isDirt;
         this.paint = paint;
         this.mark = mark;
         this.hasRuin = hasRuin;
@@ -38,14 +38,14 @@ public class MapInfo {
     }
 
     /**
-     * Returns if this square is a wall.
+     * Returns if this square is a dirt.
      * 
-     * @return whether this square is a wall
+     * @return whether this square is a dirt
      * 
      * @battlecode.doc.costlymethod
      */
-    public boolean isWall() {
-        return isWall;
+    public boolean isDirt() {
+        return isDirt;
     }
 
     /**
@@ -104,7 +104,7 @@ public class MapInfo {
     public String toString(){
         return "Location{" +
                 "loc=" + loc.toString() +
-                (isWall ? ", wall" : "") +
+                (isDirt ? ", dirt" : "") +
                 (hasRuin ? ", with ruin" : "") +
                 ", paint=" + paint.toString() +
                 ", mark=" + mark.toString() +

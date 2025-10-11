@@ -308,7 +308,7 @@ public interface RobotController {
     RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) throws GameActionException;
 
     /**
-     * Given a senseable location, returns whether that location is passable (a wall).
+     * Given a senseable location, returns whether that location is passable (dirt).
      * 
      * @param loc the given location
      * @return whether that location is passable
@@ -319,7 +319,7 @@ public interface RobotController {
     boolean sensePassability(MapLocation loc) throws GameActionException;
 
     /**
-     * Senses the map info at a location. MapInfo includes walls, paint, marks,
+     * Senses the map info at a location. MapInfo includes dirt, paint, marks,
      * and ruins
      *
      * @param loc to sense map at
@@ -332,7 +332,7 @@ public interface RobotController {
 
     /**
      * Return map info for all senseable locations.
-     * MapInfo includes walls, paint, marks, and ruins.
+     * MapInfo includes dirt, paint, marks, and ruins.
      *
      * @return MapInfo about all locations within vision radius
      *
@@ -345,7 +345,7 @@ public interface RobotController {
      * If radiusSquared is larger than the robot's vision radius, uses the robot's
      * vision radius instead. If -1 is passed, all locations within vision radius
      * are returned.
-     * MapInfo includes walls, paint, marks, and ruins.
+     * MapInfo includes dirt, paint, marks, and ruins.
      *
      * @param radiusSquared the squared radius of all locations to be returned
      * @return MapInfo about all locations within vision radius
@@ -358,7 +358,7 @@ public interface RobotController {
     /**
      * Return map info for all senseable locations within vision radius of a center
      * location.
-     * MapInfo includes walls, paint, marks, and ruins
+     * MapInfo includes dirt, paint, marks, and ruins
      *
      * @param center the center of the search area
      * @return MapInfo about all locations within vision radius
@@ -374,7 +374,7 @@ public interface RobotController {
      * If radiusSquared is larger than the robot's vision radius, uses the robot's
      * vision radius instead. If -1 is passed, all locations within vision radius
      * are returned.
-     * MapInfo includes walls, paint, marks, and ruins
+     * MapInfo includes dirt, paint, marks, and ruins
      *
      * @param center        the center of the search area
      * @param radiusSquared the squared radius of all locations to be returned

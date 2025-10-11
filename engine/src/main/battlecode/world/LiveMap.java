@@ -37,9 +37,9 @@ public class LiveMap {
     private final MapSymmetry symmetry;
 
     /**
-     * Whether each square is a wall.
+     * Whether each square is a dirt object.
      */
-    private boolean[] wallArray;
+    private boolean[] dirtArray;
 
     /**
      * What kind of paint is on the square.
@@ -96,7 +96,7 @@ public class LiveMap {
         this.symmetry = MapSymmetry.ROTATIONAL;
         this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
         int numSquares = width * height;
-        this.wallArray = new boolean[numSquares];
+        this.dirtArray = new boolean[numSquares];
         this.paintArray = new byte[numSquares];
         this.ruinArray = new boolean[numSquares];
         this.patternArray = new int[4];
@@ -112,7 +112,7 @@ public class LiveMap {
                    int rounds,
                    String mapName,
                    MapSymmetry symmetry,
-                   boolean[] wallArray,
+                   boolean[] dirtArray,
                    byte[] paintArray,
                    boolean[] ruinArray,
                    int[] patternArray,
@@ -125,9 +125,9 @@ public class LiveMap {
         this.mapName = mapName;
         this.symmetry = symmetry;
         this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
-        this.wallArray = new boolean[wallArray.length];
-        for (int i = 0; i < wallArray.length; i++) {
-            this.wallArray[i] = wallArray[i];
+        this.dirtArray = new boolean[dirtArray.length];
+        for (int i = 0; i < dirtArray.length; i++) {
+            this.dirtArray[i] = dirtArray[i];
         }
         this.paintArray = new byte[paintArray.length];
         for (int i = 0; i < paintArray.length; i++){
@@ -152,7 +152,7 @@ public class LiveMap {
      */
     public LiveMap(LiveMap gm) {
         this(gm.width, gm.height, gm.origin, gm.seed, gm.rounds, gm.mapName, gm.symmetry,
-         gm.wallArray, gm.paintArray, gm.ruinArray, gm.patternArray, gm.initialBodies);
+         gm.dirtArray, gm.paintArray, gm.ruinArray, gm.patternArray, gm.initialBodies);
     }
 
     @Override
@@ -174,7 +174,7 @@ public class LiveMap {
         if (this.seed != other.seed) return false;
         if (!this.mapName.equals(other.mapName)) return false;
         if (!this.origin.equals(other.origin)) return false;
-        if (!Arrays.equals(this.wallArray, other.wallArray)) return false;
+        if (!Arrays.equals(this.dirtArray, other.dirtArray)) return false;
         if (!Arrays.equals(this.paintArray, other.paintArray)) return false;
         if (!Arrays.equals(this.ruinArray, other.ruinArray)) return false;
         if (!Arrays.equals(this.patternArray, other.patternArray)) return false;
@@ -190,7 +190,7 @@ public class LiveMap {
         result = 31 * result + seed;
         result = 31 * result + rounds;
         result = 31 * result + mapName.hashCode();
-        result = 31 * result + Arrays.hashCode(wallArray);
+        result = 31 * result + Arrays.hashCode(dirtArray);
         result = 31 * result + Arrays.hashCode(paintArray);
         result = 31 * result + Arrays.hashCode(ruinArray);
         result = 31 * result + Arrays.hashCode(patternArray);
@@ -310,10 +310,10 @@ public class LiveMap {
     }
 
     /**
-     * @return the wall array of the map
+     * @return the dirt array of the map
      */
-    public boolean[] getWallArray() {
-        return wallArray;
+    public boolean[] getDirtArray() {
+        return dirtArray;
     }
 
     /**
@@ -409,18 +409,18 @@ public class LiveMap {
         }
 
         ArrayList<MapLocation> ruinLocs = new ArrayList<>();
-        int numWalls = 0;
+        int numDirt = 0;
         for (int i = 0; i < this.width*this.height; i++){
-            if (this.wallArray[i] && this.ruinArray[i]){
-                throw new RuntimeException("Walls can't be on the same square as ruins");
+            if (this.dirtArray[i] && this.ruinArray[i]){
+                throw new RuntimeException("Dirt can't be on the same square as ruins");
             }
             if (this.ruinArray[i])
                 ruinLocs.add(indexToLocation(i));
-            if (this.wallArray[i])
-                numWalls += 1;
+            if (this.dirtArray[i])
+                numDirt += 1;
         }
-        if (numWalls * 100 >= this.width * this.height * GameConstants.MAX_WALL_PERCENTAGE){
-            throw new RuntimeException("Too much of the area of the map is composed of walls!");
+        if (numDirt * 100 >= this.width * this.height * GameConstants.MAX_DIRT_PERCENTAGE){
+            throw new RuntimeException("Too much of the area of the map is composed of dirt!");
         }
 
         for (int i = 0; i < ruinLocs.size(); i++){
@@ -432,10 +432,10 @@ public class LiveMap {
             }
         }
         for (int i = 0; i < this.width * this.height; i++){
-            if (this.wallArray[i]){
+            if (this.dirtArray[i]){
                 for (MapLocation ruin : ruinLocs){
                     if (ruin.distanceSquaredTo(indexToLocation(i)) <= 8) // 2^2 + 2^2 
-                        throw new RuntimeException("Wall appears at location " + indexToLocation(i).toString() + " which is too close to ruin " + ruin.toString());
+                        throw new RuntimeException("Dirt appears at location " + indexToLocation(i).toString() + " which is too close to ruin " + ruin.toString());
                 }
             }
         }
@@ -462,13 +462,13 @@ public class LiveMap {
      * 
      * @param startLoc the starting location
      * @param checkForBad the predicate to check for each reachable square
-     * @param checkForWall a predicate that checks if the given square has a wall
+     * @param checkForDirt a predicate that checks if the given square has dirt
      * @param alreadyChecked an array indexed by map location indices which has "true" at
      * every location reachable from a spawn zone that has already been checked
      * (WARNING: this array gets updated by floodFillMap)
      * @return if checkForBad returns true for any reachable squares
      */
-    private boolean floodFillMap(MapLocation startLoc, Predicate<MapLocation> checkForBad, Predicate<MapLocation> checkForWall, boolean[] alreadyChecked) {
+    private boolean floodFillMap(MapLocation startLoc, Predicate<MapLocation> checkForBad, Predicate<MapLocation> checkForDirt, boolean[] alreadyChecked) {
         Queue<MapLocation> queue = new LinkedList<MapLocation>(); // stores map locations by index
 
         if (!onTheMap(startLoc)) {
@@ -487,7 +487,7 @@ public class LiveMap {
 
             alreadyChecked[idx] = true;
 
-            if (!checkForWall.test(loc)) {
+            if (!checkForDirt.test(loc)) {
                 if (checkForBad.test(loc)) {
                     return true;
                 }
@@ -499,7 +499,7 @@ public class LiveMap {
                         if (onTheMap(newLoc)) {
                             int newIdx = locationToIndex(newLoc);
 
-                            if (!(alreadyChecked[newIdx] || checkForWall.test(newLoc))) {
+                            if (!(alreadyChecked[newIdx] || checkForDirt.test(newLoc))) {
                                 queue.add(newLoc);
                             }
                         }
@@ -513,7 +513,7 @@ public class LiveMap {
 
     @Override
     public String toString() {
-        if (wallArray.length == 0) {
+        if (dirtArray.length == 0) {
             return "LiveMap{" +
                     "width=" + width +
                     ", height=" + height +
@@ -521,7 +521,7 @@ public class LiveMap {
                     ", seed=" + seed +
                     ", rounds=" + rounds +
                     ", mapName='" + mapName + '\'' +
-                    ", len=" + Integer.toString(wallArray.length) +
+                    ", len=" + Integer.toString(dirtArray.length) +
                     ", initialBodies=" + Arrays.toString(initialBodies) +
                     "}";
         } else {
@@ -533,7 +533,7 @@ public class LiveMap {
                     ", rounds=" + rounds +
                     ", mapName='" + mapName + '\'' +
                     ", paintArray=" + Arrays.toString(paintArray) + 
-                    ", wallArray=" + Arrays.toString(wallArray) +
+                    ", dirtArray=" + Arrays.toString(dirtArray) +
                     ", ruinArray=" + Arrays.toString(ruinArray) + 
                     ", patternArray=" + Arrays.toString(patternArray) + 
                     ", initialBodies=" + Arrays.toString(initialBodies) + 

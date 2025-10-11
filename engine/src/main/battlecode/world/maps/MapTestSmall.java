@@ -87,7 +87,7 @@ public class MapTestSmall {
                     }
                     usedSquares.add(loc);
                 } else if ((i*11 + j*17 + random.nextInt(37)) % 23 == 0) {
-                    mapBuilder.setSymmetricWalls(i, j, true);
+                    mapBuilder.setSymmetricDirt(i, j, true);
                     usedSquares.add(loc);
                 }
             }

@@ -20,7 +20,7 @@ public class MapBuilder {
     public int seed;
     private MapSymmetry symmetry;
     //TODO; clean up this very outdated file lol
-    private boolean[] wallArray;
+    private boolean[] dirtArray;
     private boolean[] damArray;
     private boolean[] waterArray;
     private boolean[] cloudArray;
@@ -53,7 +53,7 @@ public class MapBuilder {
         
         int numSquares = width * height;
 
-        this.wallArray = new boolean[numSquares];
+        this.dirtArray = new boolean[numSquares];
         this.waterArray = new boolean[numSquares];
         this.damArray = new boolean[numSquares];
         this.cloudArray = new boolean[numSquares];
@@ -100,8 +100,8 @@ public class MapBuilder {
         ));
     }
 
-    // public void setWall(int x, int y, boolean value) {
-    //     this.wallArray[locationToIndex(x, y)] = value;
+    // public void setDirt(int x, int y, boolean value) {
+    //     this.dirtArray[locationToIndex(x, y)] = value;
     // }
 
     // public void setCloud(int x, int y, boolean value) {
@@ -166,9 +166,9 @@ public class MapBuilder {
         return new MapLocation(symmetricX(p.x), symmetricY(p.y));
     }
 
-    public void setSymmetricWalls(int x, int y, boolean value) {
-        this.wallArray[locationToIndex(x, y)] = value;
-        this.wallArray[locationToIndex(symmetricX(x), symmetricY(y))] = value;
+    public void setSymmetricDirt(int x, int y, boolean value) {
+        this.dirtArray[locationToIndex(x, y)] = value;
+        this.dirtArray[locationToIndex(symmetricX(x), symmetricY(y))] = value;
     }
 
     //TODO: kept for now for reference 
@@ -206,7 +206,7 @@ public class MapBuilder {
     // ********************
 
     public LiveMap build() {
-        return new LiveMap(width, height, origin, seed, 2000, name, symmetry, wallArray, paintArray, ruinArray, patternArray, bodies.toArray(new RobotInfo[bodies.size()]));
+        return new LiveMap(width, height, origin, seed, 2000, name, symmetry, dirtArray, paintArray, ruinArray, patternArray, bodies.toArray(new RobotInfo[bodies.size()]));
     }
 
     /**
@@ -250,7 +250,7 @@ public class MapBuilder {
                     MapSymmetry symmetry = possible.get(i);
                     MapLocation symm = new MapLocation(symmetricX(x, symmetry), symmetricY(y, symmetry));
                     int symIdx = locationToIndex(symm.x, symm.y);
-                    if (wallArray[curIdx] != wallArray[symIdx]) {
+                    if (dirtArray[curIdx] != dirtArray[symIdx]) {
                         possible.remove(symmetry);
                     }
                     // else if (cloudArray[curIdx] != cloudArray[symIdx]) {

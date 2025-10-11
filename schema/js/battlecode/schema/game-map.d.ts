@@ -14,9 +14,9 @@ export declare class GameMap {
     symmetry(): number;
     initialBodies(obj?: InitialBodyTable): InitialBodyTable | null;
     randomSeed(): number;
-    walls(index: number): boolean | null;
-    wallsLength(): number;
-    wallsArray(): Int8Array | null;
+    dirt(index: number): boolean | null;
+    dirtLength(): number;
+    dirtArray(): Int8Array | null;
     paint(index: number): number | null;
     paintLength(): number;
     paintArray(): Int8Array | null;
@@ -30,9 +30,9 @@ export declare class GameMap {
     static addSymmetry(builder: flatbuffers.Builder, symmetry: number): void;
     static addInitialBodies(builder: flatbuffers.Builder, initialBodiesOffset: flatbuffers.Offset): void;
     static addRandomSeed(builder: flatbuffers.Builder, randomSeed: number): void;
-    static addWalls(builder: flatbuffers.Builder, wallsOffset: flatbuffers.Offset): void;
-    static createWallsVector(builder: flatbuffers.Builder, data: boolean[]): flatbuffers.Offset;
-    static startWallsVector(builder: flatbuffers.Builder, numElems: number): void;
+    static addDirt(builder: flatbuffers.Builder, dirtOffset: flatbuffers.Offset): void;
+    static createDirtVector(builder: flatbuffers.Builder, data: boolean[]): flatbuffers.Offset;
+    static startDirtVector(builder: flatbuffers.Builder, numElems: number): void;
     static addPaint(builder: flatbuffers.Builder, paintOffset: flatbuffers.Offset): void;
     static createPaintVector(builder: flatbuffers.Builder, data: number[] | Int8Array): flatbuffers.Offset;
     /**

@@ -14,8 +14,8 @@ public class TestMapBuilder {
         this.mapBuilder = new MapBuilder(name, width, height, oX, oY, seed);
     }
     
-    // public TestMapBuilder setWall(int x, int y, boolean value) {
-    //     this.mapBuilder.setWall(x, y, value);
+    // public TestMapBuilder setDirt(int x, int y, boolean value) {
+    //     this.mapBuilder.setDirt(x, y, value);
     //     return this;
     // }
 

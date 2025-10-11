@@ -243,7 +243,7 @@ export class CurrentMap {
         if (markerB) {
             info.push(`Gold Marker (${markerB === 3 ? 'Primary' : 'Secondary'})`)
         }
-        if (wall) {
+        if (dirt) {
             info.push('Wall')
         }
         if (ruin) {

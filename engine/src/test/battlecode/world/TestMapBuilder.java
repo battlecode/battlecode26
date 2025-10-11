@@ -7,6 +7,7 @@ import java.util.List;
 /**
  * Lets maps be built easily, for testing purposes.
  */
+@SuppressWarnings("unused")
 public class TestMapBuilder {
     private MapBuilder mapBuilder;
 
@@ -14,9 +15,9 @@ public class TestMapBuilder {
         this.mapBuilder = new MapBuilder(name, width, height, oX, oY, seed);
     }
     
-    public TestMapBuilder setWall(int x, int y, boolean value) {
+    public TestMapBuilder setDirt(int x, int y, boolean value) {
         //TODO; maybe fix mapbuilder stuff
-        // this.mapBuilder.setWall(x, y, value);
+        // this.mapBuilder.setDirt(x, y, value);
         return this;
     }
 

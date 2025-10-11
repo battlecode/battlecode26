@@ -204,7 +204,7 @@ table GameMap {
     symmetry: int; // The map symmetry: 0 for rotation, 1 for horizontal, 2 for vertical.
     initialBodies: InitialBodyTable;
     randomSeed: int;
-    walls: [bool];
+    dirt: [bool];
     paint: [byte];
     ruins: VecTable;
     paintPatterns: [int];// resource pattern, defense tower pattern, money tower pattern, paint tower pattern.
