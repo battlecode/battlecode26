@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Key } from 'react'
 import GameRunner from './GameRunner'
 import { TEAM_COLOR_NAMES, TILE_RESOLUTION } from '../constants'
 import { Vector } from './Vector'
@@ -18,7 +18,9 @@ class GameRendererClass {
     private mouseDownStartPos?: Vector = undefined
     private mouseDown: boolean = false
     private mouseDownRight: boolean = false
+    private shiftKeyDown: boolean = false
     private selectedBodyID?: number = undefined
+    private prevSelectedBodyIDs?: Array<number> = undefined
     private selectedTile?: Vector = undefined
 
     private _canvasHoverListeners: (() => void)[] = []
@@ -66,6 +68,7 @@ class GameRendererClass {
         this.mouseTile = undefined
         this.selectedTile = undefined
         this.selectedBodyID = undefined
+        this.prevSelectedBodyIDs = undefined
         this.render()
         this._canvasClickListeners.forEach((listener) => listener())
         this._canvasHoverListeners.forEach((listener) => listener())
@@ -73,7 +76,17 @@ class GameRendererClass {
 
     setSelectedRobot(id: number | undefined) {
         if (id === this.selectedBodyID) return
-
+        if (this.shiftKeyDown){
+            if (this.selectedBodyID !== undefined) {
+                this.prevSelectedBodyIDs = this.prevSelectedBodyIDs || []
+                this.prevSelectedBodyIDs.push(this.selectedBodyID)
+            }
+            else {
+                this.prevSelectedBodyIDs = []
+            }
+        } else {
+            this.prevSelectedBodyIDs = undefined
+        }
         this.selectedBodyID = id
         this.render()
         this._trigger(this._canvasClickListeners)
@@ -102,7 +115,7 @@ class GameRendererClass {
         const currentRound = match.currentRound
 
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-        currentRound.bodies.draw(match, null, ctx, GameConfig.config, this.selectedBodyID, this.mouseTile)
+        currentRound.bodies.draw(match, null, ctx, GameConfig.config, this.selectedBodyID, this.prevSelectedBodyIDs, this.mouseTile)
     }
 
     render() {
@@ -116,7 +129,7 @@ class GameRendererClass {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
         overlayCtx.clearRect(0, 0, overlayCtx.canvas.width, overlayCtx.canvas.height)
         currentRound.map.draw(match, ctx, GameConfig.config, this.selectedBodyID, this.mouseTile)
-        currentRound.bodies.draw(match, ctx, overlayCtx, GameConfig.config, this.selectedBodyID, this.mouseTile)
+        currentRound.bodies.draw(match, ctx, overlayCtx, GameConfig.config, this.selectedBodyID, this.prevSelectedBodyIDs, this.mouseTile)
         currentRound.actions.draw(match, ctx)
     }
 
@@ -220,6 +233,18 @@ class GameRendererClass {
         this._trigger(this._canvasClickListeners)
     }
 
+    private shiftKeyPressed(e: KeyboardEvent) {
+        if (e.key === "Shift") this.shiftKeyDown = true
+    }
+
+    private shiftKeyUp(e: KeyboardEvent) {
+        if (e.key === "Shift"){
+            this.shiftKeyDown = false
+            // this.prevSelectedBodyIDs = undefined
+            // this.renderOverlay()
+        }
+    }
+
     private _trigger(listeners: (() => void)[]) {
         setTimeout(() => listeners.forEach((l) => l()))
     }
@@ -258,6 +283,28 @@ class GameRendererClass {
         }, [])
 
         return { canvasMouseDown, canvasRightClick, selectedTile, selectedBodyID }
+    }
+
+    useShiftKeyEvents = () => {
+        const [shiftKeyDown, setShiftKeyDown] = React.useState<boolean>(this.shiftKeyDown)
+        React.useEffect(() => {
+            const keyDownListener = (e: KeyboardEvent) => {
+                this.shiftKeyPressed(e)
+                setShiftKeyDown(this.shiftKeyDown)
+            }
+            const keyUpListener = (e: KeyboardEvent) => {
+                this.shiftKeyUp(e)
+                setShiftKeyDown(this.shiftKeyDown)
+            }
+            window.addEventListener('keydown', keyDownListener)
+            window.addEventListener('keyup', keyUpListener)
+            return () => {
+                window.removeEventListener('keydown', keyDownListener)
+                window.removeEventListener('keyup', keyUpListener)
+            }
+        }, [])
+
+        return { shiftKeyDown }
     }
 }
 

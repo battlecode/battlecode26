@@ -22,6 +22,7 @@ export const GameRendererPanel: React.FC = () => {
 
     const { selectedBodyID } = GameRenderer.useCanvasClickEvents()
     const { hoveredTile } = GameRenderer.useCanvasHoverEvents()
+    const { shiftKeyDown } = GameRenderer.useShiftKeyEvents()
     const selectedBody = selectedBodyID !== undefined ? round?.bodies.bodies.get(selectedBodyID) : undefined
     const hoveredBody = hoveredTile ? round?.bodies.getBodyAtLocation(hoveredTile.x, hoveredTile.y) : undefined
 
@@ -65,6 +66,12 @@ export const GameRendererPanel: React.FC = () => {
                     {appContext.state.config.showMapXY && hoveredTile && (
                         <div className="absolute right-[5px] top-[5px] bg-black/70 z-20 text-white p-2 rounded-md text-xs opacity-50 pointer-events-none">
                             {`(X: ${hoveredTile.x}, Y: ${hoveredTile.y})`}
+                        </div>
+                    )}
+
+                    {appContext.state.config.showMapXY && (
+                        <div className="absolute right-[5px] bottom-[5px] bg-black/70 z-20 text-white p-2 rounded-md text-xs opacity-50 pointer-events-none">
+                            {`Multi-Select: ${shiftKeyDown ? 'ON' : 'OFF'}`}
                         </div>
                     )}
                 </>
