@@ -18,6 +18,11 @@ type RunnerPageProps = {
     scaffold: ReturnType<typeof useScaffold>
 }
 
+type Preset = {
+    name: string,
+    maps: Set<string>,
+}
+
 export const RunnerPage: React.FC<RunnerPageProps> = ({ open, scaffold }) => {
     const [
         setup,
@@ -59,6 +64,8 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ open, scaffold }) => {
     const [teamA, setTeamA] = useState<string | undefined>(undefined)
     const [teamB, setTeamB] = useState<string | undefined>(undefined)
     const [maps, setMaps] = useState<Set<string>>(new Set())
+    const [preset, setPreset] = useState<Preset | undefined>(undefined)
+    const [availablePresets, setAvailablePresets] = useState<Preset[]>([])
 
     const runGame = () => {
         if (!teamA || !teamB || maps.size === 0 || !langVersion || !runMatch) return
@@ -67,6 +74,7 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ open, scaffold }) => {
 
     const resetSettings = () => {
         setMaps(new Set())
+        setPreset(undefined)
         setTeamA(undefined)
         setTeamB(undefined)
     }
@@ -139,8 +147,34 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ open, scaffold }) => {
                     <MapSelector
                         maps={maps}
                         availableMaps={availableMaps}
-                        onSelect={(m) => setMaps(new Set([...maps, ...m]))}
-                        onDeselect={(m) => setMaps(new Set([...maps].filter((x) => !m.includes(x))))}
+                        onSelect={(m) => {setMaps(new Set([...maps, ...m])); setPreset(undefined)}}
+                        onDeselect={(m) => {setMaps(new Set([...maps].filter((x) => !m.includes(x)))); setPreset(undefined)}}
+                    />
+                    <PresetSelector
+                        preset={preset}
+                        availablePresets={availablePresets}
+                        setPreset={(p) => {
+                            if (p !== undefined) {
+                                setMaps(p.maps)
+                            }
+                            setPreset(p)
+                        }}
+                        newPreset={(n) => {
+                            const preexisting: Preset | undefined = availablePresets.find((x) => x.name === n)
+                            if (preexisting === undefined) {
+                                const p = {name: n, maps: maps}
+                                setAvailablePresets(new Array(...availablePresets, p)); setPreset(p)
+                            } else {
+                                preexisting.maps = maps
+                                setPreset(preexisting)
+                            }
+                        }}
+                        deletePreset={(p) => {
+                            if (p != undefined) {
+                                setAvailablePresets(availablePresets.filter((x) => x.name !== p.name))
+                                setPreset(undefined)
+                            }
+                        }}
                     />
                     <SmallButton
                         className="mt-3"
@@ -373,6 +407,54 @@ const MapSelector: React.FC<MapSelectorProps> = ({ maps, availableMaps, onSelect
                 <SmallButton style={{ margin: 0 }} onClick={() => onDeselect([...availableMaps])}>
                     Deselect All
                 </SmallButton>
+            </div>
+        </div>
+    )
+}
+
+interface PresetSelectorProps {
+    preset: Preset | undefined
+    availablePresets: Preset[]
+    setPreset: (preset: Preset | undefined) => void
+    newPreset: (preset: string) => void
+    deletePreset: (preset: Preset | undefined) => void
+}
+
+const PresetSelector: React.FC<PresetSelectorProps> = ({ preset, availablePresets, setPreset, newPreset, deletePreset }) => {
+    const [newName, setNewName] = useState<string>("")
+    return (
+        <div className="mt-3">
+            <label>Map Presets</label>
+            <div className="flex flex-row">
+                <Button
+                    onClick={() => deletePreset(preset)}
+                    disabled={preset === undefined}
+                >X</Button>
+                <Select
+                    className="flex flex-col w-40 m-1"
+                    value={preset?.name ?? ""}
+                    onChange={(e) => {setPreset(availablePresets.find(preset => preset.name === e))}}
+                    disabled={availablePresets.length === 0}
+                >
+                    <option key="" value=""></option>
+                    {availablePresets.map((p) => (
+                        <option key={p.name} value={p.name}>
+                            {p.name}
+                        </option>
+                    ))}
+                </Select>
+                <input
+                    type="text"
+                    className="flex flex-col w-36 m-1"
+                    value={newName}
+                    onKeyDown={ev => {
+                        if (ev.key === "Enter") {
+                            if (newName !== "") { newPreset(newName) }
+                            setNewName("")
+                        }
+                    }}
+                    onInput={n => setNewName(n.currentTarget.value)}
+                />
             </div>
         </div>
     )
