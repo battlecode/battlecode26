@@ -53,7 +53,7 @@ public interface RobotController {
      * 
      * @battlecode.doc.costlymethod
      */
-    boolean[][] getResourcePattern();
+    // boolean[][] getResourcePattern();
 
     /**
      * Returns the 5x5 pattern needed to be drawn to build a tower of the specified type.
