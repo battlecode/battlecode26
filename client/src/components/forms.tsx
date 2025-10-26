@@ -103,3 +103,45 @@ export const NumInput: React.FC<NumInputProps> = (props) => {
         />
     )
 }
+
+interface TextInputProps {
+    className?: string
+    value?: string
+    onKeyDown?: (React.KeyboardEventHandler<HTMLInputElement>)
+    onInput?: (React.FormEventHandler<HTMLInputElement>)
+    placeholder?: string
+    disabled?: boolean
+}
+
+export const TextInput: React.FC<TextInputProps> = (props) => {
+    const context = useAppContext()
+    const [focused, setFocused] = React.useState(false)
+
+    const handleInputBlur = () => {
+        setFocused(false)
+    }
+
+    React.useEffect(() => {
+        context.setState((prevState) => ({ ...prevState, disableHotkeys: focused }))
+    }, [focused])
+
+    React.useEffect(() => {
+        return () => {
+            context.setState((prevState) => ({ ...prevState, disableHotkeys: false }))
+        }
+    }, [])
+    return <input
+        type="text"
+        className={
+            'border border-white bg-light py-0.5 pl-1 rounded-md ' +
+            (props.disabled ? 'opacity-50 ' : '') +
+            (props.className ?? '')
+        }
+        value={props.value}
+        onBlur={handleInputBlur}
+        onFocus={() => setFocused(true)}
+        placeholder={props.placeholder}
+        onKeyDown={props.onKeyDown}
+        onInput={props.onInput}
+    />
+}
