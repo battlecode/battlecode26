@@ -1162,43 +1162,43 @@ public final class RobotControllerImpl implements RobotController {
 
     @Override
     public void sendTreaty() {
-        if (this.gameWorld.gameState == GameState.NORMAL) {
-            this.gameWorld.treatyProposed = true;
+        if (this.gameWorld.getGameState() == TreatyState.NORMAL) {
+            this.gameWorld.setTreatyProposed(true);
         }
     }
 
     @Override
     public boolean isOpponentTreatyProposed() {
-        return this.gameWorld.treatyProposed;
+        return this.gameWorld.getTreatyProposed();
     }
 
     @Override
     public void acceptTreaty() {
-        if (this.gameWorld.treatyProposed) {
-            this.gameWorld.treatyAccepted = 1;
-            this.gameWorld.gameState = GameState.COLLABORATION;
+        if (this.gameWorld.getTreatyProposed()) {
+            this.gameWorld.setTreatyAccepted(1);
+            this.gameWorld.setGameState(TreatyState.COLLABORATION);
         }
     }
 
     @Override
     public void rejectTreaty() {
-        this.gameWorld.treatyProposed = false;
-        this.gameWorld.treatyAccepted = -1;
+        this.gameWorld.setTreatyProposed(false);
+        this.gameWorld.setTreatyAccepted(-1);
     }
 
     @Override
     public boolean isAllyTreatyAccepted() {
-        return (this.gameWorld.treatyAccepted == 1);
+        return (this.gameWorld.getTreatyAccepted() == 1);
     }
 
     @Override
     public boolean isAllyTreatyRejected() {
-        return (this.gameWorld.treatyAccepted == -1);
+        return (this.gameWorld.getTreatyAccepted() == -1);
     }
 
     @Override
     public int treatyStatus() {
-        return this.gameWorld.treatyAccepted;
+        return this.gameWorld.getTreatyAccepted();
     }
 
     // ***********************************

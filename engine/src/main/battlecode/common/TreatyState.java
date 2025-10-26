@@ -1,6 +1,6 @@
 package battlecode.common;
 
-public enum GameState {
+public enum TreatyState {
     NORMAL,
     COLLABORATION,
     BACKSTABBED;

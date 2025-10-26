@@ -65,7 +65,7 @@ public class GameWorld {
 
     private boolean treatyProposed;
     private int treatyAccepted;
-    private GameState gameState;
+    private TreatyState gameState;
 
     @SuppressWarnings("unchecked")
     public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
@@ -85,7 +85,7 @@ public class GameWorld {
         this.colorLocations = new int[numSquares];
         this.treatyProposed = false;
         this.treatyAccepted = 0;
-        this.gameState = GameState.NORMAL;
+        this.gameState = TreatyState.NORMAL;
 
         for (boolean wall : walls){
             if (wall) {
@@ -1075,6 +1075,30 @@ public class GameWorld {
         if (this.currentNumberUnits[robot.getTeam().ordinal()] == 0){
             setWinner(robot.getTeam().opponent(), DominationFactor.DESTROY_ALL_UNITS);
         }
+    }
+ 
+    public boolean getTreatyProposed() {
+        return this.treatyProposed;
+    }
+
+    public void setTreatyProposed(boolean proposed) {
+        this.treatyProposed = proposed;
+    }
+
+    public int getTreatyAccepted() {
+        return this.treatyAccepted;
+    }
+
+    public void setTreatyAccepted(int accepted) {
+        this.treatyAccepted = accepted;
+    }
+
+    public TreatyState getGameState() {
+        return this.gameState;
+    }
+
+    public void setGameState(TreatyState state) {
+        this.gameState = state;
     }
 
     // *********************************
