@@ -15,6 +15,7 @@ import {
 } from './colors'
 import { BrightButton, Button } from './components/button'
 import { useKeyboard } from './util/keyboard'
+import { SectionHeader } from './components/section-header'
 
 export type ClientConfig = typeof DEFAULT_CONFIG
 
@@ -132,6 +133,8 @@ export const ConfigPage: React.FC<Props> = (props) => {
     const context = useAppContext()
     const keyboard = useKeyboard()
 
+    const [input, setInput] = useState('')
+
     useEffect(() => {
         if (context.state.disableHotkeys) return
 
@@ -143,30 +146,39 @@ export const ConfigPage: React.FC<Props> = (props) => {
 
     if (!props.open) return null
 
-    const groupedCategories = Object.entries(
-        Object.keys(configCategories).reduce(
-            (acc, key) => {
-                const category = configCategories[key as keyof ClientConfig]
-                if (!acc[category]) acc[category] = []
-                acc[category].push(key)
-                return acc
-            },
-            {} as Record<string, string[]>
-        )
+    const configEntries = Object.keys(DEFAULT_CONFIG).map((key) => ({
+        key: key as keyof ClientConfig,
+        category: configCategories[key as keyof ClientConfig],
+        value: DEFAULT_CONFIG[key as keyof ClientConfig]
+    }))
+
+    const filteredEntries = configEntries.filter(({ key, category }) => {
+        if (!input.trim()) return true
+        const s = input.toLowerCase()
+        return key.toLowerCase().includes(s) || category.toLowerCase().includes(s)
+    })
+
+    const groupedCategories = filteredEntries.reduce(
+        (acc, { category, key }) => {
+            if (!acc[category]) acc[category] = []
+            acc[category].push(key)
+            return acc
+        },
+        {} as Record<string, Array<keyof ClientConfig>>
     )
 
     return (
         <div className={'flex flex-col'}>
             <div className="mb-2">Edit Client Config:</div>
-            {/* {Object.entries(DEFAULT_CONFIG).map(([k, v]) => {
-                const key = k as keyof ClientConfig
-                if (typeof v === 'string') return <ConfigStringElement configKey={key} key={key} />
-                if (typeof v === 'boolean') return <ConfigBooleanElement configKey={key} key={key} />
-                if (typeof v === 'number') return <ConfigNumberElement configKey={key} key={key} />
-            })} */}
-
-            {groupedCategories.map(([category, keys]) => (
-                <ConfigCategoryDropdown key={category} title={category} keys={keys as Array<keyof ClientConfig>} />
+            <input
+                type="text"
+                placeholder="Search Configs..."
+                className="w-full mb-3 px-3 py-2 bg-gray-800 text-white rounded-md placeholder-gray-400"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+            />
+            {Object.entries(groupedCategories).map(([category, keys]) => (
+                <ConfigCategoryDropdown key={category} title={category} keys={keys} />
             ))}
 
             <ColorConfig />
@@ -302,18 +314,14 @@ const SingleColorPicker = (props: { displayName: string; colorName: Colors }) =>
 const ConfigCategoryDropdown: React.FC<{ title: string; keys: Array<keyof ClientConfig> }> = ({ title, keys }) => {
     const [open, setOpen] = useState<boolean>(true)
 
+    const onClick = () => {
+        setOpen(!open)
+    }
+
     return (
         <div className="mb-3">
-            {/* Header */}
-            <button
-                className="flex items-center justify-between w-full px-3 py-2 text-sm font-mediumtransition-colors"
-                onClick={() => setOpen(!open)}
-            >
-                <span>{title}</span>
-                <span className="text-lg">{open ? '▼' : '▶'}</span>
-            </button>
+            <SectionHeader title={title} open={open} onClick={onClick} children={<div></div>}></SectionHeader>
 
-            {/* Collapsible content */}
             {open && (
                 <div className=" px-3 py-2">
                     {keys.map((key) => {
