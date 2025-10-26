@@ -1157,6 +1157,51 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     // ***********************************
+    // ******* TREATY METHODS ************
+    // ***********************************
+
+    @Override
+    public void sendTreaty() {
+        if (this.gameWorld.gameState == GameState.NORMAL) {
+            this.gameWorld.treatyProposed = true;
+        }
+    }
+
+    @Override
+    public boolean isOpponentTreatyProposed() {
+        return this.gameWorld.treatyProposed;
+    }
+
+    @Override
+    public void acceptTreaty() {
+        if (this.gameWorld.treatyProposed) {
+            this.gameWorld.treatyAccepted = 1;
+            this.gameWorld.gameState = GameState.COLLABORATION;
+        }
+    }
+
+    @Override
+    public void rejectTreaty() {
+        this.gameWorld.treatyProposed = false;
+        this.gameWorld.treatyAccepted = -1;
+    }
+
+    @Override
+    public boolean isAllyTreatyAccepted() {
+        return (this.gameWorld.treatyAccepted == 1);
+    }
+
+    @Override
+    public boolean isAllyTreatyRejected() {
+        return (this.gameWorld.treatyAccepted == -1);
+    }
+
+    @Override
+    public int treatyStatus() {
+        return this.gameWorld.treatyAccepted;
+    }
+
+    // ***********************************
     // ******** DEBUG METHODS ************
     // ***********************************
 

@@ -63,6 +63,10 @@ public class GameWorld {
     private final GameMaker.MatchMaker matchMaker;
     private int areaWithoutWalls;
 
+    private boolean treatyProposed;
+    private int treatyAccepted;
+    private GameState gameState;
+
     @SuppressWarnings("unchecked")
     public GameWorld(LiveMap gm, RobotControlProvider cp, GameMaker.MatchMaker matchMaker) {
         int width = gm.getWidth();
@@ -79,6 +83,9 @@ public class GameWorld {
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
         this.colorLocations = new int[numSquares];
+        this.treatyProposed = false;
+        this.treatyAccepted = 0;
+        this.gameState = GameState.NORMAL;
 
         for (boolean wall : walls){
             if (wall) {

@@ -873,6 +873,54 @@ public interface RobotController {
     void resign();
 
     // ***********************************
+    // ****** TREATY METHODS *************
+    // ***********************************
+    
+    /**
+     * Sends a treaty proposal to the opponent team.
+     */
+    void sendTreaty();
+
+    /**
+     * Checks whether the opponent team has proposed a treaty.
+     * 
+     * @return true if the opponent team has proposed a treaty
+     */
+    boolean isOpponentTreatyProposed();
+
+    /**
+     * Accepts the treaty proposal from the opponent team.
+     */
+    void acceptTreaty();
+
+    /**
+     * Rejects the treaty proposal from the opponent team.
+     */
+    void rejectTreaty();
+
+    /**
+     * Checks whether the treaty proposal from the opponent team has been accepted.
+     * 
+     * @return true if the treaty proposal from the opponent team has been accepted
+     */
+    boolean isAllyTreatyAccepted();
+
+    /**
+     * Checks whether the treaty proposal from the opponent team has been rejected.
+     * 
+     * @return true if the treaty proposal from the opponent team has been rejected
+     */
+    boolean isAllyTreatyRejected();
+
+    /**
+     * Returns the response of the opponent team to this team's treaty proposal.
+     * 
+     * @return 0 if no response yet, 1 if accepted, -1 if rejected
+     */
+    int treatyStatus();
+
+
+    // ***********************************
     // ******** DEBUG METHODS ************
     // ***********************************
 
