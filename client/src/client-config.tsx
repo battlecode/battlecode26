@@ -76,6 +76,38 @@ const configDescription: Record<keyof ClientConfig, string> = {
     colors: ''
 }
 
+const configCategories: Record<keyof ClientConfig, string> = {
+    // Game Visualization
+    showAllIndicators: 'Game Visualization',
+    showAllRobotRadii: 'Game Visualization',
+    showSRPOutlines: 'Game Visualization',
+    showSRPText: 'Game Visualization',
+    showMapXY: 'Game Visualization',
+    enableFancyPaint: 'Game Visualization',
+
+    // Robot Display & Status
+    showHealthBars: 'Robot Display & Status',
+    showPaintBars: 'Robot Display & Status',
+    showExceededBytecode: 'Robot Display & Status',
+    focusRobotTurn: 'Robot Display & Status',
+
+    // Markers & Paint Debugging
+    showTimelineMarkers: 'Markers & Paint Debugging',
+    showPaintMarkers: 'Markers & Paint Debugging',
+
+    // Game Playback
+    streamRunnerGames: 'Game Playback',
+    populateRunnerGames: 'Game Playback',
+
+    // Developer & Validation Tools
+    profileGames: 'Developer & Validation Tools',
+    validateMaps: 'Developer & Validation Tools',
+
+    // Mischellanous
+    resolutionScale: '',
+    colors: ''
+}
+
 export function getDefaultConfig(): ClientConfig {
     const config: ClientConfig = { ...DEFAULT_CONFIG }
     for (const key in config) {
@@ -111,15 +143,31 @@ export const ConfigPage: React.FC<Props> = (props) => {
 
     if (!props.open) return null
 
+    const groupedCategories = Object.entries(
+        Object.keys(configCategories).reduce(
+            (acc, key) => {
+                const category = configCategories[key as keyof ClientConfig]
+                if (!acc[category]) acc[category] = []
+                acc[category].push(key)
+                return acc
+            },
+            {} as Record<string, string[]>
+        )
+    )
+
     return (
         <div className={'flex flex-col'}>
             <div className="mb-2">Edit Client Config:</div>
-            {Object.entries(DEFAULT_CONFIG).map(([k, v]) => {
+            {/* {Object.entries(DEFAULT_CONFIG).map(([k, v]) => {
                 const key = k as keyof ClientConfig
                 if (typeof v === 'string') return <ConfigStringElement configKey={key} key={key} />
                 if (typeof v === 'boolean') return <ConfigBooleanElement configKey={key} key={key} />
                 if (typeof v === 'number') return <ConfigNumberElement configKey={key} key={key} />
-            })}
+            })} */}
+
+            {groupedCategories.map(([category, keys]) => (
+                <ConfigCategoryDropdown key={category} title={category} keys={keys as Array<keyof ClientConfig>} />
+            ))}
 
             <ColorConfig />
         </div>
@@ -248,6 +296,36 @@ const SingleColorPicker = (props: { displayName: string; colorName: Colors }) =>
                 {displayColorPicker && <ChromePicker color={value} onChange={onChange} />}
             </div>
         </>
+    )
+}
+
+const ConfigCategoryDropdown: React.FC<{ title: string; keys: Array<keyof ClientConfig> }> = ({ title, keys }) => {
+    const [open, setOpen] = useState<boolean>(true)
+
+    return (
+        <div className="mb-3">
+            {/* Header */}
+            <button
+                className="flex items-center justify-between w-full px-3 py-2 text-sm font-mediumtransition-colors"
+                onClick={() => setOpen(!open)}
+            >
+                <span>{title}</span>
+                <span className="text-lg">{open ? '▼' : '▶'}</span>
+            </button>
+
+            {/* Collapsible content */}
+            {open && (
+                <div className=" px-3 py-2">
+                    {keys.map((key) => {
+                        const value = DEFAULT_CONFIG[key]
+                        if (typeof value === 'boolean') return <ConfigBooleanElement configKey={key} key={key} />
+                        if (typeof value === 'number') return <ConfigNumberElement configKey={key} key={key} />
+                        if (typeof value === 'string') return <ConfigStringElement configKey={key} key={key} />
+                        return null
+                    })}
+                </div>
+            )}
+        </div>
     )
 }
 
