@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { LanguageVersion, SupportedLanguage, useScaffold } from './scaffold'
 import { Button, SmallButton } from '../../button'
 import { nativeAPI } from './native-api-wrapper'
-import { Select } from '../../forms'
+import { Select, TextInput } from '../../forms'
 import { InputDialog } from '../../input-dialog'
 import Tooltip from '../../tooltip'
 import { FixedSizeList, ListOnScrollProps } from 'react-window'
@@ -12,6 +12,7 @@ import { ProfilerDialog } from './profiler'
 import { GameRenderer } from '../../../playback/GameRenderer'
 import GameRunner from '../../../playback/GameRunner'
 import { Resizable } from 're-resizable'
+import { BsTrash } from 'react-icons/bs'
 
 type RunnerPageProps = {
     open: boolean
@@ -427,11 +428,13 @@ const PresetSelector: React.FC<PresetSelectorProps> = ({ preset, availablePreset
             <label>Map Presets</label>
             <div className="flex flex-row">
                 <Button
+                    className="flex-none m-1 w-10 h-10"
+                    style={{padding: 10}}
                     onClick={() => deletePreset(preset)}
                     disabled={preset === undefined}
-                >X</Button>
+                ><BsTrash className="font-bold stroke-[0.5] text-xl"/></Button>
                 <Select
-                    className="flex flex-col w-40 m-1"
+                    className="w-48 flex-initial m-1 h-10"
                     value={preset?.name ?? ""}
                     onChange={(e) => {setPreset(availablePresets.find(preset => preset.name === e))}}
                     disabled={availablePresets.length === 0}
@@ -443,10 +446,10 @@ const PresetSelector: React.FC<PresetSelectorProps> = ({ preset, availablePreset
                         </option>
                     ))}
                 </Select>
-                <input
-                    type="text"
-                    className="flex flex-col w-36 m-1"
+                <TextInput
+                    className="w-28 flex-initial m-1 h-10"
                     value={newName}
+                    placeholder="New"
                     onKeyDown={ev => {
                         if (ev.key === "Enter") {
                             if (newName !== "") { newPreset(newName) }
