@@ -82,7 +82,7 @@ class GameRendererClass {
                 this.prevSelectedBodyIDs.push(this.selectedBodyID)
             }
             else {
-                this.prevSelectedBodyIDs = []
+                this.prevSelectedBodyIDs = undefined
             }
         } else {
             this.prevSelectedBodyIDs = undefined
@@ -149,6 +149,7 @@ class GameRendererClass {
         this.selectedTile = undefined
         this.mouseTile = undefined
         this.selectedBodyID = undefined
+        this.prevSelectedBodyIDs = undefined
         this.fullRender()
     }
 
@@ -269,12 +270,14 @@ class GameRendererClass {
         const [canvasRightClick, setCanvasRightClick] = React.useState<boolean>(this.mouseDownRight)
         const [selectedTile, setSelectedTile] = React.useState<Vector | undefined>(this.selectedTile)
         const [selectedBodyID, setSelectedBodyID] = React.useState<number | undefined>(this.selectedBodyID)
+        const [prevSelectedBodyIDs, setPrevSelectedBodyIDs] = React.useState<Array<number> | undefined>(this.prevSelectedBodyIDs)
         React.useEffect(() => {
             const listener = () => {
                 setCanvasMouseDown(this.mouseDown)
                 setCanvasRightClick(this.mouseDownRight)
                 setSelectedTile(this.selectedTile)
                 setSelectedBodyID(this.selectedBodyID)
+                setPrevSelectedBodyIDs(this.prevSelectedBodyIDs)
             }
             this._canvasClickListeners.push(listener)
             return () => {
@@ -282,7 +285,7 @@ class GameRendererClass {
             }
         }, [])
 
-        return { canvasMouseDown, canvasRightClick, selectedTile, selectedBodyID }
+        return { canvasMouseDown, canvasRightClick, selectedTile, selectedBodyID, prevSelectedBodyIDs}
     }
 
     useShiftKeyEvents = () => {
