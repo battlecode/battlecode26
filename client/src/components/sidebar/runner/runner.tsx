@@ -440,7 +440,7 @@ const PresetSelector: React.FC<PresetSelectorProps> = ({ preset, availablePreset
                     onChange={(e) => {setPreset(availablePresets.find(preset => preset.name === e))}}
                     disabled={availablePresets.length === 0}
                 >
-                    <option key="" value=""></option>
+                    {preset === undefined ? <option key="" value="">Select...</option> : undefined}
                     {availablePresets.map((p) => (
                         <option key={p.name} value={p.name}>
                             {p.name}
