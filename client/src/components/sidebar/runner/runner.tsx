@@ -434,7 +434,8 @@ const PresetSelector: React.FC<PresetSelectorProps> = ({ preset, availablePreset
                     disabled={preset === undefined}
                 ><BsTrash className="font-bold stroke-[0.5] text-xl"/></Button>
                 <Select
-                    className="w-48 flex-initial m-1 h-10"
+                    className="flex-initial m-1"
+                    style={{width: 192, height: 40}} // Select has w-full and h-full by default
                     value={preset?.name ?? ""}
                     onChange={(e) => {setPreset(availablePresets.find(preset => preset.name === e))}}
                     disabled={availablePresets.length === 0}
