@@ -158,7 +158,7 @@ export class RobotBrush extends SinglePointMapEditorBrush<StaticMap> {
             value: 0,
             label: 'Action Type',
             options: [
-                { value: schema.Action.NONE, label: 'None' },
+                { value: null, label: 'None' },
                 { value: schema.Action.TransferAction, label: 'Transfer' },
                 { value: schema.Action.AttackAction, label: 'Attack' },
                 { value: schema.Action.PaintAction, label: 'Paint' },
@@ -204,7 +204,7 @@ export class RobotBrush extends SinglePointMapEditorBrush<StaticMap> {
             if (fields.team.value === 1) teamIdx = 1 - teamIdx
             const team = this.bodies.game.teams[teamIdx]
             const id = add(x, y, team)
-            if (id) {
+            if (id && actionType) {
                 const ActionCtor = ACTION_DEFINITIONS[actionType]
                 if (ActionCtor) {
                     const targetIdToUse = findNearestRobotId(this.bodies, id, x, y) ?? id
