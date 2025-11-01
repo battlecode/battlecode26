@@ -1,7 +1,7 @@
 import React, { useEffect, useState, MouseEvent, PropsWithChildren, useRef } from 'react'
 import { IconContext } from 'react-icons'
 import { IoCloseCircle, IoCloseCircleOutline } from 'react-icons/io5'
-import { ChromePicker } from 'react-color'
+import { ChromePicker, ColorResult } from 'react-color'
 import { AppContextProvider, useAppContext } from './app-context'
 import { GameRenderer } from './playback/GameRenderer'
 import { NumInput } from './components/forms'
@@ -11,7 +11,8 @@ import {
     updateGlobalColor,
     getGlobalColor,
     resetGlobalColors,
-    DEFAULT_GLOBAL_COLORS
+    DEFAULT_GLOBAL_COLORS,
+    COLOR_CSS_VARIABLES,
 } from './colors'
 import { BrightButton, Button } from './components/button'
 import { useKeyboard } from './util/keyboard'
@@ -40,19 +41,7 @@ const DEFAULT_CONFIG = {
     profileGames: false,
     validateMaps: false,
     resolutionScale: 100,
-    colors: {
-        [Colors.TEAM_ONE]: '#cdcdcc',
-        [Colors.TEAM_TWO]: '#fee493',
-
-        [Colors.PAINT_TEAMONE_ONE]: '#666666',
-        [Colors.PAINT_TEAMONE_TWO]: '#565656',
-        [Colors.PAINT_TEAMTWO_ONE]: '#b28b52',
-        [Colors.PAINT_TEAMTWO_TWO]: '#997746',
-        [Colors.WALLS_COLOR]: '#547f31',
-        [Colors.TILE_COLOR]: '#4c301e',
-        [Colors.GAMEAREA_BACKGROUND]: '#2e2323',
-        [Colors.SIDEBAR_BACKGROUND]: '#3f3131'
-    } as Record<Colors, string>
+    colors: DEFAULT_GLOBAL_COLORS as Record<Colors, string>
 }
 
 const configDescription: Record<keyof ClientConfig, string> = {
@@ -138,6 +127,21 @@ const ColorConfig = () => {
                 <div className="text-sm pb-1 pt-1">Interface</div>
                 <SingleColorPicker displayName={'Background'} colorName={Colors.GAMEAREA_BACKGROUND} />
                 <SingleColorPicker displayName={'Sidebar'} colorName={Colors.SIDEBAR_BACKGROUND} />
+                <SingleColorPicker displayName={'Red'} colorName={Colors.RED} />
+                <SingleColorPicker displayName={'Pink'} colorName={Colors.PINK} />
+                <SingleColorPicker displayName={'Green'} colorName={Colors.GREEN} />
+                <SingleColorPicker displayName={'Cyan'} colorName={Colors.CYAN} />
+                <SingleColorPicker displayName={'Dark Cyan'} colorName={Colors.CYAN_DARK} />
+                <SingleColorPicker displayName={'Blue'} colorName={Colors.BLUE} />
+                <SingleColorPicker displayName={'Light Blue'} colorName={Colors.BLUE_LIGHT} />
+                <SingleColorPicker displayName={'Dark Blue'} colorName={Colors.BLUE_DARK} />
+                <SingleColorPicker displayName={'Dark'} colorName={Colors.DARK} />
+                <SingleColorPicker displayName={'Dark Highlight'} colorName={Colors.DARK_HIGHLIGHT} />
+                <SingleColorPicker displayName={'Black'} colorName={Colors.BLACK} />
+                <SingleColorPicker displayName={'White'} colorName={Colors.WHITE} />
+                <SingleColorPicker displayName={'Light'} colorName={Colors.LIGHT} />
+                <SingleColorPicker displayName={'Light Highlight'} colorName={Colors.LIGHT_HIGHLIGHT} />
+                <SingleColorPicker displayName={'Light Card'} colorName={Colors.LIGHT_CARD} />
                 <div className="text-sm pb-1">General</div>
                 <SingleColorPicker displayName={'Walls'} colorName={Colors.WALLS_COLOR} />
                 <SingleColorPicker displayName={'Tiles'} colorName={Colors.TILE_COLOR} />
@@ -197,18 +201,19 @@ const SingleColorPicker = (props: { displayName: string; colorName: Colors }) =>
         }
     }
 
-    const onChange = (newColor: any) => {
+    const onChange = (newColor: ColorResult) => {
         updateGlobalColor(props.colorName, newColor.hex)
         context.setState((prevState) => ({
             ...prevState,
             config: { ...prevState.config, colors: { ...prevState.config.colors, [props.colorName]: newColor.hex } }
         }))
+        document.documentElement.style.setProperty(COLOR_CSS_VARIABLES[props.colorName], newColor.hex)
         // hopefully after the setState is done
         setTimeout(() => GameRenderer.render(), 10)
     }
 
     const resetColor = () => {
-        onChange({ hex: DEFAULT_GLOBAL_COLORS[props.colorName as Colors] })
+        onChange({ hex: DEFAULT_GLOBAL_COLORS[props.colorName as Colors] } as any) // we aren't setting the hsl or rgb parameters; therefore any
     }
 
     useEffect(() => {

@@ -7,3 +7,36 @@
     @apply text-black;
   }
 }
+
+/* colors are defined in colors.ts as well */
+:root {
+  --color-team0: #cdcdcc;
+  --color-team1: #fee493;
+
+  --color-paint-team0-0: #666666;
+  --color-paint-team0-1: #565656;
+  --color-paint-team1-0: #b28b52;
+  --color-paint-team1-1: #997746;
+  --color-walls: #547f31;
+  --color-tile: #4c301e;
+  --color-gamearea-background: #2e2323;
+  --color-sidebar-background: #3f3131;
+
+  --color-red: #ff9194;
+  --color-pink: #ffb4c1;
+  --color-green: #00a28e;
+  --color-cyan: #02a7b9;
+  --color-cyanDark: #1899a7;
+  --color-blue: #04a2d9;
+  --color-blueLight: #26abd9;
+  --color-blueDark: #00679e;
+
+  --color-dark: #1f2937;
+  --color-dark-highlight: #140f0f;
+  --color-black: #140f0f;
+  --color-white: #fcdede;
+  --color-light: #aaaaaa22;
+  --color-light-highlight: #ffffff33;
+  --color-med-highlight: #d0d0d066;
+  --color-light-card: #f7f7f722;
+}
