@@ -104,7 +104,7 @@ export default class Round {
     /**
      * Step the current turn within the current delta.
      */
-    private stepTurn(): void {
+    public stepTurn(): void {
         assert(this.turnNumber < this.turnsLength, 'Cannot step a round that is at the end')
 
         const turn = this.currentDelta!.turns(this.turnNumber)

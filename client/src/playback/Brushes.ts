@@ -5,7 +5,7 @@ import {
     SinglePointMapEditorBrush,
     SymmetricMapEditorBrush
 } from '../components/sidebar/map-editor/MapEditorBrush'
-import {ACTION_DEFINITIONS} from './Actions'
+import { ACTION_DEFINITIONS } from './Actions'
 import Bodies from './Bodies'
 import { CurrentMap, StaticMap } from './Map'
 import { Vector } from './Vector'
@@ -105,13 +105,12 @@ const makeEditorActionData = (map: StaticMap, atype: schema.Action, tx: number, 
             return { id: () => targetId, amount: () => 1 }
         case schema.Action.MopAction:
             return { id0: () => targetId, id1: () => 0, id2: () => 0 }
-        case schema.Action.MessageAction:
-            return {}
+        case schema.Action.BuildAction:
+            return { id: () => targetId, loc: () => loc }
         default:
             return {}
     }
 }
-
 
 const findNearestRobotId = (bodies: Bodies, id: number, x: number, y: number): number | null => {
     // Find the nearest existing body (excluding the one we just spawned)
@@ -119,9 +118,9 @@ const findNearestRobotId = (bodies: Bodies, id: number, x: number, y: number): n
     let nearestDist = Number.POSITIVE_INFINITY
     for (const b of bodies.bodies.values()) {
         if (b.id === id) continue
-            const dx = b.pos.x - x
-            const dy = b.pos.y - y
-            const d2 = dx * dx + dy * dy
+        const dx = b.pos.x - x
+        const dy = b.pos.y - y
+        const d2 = dx * dx + dy * dy
         if (d2 < nearestDist) {
             nearestDist = d2
             nearestId = b.id
@@ -129,7 +128,6 @@ const findNearestRobotId = (bodies: Bodies, id: number, x: number, y: number): n
     }
     return nearestId
 }
-
 
 export class RobotBrush extends SinglePointMapEditorBrush<StaticMap> {
     private readonly bodies: Bodies
@@ -164,7 +162,8 @@ export class RobotBrush extends SinglePointMapEditorBrush<StaticMap> {
                 { value: schema.Action.PaintAction, label: 'Paint' },
                 { value: schema.Action.UnpaintAction, label: 'Unpaint' },
                 { value: schema.Action.SplashAction, label: 'Splash' },
-                { value: schema.Action.MopAction, label: 'Mop' }
+                { value: schema.Action.MopAction, label: 'Mop' },
+                { value: schema.Action.BuildAction, label: 'Build' }
             ]
         }
     }
@@ -212,7 +211,7 @@ export class RobotBrush extends SinglePointMapEditorBrush<StaticMap> {
                     const actionInstance = new ActionCtor(id, adata as any)
                     const actionsArray = this.bodies.game?.currentMatch?.currentRound?.actions?.actions
                     const currentRound = this.bodies.game?.currentMatch?.currentRound
-                    
+
                     if (actionsArray && currentRound) {
                         // Apply immediately for stateful actions (e.g., PaintAction) so map state changes in editor
                         actionInstance.apply(currentRound)
@@ -302,8 +301,6 @@ export class WallsBrush extends SymmetricMapEditorBrush<StaticMap> {
             })
         }
     }
-
-    
 }
 
 export class RuinsBrush extends SymmetricMapEditorBrush<StaticMap> {

@@ -30,6 +30,7 @@ const UNDO_STACK_SIZE = 100
 
 export const MapEditorPage: React.FC<Props> = (props) => {
     const round = useRound()
+    const [seeRobotAnimations, setSeeRobotAnimations] = React.useState(false)
     const [cleared, setCleared] = React.useState(true)
     const [mapParams, setMapParams] = React.useState<MapParams>({ width: 30, height: 30, symmetry: 0 })
     const [brushes, setBrushes] = React.useState<MapEditorBrush[]>([])
@@ -65,6 +66,52 @@ export const MapEditorPage: React.FC<Props> = (props) => {
         undoStack.current = new RingBuffer(UNDO_STACK_SIZE)
         strokeUndoStack.current = []
     }
+
+    // When seeRobotAnimations is toggled on and map editor is open, run a small RAF loop that updates
+    // the match interpolation factor (editor-only) and forces renders so action
+    // draw() functions that rely on interpolation will animate. When toggled off
+    // or editor is closed, we cancel the loop and reset interpolation.
+    React.useEffect(() => {
+        if (!round) return
+        if (!props.open) {
+            setSeeRobotAnimations(false)
+            return
+        }
+
+        let rafId: number | null = null
+        let lastTs: number | null = null
+        let t = 0
+        const speed = 0.2 // cycles per second; tweak to slow/faster animations
+
+        const loop = (ts: number) => {
+            if (!lastTs) lastTs = ts
+            const dt = (ts - lastTs) / 1000
+            lastTs = ts
+            t += dt
+
+            const frac = (t * speed) % 1
+            round.match.setEditorInterpolationFactor(frac)
+            GameRenderer.render()
+
+            rafId = requestAnimationFrame(loop)
+        }
+
+        if (seeRobotAnimations) {
+            rafId = requestAnimationFrame(loop)
+        } else {
+            // reset interpolation to 0 and force a render
+            round.match.setEditorInterpolationFactor(0)
+            GameRenderer.render()
+        }
+
+        return () => {
+            if (rafId) cancelAnimationFrame(rafId)
+            try {
+                round.match.setEditorInterpolationFactor(0)
+            } catch (e) {}
+            GameRenderer.render()
+        }
+    }, [seeRobotAnimations, round, props.open])
 
     useEffect(() => {
         // Aggregate the current stroke stack into the total stack when the mouse is released
@@ -193,6 +240,11 @@ export const MapEditorPage: React.FC<Props> = (props) => {
 
             <div className="h-full flex flex-col flex-grow justify-between">
                 <div>{renderedBrushes}</div>
+                <div>
+                    <SmallButton onClick={() => setSeeRobotAnimations(!seeRobotAnimations)}>
+                        {seeRobotAnimations ? 'Hide' : 'Show'} Robot Animations
+                    </SmallButton>
+                </div>
                 <div className="pb-8">
                     <SmallButton
                         onClick={() => setClearConfirmOpen(true)}

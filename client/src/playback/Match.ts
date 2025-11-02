@@ -205,6 +205,17 @@ export default class Match {
     }
 
     /**
+     * Editor-only: Set the internal simulation step via a normalized 0-1 interpolation factor.
+     * This allows the map editor (where `game.playable` is false) to animate action draw() calls
+     * without making the game "playable" or mutating state.
+     */
+    public setEditorInterpolationFactor(fraction: number): void {
+        // clamp to [0,1]
+        const clamped = Math.max(0, Math.min(1, fraction))
+        this._currentSimulationStep = Math.floor(clamped * MAX_SIMULATION_STEPS)
+    }
+
+    /**
      * Change the match's current round's turn to the current turn + delta.
      */
     public _stepTurn(turns: number): void {
