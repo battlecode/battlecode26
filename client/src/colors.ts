@@ -1,122 +1,105 @@
 import { GameRenderer } from './playback/GameRenderer'
+import { AppContext } from './app-context'
 
 /*
  * TODO: colors are defined in style.css as well
  */
 
-export enum Colors {
-    TEAM_ONE = 'TEAM_ONE',
-    TEAM_TWO = 'TEAM_TWO',
-
-    PAINT_TEAMONE_ONE = 'PAINT_TEAMONE_ONE',
-    PAINT_TEAMONE_TWO = 'PAINT_TEAMONE_TWO',
-    PAINT_TEAMTWO_ONE = 'PAINT_TEAMTWO_ONE',
-    PAINT_TEAMTWO_TWO = 'PAINT_TEAMTWO_TWO',
-    WALLS_COLOR = 'WALLS_COLOR',
-    GAMEAREA_BACKGROUND = 'GAMEAREA_BACKGROUND',
-    TILE_COLOR = 'TILE_COLOR',
-    SIDEBAR_BACKGROUND = 'SIDEBAR_BACKGROUND',
-
-    RED = 'RED',
-    PINK = 'PINK',
-    GREEN = 'GREEN',
-    CYAN = 'CYAN',
-    CYAN_DARK = 'CYAN_DARK',
-    BLUE = 'BLUE',
-    BLUE_LIGHT = 'BLUE_LIGHT',
-    BLUE_DARK = 'BLUE_DARK',
-
-    DARK = 'DARK',
-    DARK_HIGHLIGHT = 'DARK_HIGHLIGHT',
-    BLACK = 'BLACK',
-    WHITE = 'WHITE',
-    LIGHT = 'LIGHT',
-    LIGHT_HIGHLIGHT = 'LIGHT_HIGHLIGHT',
-    MED_HIGHLIGHT = 'MED_HIGHLIGHT',
-    LIGHT_CARD = 'LIGHT_CARD',
+export interface ColorSection {
+    displayName: string
 }
 
-export const DEFAULT_GLOBAL_COLORS = {
-    [Colors.TEAM_ONE]: '#cdcdcc',
-    [Colors.TEAM_TWO]: '#fee493',
+export class Color {
+    readonly name: string
+    readonly defaultColor: string
+    readonly cssVariable: string
+    readonly displayName: string|undefined
+    readonly section: ColorSection|undefined
 
-    [Colors.PAINT_TEAMONE_ONE]: '#666666',
-    [Colors.PAINT_TEAMONE_TWO]: '#565656',
-    [Colors.PAINT_TEAMTWO_ONE]: '#b28b52',
-    [Colors.PAINT_TEAMTWO_TWO]: '#997746',
-    [Colors.WALLS_COLOR]: '#547f31',
-    [Colors.TILE_COLOR]: '#4c301e',
-    [Colors.GAMEAREA_BACKGROUND]: '#2e2323',
-    [Colors.RED]: '#ff9194',
-    [Colors.SIDEBAR_BACKGROUND]: '#3f3131',
-
-    [Colors.PINK]: '#ffb4c1',
-    [Colors.GREEN]: '#00a28e',
-    [Colors.CYAN]: '#02a7b9',
-    [Colors.CYAN_DARK]: '#1899a7',
-    [Colors.BLUE]: '#04a2d9',
-    [Colors.BLUE_LIGHT]: '#26abd9',
-    [Colors.BLUE_DARK]: '#00679e',
-
-    [Colors.DARK]: '#1f2937',
-    [Colors.DARK_HIGHLIGHT]: '#140f0f',
-    [Colors.BLACK]: '#140f0f',
-    [Colors.WHITE]: '#fcdede',
-    [Colors.LIGHT]: '#aaaaaa22',
-    [Colors.LIGHT_HIGHLIGHT]: '#ffffff33',
-    [Colors.MED_HIGHLIGHT]: '#d0d0d066',
-    [Colors.LIGHT_CARD]: '#f7f7f722',
-}
-
-export const COLOR_CSS_VARIABLES = {
-    [Colors.TEAM_ONE]: '--color-team0',
-    [Colors.TEAM_TWO]: '--color-team1',
-
-    [Colors.PAINT_TEAMONE_ONE]: '--color-paint-team0-0',
-    [Colors.PAINT_TEAMONE_TWO]: '--color-paint-team0-1',
-    [Colors.PAINT_TEAMTWO_ONE]: '--color-paint-team1-0',
-    [Colors.PAINT_TEAMTWO_TWO]: '--color-paint-team1-1',
-    [Colors.WALLS_COLOR]: '--color-walls',
-    [Colors.TILE_COLOR]: '--color-tile',
-    [Colors.GAMEAREA_BACKGROUND]: '--color-gamearea-background',
-    [Colors.SIDEBAR_BACKGROUND]: '--color-sidebar-background',
-
-    [Colors.RED]: '--color-red',
-    [Colors.PINK]: '--color-pink',
-    [Colors.GREEN]: '--color-green',
-    [Colors.CYAN]: '--color-cyan',
-    [Colors.CYAN_DARK]: '--color-cyan-dark',
-    [Colors.BLUE]: '--color-blue',
-    [Colors.BLUE_LIGHT]: '--color-blue-light',
-    [Colors.BLUE_DARK]: '--color-blue-dark',
-
-    [Colors.DARK]: '--color-dark',
-    [Colors.DARK_HIGHLIGHT]: '--color-dark-highlight',
-    [Colors.BLACK]: '--color-black',
-    [Colors.WHITE]: '--color-white',
-    [Colors.LIGHT]: '--color-light',
-    [Colors.LIGHT_HIGHLIGHT]: '--color-light-highlight',
-    [Colors.MED_HIGHLIGHT]: '--color-med-highlight',
-    [Colors.LIGHT_CARD]: '--color-light-card',
-}
-
-export const currentColors: Record<Colors, string> = { ...DEFAULT_GLOBAL_COLORS }
-
-export const updateGlobalColor = (color: Colors, value: string) => {
-    currentColors[color] = value
-    localStorage.setItem('config-colors' + color, JSON.stringify(currentColors[color]))
-    GameRenderer.fullRender()
-}
-
-export const getGlobalColor = (color: Colors) => {
-    return currentColors[color]
-}
-
-export const resetGlobalColors = () => {
-    for (const key in currentColors) {
-        const typedKey = key as Colors
-        updateGlobalColor(typedKey, DEFAULT_GLOBAL_COLORS[typedKey])
+    /**
+     * Constructs a Color which may be referenced using `.get()` or using a CSS variable.
+     * @param name The key that this Color is stored into `Colors` with.
+     * @param defaultColor The default color in the form of #FFFFFF
+     * @param cssVariable The CSS variable that this Color is linked to
+     * @param displayName The label of this Color in the config menu. If undefined, will not appear.
+     * @param section The ColorSection of this Color in the config menu. If undefined, will not appear.
+     */
+    constructor(name: string, defaultColor: string, cssVariable: string, displayName?: string, section?: ColorSection) {
+        this.name = name
+        this.defaultColor = defaultColor
+        this.cssVariable = cssVariable
+        this.displayName = displayName
+        this.section = section
     }
+
+    set(newColor: string, context: AppContext): void {
+        currentColors[this.name] = newColor
+        localStorage.setItem('config-colors' + this.name, JSON.stringify(newColor))
+        context.setState((prevState) => ({
+            ...prevState,
+            config: { ...prevState.config, colors: { ...prevState.config.colors, [this.name]: newColor } }
+        }))
+        document.documentElement.style.setProperty(this.cssVariable, newColor)
+
+        // hopefully after the setState is done
+        setTimeout(() => GameRenderer.fullRender(), 10)
+    }
+
+    setCssVariable(): void {
+        document.documentElement.style.setProperty(this.cssVariable, this.get())
+    }
+
+    get(): string {
+        return currentColors[this.name]
+    }
+}
+
+// ColorSections in here will appear in the Config in the same order.
+export const Sections = {
+    INTERFACE: {displayName: 'Interface'} as ColorSection,
+    GENERAL: {displayName: 'General'} as ColorSection,
+    SILVER: {displayName: 'Silver'} as ColorSection,
+    GOLD: {displayName: 'Gold'} as ColorSection,
+}
+
+// Colors placed in here will appear in their section in the same order.
+export const Colors: Record<string, Color> = {
+    GAMEAREA_BACKGROUND: new Color('GAMEAREA_BACKGROUND', '#2e2323', '--color-gamearea-background', 'Background', Sections.INTERFACE),
+    SIDEBAR_BACKGROUND: new Color('SIDEBAR_BACKGROUND', '#3f3131', '--color-sidebar-background', 'Sidebar', Sections.INTERFACE),
+    RED: new Color('RED', '#ff9194', '--color-red', 'Red', Sections.INTERFACE),
+    PINK: new Color('PINK', '#ffb4c1', '--color-pink', 'Pink', Sections.INTERFACE),
+    GREEN: new Color('GREEN', '#00a28e', '--color-green', 'Green', Sections.INTERFACE),
+    CYAN: new Color('CYAN', '#02a7b9', '--color-cyan', 'Cyan', Sections.INTERFACE),
+    CYAN_DARK: new Color('CYAN_DARK', '#1899a7', '--color-cyan-dark', 'Dark Cyan', Sections.INTERFACE),
+    BLUE: new Color('BLUE', '#04a2d9', '--color-blue', 'Blue', Sections.INTERFACE),
+    BLUE_LIGHT: new Color('BLUE_LIGHT', '#26abd9', '--color-blue-light', 'Light Blue', Sections.INTERFACE),
+    BLUE_DARK: new Color('BLUE_DARK', '#00679e', '--color-blue-dark', 'Dark Blue', Sections.INTERFACE),
+    DARK: new Color('DARK', '#1f2937', '--color-dark', 'Dark', Sections.INTERFACE),
+    DARK_HIGHLIGHT: new Color('DARK_HIGHLIGHT', '#140f0f', '--color-dark-highlight', 'Dark Highlight', Sections.INTERFACE),
+    BLACK: new Color('BLACK', '#140f0f', '--color-black', 'Black', Sections.INTERFACE),
+    WHITE: new Color('WHITE', '#fcdede', '--color-white', 'White', Sections.INTERFACE),
+    LIGHT: new Color('LIGHT', '#aaaaaa22', '--color-light', 'Light', Sections.INTERFACE),
+    LIGHT_HIGHLIGHT: new Color('LIGHT_HIGHLIGHT', '#ffffff33', '--color-light-highlight', 'Light Highlight', Sections.INTERFACE),
+    LIGHT_CARD: new Color('LIGHT_CARD', '#f7f7f722', '--color-light-card', 'Light Card', Sections.INTERFACE),
+
+    WALLS_COLOR: new Color('WALLS_COLOR', '#547f31', '--color-walls', 'Walls', Sections.GENERAL),
+    TILES_COLOR: new Color('TILES_COLOR', '#4c301e', '--color-tile', 'Tiles', Sections.GENERAL),
+
+    TEAM_ONE: new Color('TEAM_ONE', '#cdcdcc', '--color-team0', 'Text', Sections.SILVER),
+    PAINT_TEAMONE_ONE: new Color('PAINT_TEAMONE_ONE', '#666666', '--color-paint-team0-0', 'Primary Paint', Sections.SILVER),
+    PAINT_TEAMONE_TWO: new Color('PAINT_TEAMONE_TWO', '#565656', '--color-paint-team0-1', 'Secondary Paint', Sections.SILVER),
+
+    TEAM_TWO: new Color('TEAM_TWO', '#fee493', '--color-team1', 'Text', Sections.GOLD),
+    PAINT_TEAMTWO_ONE: new Color('PAINT_TEAMTWO_ONE', '#b28b52', '--color-paint-team1-0', 'Primary Paint', Sections.GOLD),
+    PAINT_TEAMTWO_TWO: new Color('PAINT_TEAMTWO_TWO', '#997746', '--color-paint-team1-1', 'Secondary Paint', Sections.GOLD),
+}
+
+const currentColors: Record<string, string> = {}
+
+for (const key in Colors) {
+    const value = localStorage.getItem('config-colors' + key)
+    currentColors[Colors[key].name] = value === null ? Colors[key].defaultColor : JSON.parse(value)
+    Colors[key].setCssVariable()
 }
 
 export const getPaintColors = () => {

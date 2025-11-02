@@ -5,15 +5,7 @@ import { ChromePicker, ColorResult } from 'react-color'
 import { AppContextProvider, useAppContext } from './app-context'
 import { GameRenderer } from './playback/GameRenderer'
 import { NumInput } from './components/forms'
-import {
-    Colors,
-    currentColors,
-    updateGlobalColor,
-    getGlobalColor,
-    resetGlobalColors,
-    DEFAULT_GLOBAL_COLORS,
-    COLOR_CSS_VARIABLES,
-} from './colors'
+import { Colors, Color, Sections } from './colors'
 import { BrightButton, Button } from './components/button'
 import { useKeyboard } from './util/keyboard'
 
@@ -21,6 +13,14 @@ export type ClientConfig = typeof DEFAULT_CONFIG
 
 interface Props {
     open: boolean
+}
+
+function getDefaultColors(): Record<string, string> {
+    const output: Record<string, string> = {}
+    for (const key in Colors) {
+        output[Colors[key].name] = Colors[key].defaultColor
+    }
+    return output
 }
 
 const DEFAULT_CONFIG = {
@@ -41,7 +41,7 @@ const DEFAULT_CONFIG = {
     profileGames: false,
     validateMaps: false,
     resolutionScale: 100,
-    colors: DEFAULT_GLOBAL_COLORS as Record<Colors, string>
+    colors: getDefaultColors(),
 }
 
 const configDescription: Record<keyof ClientConfig, string> = {
@@ -74,11 +74,10 @@ export function getDefaultConfig(): ClientConfig {
         }
     }
 
-    for (const key in config.colors) {
+    for (const key in Colors) {
         const value = localStorage.getItem('config-colors' + key)
         if (value) {
-            config.colors[key as Colors] = JSON.parse(value)
-            updateGlobalColor(key as Colors, JSON.parse(value))
+            config.colors[key] = value
         }
     }
 
@@ -158,12 +157,9 @@ const ColorConfig = () => {
                 <BrightButton
                     className=""
                     onClick={() => {
-                        resetGlobalColors()
-
-                        context.setState((prevState) => ({
-                            ...prevState,
-                            config: { ...prevState.config, colors: { ...DEFAULT_GLOBAL_COLORS } }
-                        }))
+                        Object.values(Colors).forEach((color) => {
+                            color.set(color.defaultColor, context)
+                        })
                     }}
                 >
                     Reset Colors
@@ -173,9 +169,9 @@ const ColorConfig = () => {
     )
 }
 
-const SingleColorPicker = (props: { displayName: string; colorName: Colors }) => {
+const SingleColorPicker = (props: { displayName: string; colorName: Color }) => {
     const context = useAppContext()
-    const value = context.state.config.colors[props.colorName]
+    const value = props.colorName.get()
     const ref = useRef<HTMLDivElement>(null)
     const buttonRef = useRef<HTMLButtonElement>(null)
     const [hoveredClose, setHoveredClose] = useState(false)
@@ -202,18 +198,11 @@ const SingleColorPicker = (props: { displayName: string; colorName: Colors }) =>
     }
 
     const onChange = (newColor: ColorResult) => {
-        updateGlobalColor(props.colorName, newColor.hex)
-        context.setState((prevState) => ({
-            ...prevState,
-            config: { ...prevState.config, colors: { ...prevState.config.colors, [props.colorName]: newColor.hex } }
-        }))
-        document.documentElement.style.setProperty(COLOR_CSS_VARIABLES[props.colorName], newColor.hex)
-        // hopefully after the setState is done
-        setTimeout(() => GameRenderer.render(), 10)
+        props.colorName.set(newColor.hex, context)
     }
 
     const resetColor = () => {
-        onChange({ hex: DEFAULT_GLOBAL_COLORS[props.colorName as Colors] } as any) // we aren't setting the hsl or rgb parameters; therefore any
+        props.colorName.set(props.colorName.defaultColor, context)
     }
 
     useEffect(() => {

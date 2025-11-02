@@ -3,7 +3,6 @@ import { flatbuffers, schema } from 'battlecode-schema'
 import { ungzip } from 'pako'
 import assert from 'assert'
 import { SPEC_VERSION, TEAM_COLOR_NAMES } from '../constants'
-import { currentColors } from '../colors'
 import { FakeGameWrapper } from '../components/sidebar/runner/websocket'
 import { getTeamColors } from '../colors'
 
