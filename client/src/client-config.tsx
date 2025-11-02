@@ -117,41 +117,20 @@ export const ConfigPage: React.FC<Props> = (props) => {
 const ColorConfig = () => {
     const context = useAppContext()
 
-    /* TODO: [future] do this dynamically rather than hardcoding sections */
-
     return (
         <>
             <div className="m-0 mt-4">
-                Customize Colors:
-                <div className="text-sm pb-1 pt-1">Interface</div>
-                <SingleColorPicker displayName={'Background'} colorName={Colors.GAMEAREA_BACKGROUND} />
-                <SingleColorPicker displayName={'Sidebar'} colorName={Colors.SIDEBAR_BACKGROUND} />
-                <SingleColorPicker displayName={'Red'} colorName={Colors.RED} />
-                <SingleColorPicker displayName={'Pink'} colorName={Colors.PINK} />
-                <SingleColorPicker displayName={'Green'} colorName={Colors.GREEN} />
-                <SingleColorPicker displayName={'Cyan'} colorName={Colors.CYAN} />
-                <SingleColorPicker displayName={'Dark Cyan'} colorName={Colors.CYAN_DARK} />
-                <SingleColorPicker displayName={'Blue'} colorName={Colors.BLUE} />
-                <SingleColorPicker displayName={'Light Blue'} colorName={Colors.BLUE_LIGHT} />
-                <SingleColorPicker displayName={'Dark Blue'} colorName={Colors.BLUE_DARK} />
-                <SingleColorPicker displayName={'Dark'} colorName={Colors.DARK} />
-                <SingleColorPicker displayName={'Dark Highlight'} colorName={Colors.DARK_HIGHLIGHT} />
-                <SingleColorPicker displayName={'Black'} colorName={Colors.BLACK} />
-                <SingleColorPicker displayName={'White'} colorName={Colors.WHITE} />
-                <SingleColorPicker displayName={'Light'} colorName={Colors.LIGHT} />
-                <SingleColorPicker displayName={'Light Highlight'} colorName={Colors.LIGHT_HIGHLIGHT} />
-                <SingleColorPicker displayName={'Light Card'} colorName={Colors.LIGHT_CARD} />
-                <div className="text-sm pb-1">General</div>
-                <SingleColorPicker displayName={'Walls'} colorName={Colors.WALLS_COLOR} />
-                <SingleColorPicker displayName={'Tiles'} colorName={Colors.TILE_COLOR} />
-                <div className="text-sm pb-1">Silver</div>
-                <SingleColorPicker displayName={'Text'} colorName={Colors.TEAM_ONE} />
-                <SingleColorPicker displayName={'Primary Paint'} colorName={Colors.PAINT_TEAMONE_ONE} />
-                <SingleColorPicker displayName={'Secondary Paint'} colorName={Colors.PAINT_TEAMONE_TWO} />
-                <div className="text-sm pb-1">Gold</div>
-                <SingleColorPicker displayName={'Text'} colorName={Colors.TEAM_TWO} />
-                <SingleColorPicker displayName={'Primary Paint'} colorName={Colors.PAINT_TEAMTWO_ONE} />
-                <SingleColorPicker displayName={'Secondary Paint'} colorName={Colors.PAINT_TEAMTWO_TWO} />
+                <div className="pb-1">Customize Colors:</div>
+                {
+                    Object.values(Sections).map((section) => <div>
+                        <div className="text-sm pb-1">{section.displayName}</div>
+                        {
+                            Object.values(Colors)
+                                .filter((color) => color.section === section && color.displayName !== undefined)
+                                .map((color) => <SingleColorPicker displayName={color.displayName as string} colorName={color} />)
+                        }
+                    </div>)
+                }
             </div>
             <div className="flex flex-row mt-8">
                 <BrightButton
