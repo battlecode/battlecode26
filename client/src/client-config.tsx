@@ -214,14 +214,6 @@ const SingleColorPicker = (props: { displayName: string; colorName: Color }) => 
     return (
         <>
             <div className={'ml-2 mb-2 text-xs flex flex-start justify-start items-center'}>
-                {/*Background:*/}
-                {props.displayName}:
-                <button
-                    ref={buttonRef}
-                    className={'text-xs ml-2 px-4 py-3 mr-2 flex flex-row hover:bg-cyanDark rounded-md text-white'}
-                    style={{ backgroundColor: value, border: '2px solid white' }}
-                    onClick={handleClick}
-                ></button>
                 <div
                     className="rounded-full overflow-clip"
                     onClick={() => resetColor()}
@@ -237,6 +229,13 @@ const SingleColorPicker = (props: { displayName: string; colorName: Color }) => 
                         {hoveredClose ? <IoCloseCircle /> : <IoCloseCircleOutline />}
                     </IconContext.Provider>
                 </div>
+                <button
+                    ref={buttonRef}
+                    className={'text-xs ml-2 px-4 py-3 mr-2 flex flex-row hover:bg-cyanDark rounded-md text-white'}
+                    style={{ backgroundColor: value, border: '2px solid white' }}
+                    onClick={handleClick}
+                ></button>
+                {props.displayName}
             </div>
             <div ref={ref} className={'width: w-min'}>
                 {displayColorPicker && <ChromePicker color={value} onChange={onChange} />}
