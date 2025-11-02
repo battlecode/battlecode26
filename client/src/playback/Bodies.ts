@@ -147,10 +147,7 @@ export default class Bodies {
         bodyCtx: CanvasRenderingContext2D | null,
         overlayCtx: CanvasRenderingContext2D | null,
         config: ClientConfig,
-        // multiSelectMode: boolean = false,
         selectedBodyID?: number,
-        selectedBodyIDs?:  Array<number>,
-        focusedBodyIDs?:  Array<number>,
         hoveredTile?: Vector
     ): void {
         for (const body of this.bodies.values()) {
@@ -158,11 +155,10 @@ export default class Bodies {
                 body.draw(match, bodyCtx)
             }
 
-            const selected = (selectedBodyID === body.id || !!selectedBodyIDs?.includes(body.id))
+            const selected = selectedBodyID === body.id
             const hovered = !!hoveredTile && vectorEq(body.pos, hoveredTile)
-            const focused = !!focusedBodyIDs?.includes(body.id)
             if (overlayCtx) {
-                body.drawOverlay(match, overlayCtx, config, selected && focused, hovered || (selected && !focused))
+                body.drawOverlay(match, overlayCtx, config, selected, hovered)
             }
         }
     }

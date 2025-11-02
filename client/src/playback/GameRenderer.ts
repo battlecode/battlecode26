@@ -1,4 +1,4 @@
-import React, { Key } from 'react'
+import React from 'react'
 import GameRunner from './GameRunner'
 import { TEAM_COLOR_NAMES, TILE_RESOLUTION } from '../constants'
 import { Vector } from './Vector'
@@ -18,10 +18,7 @@ class GameRendererClass {
     private mouseDownStartPos?: Vector = undefined
     private mouseDown: boolean = false
     private mouseDownRight: boolean = false
-    private shiftKeyDown: boolean = false
     private selectedBodyID?: number = undefined
-    private prevSelectedBodyIDs?: Array<number> = undefined
-    private focusedBodyIDs?: Array<number> = undefined
     private selectedTile?: Vector = undefined
 
     private _canvasHoverListeners: (() => void)[] = []
@@ -69,8 +66,6 @@ class GameRendererClass {
         this.mouseTile = undefined
         this.selectedTile = undefined
         this.selectedBodyID = undefined
-        this.prevSelectedBodyIDs = undefined
-        this.focusedBodyIDs = undefined
         this.render()
         this._canvasClickListeners.forEach((listener) => listener())
         this._canvasHoverListeners.forEach((listener) => listener())
@@ -78,44 +73,10 @@ class GameRendererClass {
 
     setSelectedRobot(id: number | undefined) {
         if (id === this.selectedBodyID) return
-        if (this.shiftKeyDown){
-            if (this.selectedBodyID !== undefined) {
-                if(!this.prevSelectedBodyIDs?.includes(this.selectedBodyID)){
-                    this.prevSelectedBodyIDs = this.prevSelectedBodyIDs || []
-                    this.prevSelectedBodyIDs?.push(this.selectedBodyID)
-                }
-            }
-            else {
-                this.prevSelectedBodyIDs = undefined
-            }
-        } else {
-            this.prevSelectedBodyIDs = undefined
-        }
-        this.focusedBodyIDs = id === undefined ? [] : [id]
+
         this.selectedBodyID = id
         this.render()
         this._trigger(this._canvasClickListeners)
-    }
-
-    focusRobot(id: number | undefined) {
-        if (id !== undefined){
-            if(this.focusedBodyIDs?.includes(id)) return;
-            this.focusedBodyIDs?.push(id)
-        }
-        
-        this.render()
-    }
-
-    unfocusRobot(id: number | undefined) {
-        if (id !== undefined){
-            if(!this.focusedBodyIDs?.includes(id)) return;
-            const index = this.focusedBodyIDs.indexOf(id)
-            if(index > -1){
-                this.focusedBodyIDs.splice(index,1)
-            }
-        }
-        
-        this.render()
     }
 
     addCanvasesToDOM(elem: HTMLDivElement | null) {
@@ -141,7 +102,7 @@ class GameRendererClass {
         const currentRound = match.currentRound
 
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-        currentRound.bodies.draw(match, null, ctx, GameConfig.config, this.selectedBodyID, this.prevSelectedBodyIDs, this.focusedBodyIDs, this.mouseTile)
+        currentRound.bodies.draw(match, null, ctx, GameConfig.config, this.selectedBodyID, this.mouseTile)
     }
 
     render() {
@@ -155,7 +116,7 @@ class GameRendererClass {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
         overlayCtx.clearRect(0, 0, overlayCtx.canvas.width, overlayCtx.canvas.height)
         currentRound.map.draw(match, ctx, GameConfig.config, this.selectedBodyID, this.mouseTile)
-        currentRound.bodies.draw(match, ctx, overlayCtx, GameConfig.config, this.selectedBodyID, this.prevSelectedBodyIDs, this.focusedBodyIDs, this.mouseTile)
+        currentRound.bodies.draw(match, ctx, overlayCtx, GameConfig.config, this.selectedBodyID, this.mouseTile)
         currentRound.actions.draw(match, ctx)
     }
 
@@ -175,8 +136,6 @@ class GameRendererClass {
         this.selectedTile = undefined
         this.mouseTile = undefined
         this.selectedBodyID = undefined
-        this.prevSelectedBodyIDs = undefined
-        this.focusedBodyIDs = undefined
         this.fullRender()
     }
 
@@ -261,18 +220,6 @@ class GameRendererClass {
         this._trigger(this._canvasClickListeners)
     }
 
-    private shiftKeyPressed(e: KeyboardEvent) {
-        if (e.key === "Shift") this.shiftKeyDown = true
-    }
-
-    private shiftKeyUp(e: KeyboardEvent) {
-        if (e.key === "Shift"){
-            this.shiftKeyDown = false
-            // this.prevSelectedBodyIDs = undefined
-            // this.renderOverlay()
-        }
-    }
-
     private _trigger(listeners: (() => void)[]) {
         setTimeout(() => listeners.forEach((l) => l()))
     }
@@ -297,16 +244,12 @@ class GameRendererClass {
         const [canvasRightClick, setCanvasRightClick] = React.useState<boolean>(this.mouseDownRight)
         const [selectedTile, setSelectedTile] = React.useState<Vector | undefined>(this.selectedTile)
         const [selectedBodyID, setSelectedBodyID] = React.useState<number | undefined>(this.selectedBodyID)
-        const [prevSelectedBodyIDs, setPrevSelectedBodyIDs] = React.useState<Array<number> | undefined>(this.prevSelectedBodyIDs)
-        const [focusedBodyIDs, setFocusedBodyIds] = React.useState<Array<number> | undefined>(this.focusedBodyIDs)
         React.useEffect(() => {
             const listener = () => {
                 setCanvasMouseDown(this.mouseDown)
                 setCanvasRightClick(this.mouseDownRight)
                 setSelectedTile(this.selectedTile)
                 setSelectedBodyID(this.selectedBodyID)
-                setPrevSelectedBodyIDs(this.prevSelectedBodyIDs)
-                setFocusedBodyIds(this.focusedBodyIDs)
             }
             this._canvasClickListeners.push(listener)
             return () => {
@@ -314,29 +257,7 @@ class GameRendererClass {
             }
         }, [])
 
-        return { canvasMouseDown, canvasRightClick, selectedTile, selectedBodyID, prevSelectedBodyIDs, focusedBodyIDs}
-    }
-
-    useShiftKeyEvents = () => {
-        const [shiftKeyDown, setShiftKeyDown] = React.useState<boolean>(this.shiftKeyDown)
-        React.useEffect(() => {
-            const keyDownListener = (e: KeyboardEvent) => {
-                this.shiftKeyPressed(e)
-                setShiftKeyDown(this.shiftKeyDown)
-            }
-            const keyUpListener = (e: KeyboardEvent) => {
-                this.shiftKeyUp(e)
-                setShiftKeyDown(this.shiftKeyDown)
-            }
-            window.addEventListener('keydown', keyDownListener)
-            window.addEventListener('keyup', keyUpListener)
-            return () => {
-                window.removeEventListener('keydown', keyDownListener)
-                window.removeEventListener('keyup', keyUpListener)
-            }
-        }, [])
-
-        return { shiftKeyDown }
+        return { canvasMouseDown, canvasRightClick, selectedTile, selectedBodyID }
     }
 }
 
