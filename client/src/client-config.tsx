@@ -24,6 +24,9 @@ interface Props {
 
 const DEFAULT_CONFIG = {
     showAllIndicators: false,
+    showTeamOneIndicators: false,
+    showTeamTwoIndicators: false,
+    indicatorOpacity: 100,
     showAllRobotRadii: false,
     showTimelineMarkers: true,
     showHealthBars: true,
@@ -57,6 +60,9 @@ const DEFAULT_CONFIG = {
 
 const configDescription: Record<keyof ClientConfig, string> = {
     showAllIndicators: 'Show all indicator dots and lines',
+    showTeamOneIndicators: "Show all indicator dots and lines just for Silver team (team 1)",
+    showTeamTwoIndicators: "Show all indicator dots and lines just for Gold team (team 2)",
+    indicatorOpacity: "Customize how opaque the indicator dots and lines are",
     showAllRobotRadii: 'Show all robot view and attack radii',
     showTimelineMarkers: 'Show user-generated markers on the timeline',
     showHealthBars: 'Show health bars below all robots',
@@ -286,8 +292,8 @@ const ConfigNumberElement: React.FC<{ configKey: keyof ClientConfig }> = ({ conf
                         GameRenderer.onMatchChange()
                     }
                 }}
-                min={10}
-                max={200}
+                min={configKey === "resolutionScale" ? 10 : 0}
+                max={configKey === "resolutionScale" ? 200 : 100}
             />
             <div className={'ml-2 text-xs'}>{configDescription[configKey] ?? configKey}</div>
         </div>

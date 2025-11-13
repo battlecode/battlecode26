@@ -263,8 +263,18 @@ export class Body {
         if (focused || config.showAllRobotRadii) {
             this.drawRadii(match, ctx, !selected)
         }
-        if (focused || config.showAllIndicators) {
-            this.drawIndicators(match, ctx, !selected && !config.showAllIndicators)
+        // Determine whether to show indicators for this body. Indicators show if
+        // user selects to see indicators for the team of this body, to show all indicators,
+        // or if this body is selected / hovered.
+        const teamIndicatorsEnabled =
+            config.showAllIndicators || (config.showTeamOneIndicators && this.team.id === 1) ||
+            (config.showTeamTwoIndicators && this.team.id === 2)
+
+        if (focused || teamIndicatorsEnabled) {
+            // If user is hovering without selecting the body / opting in to see indicators,
+            // show indicators lightly
+            const lighter = !selected && !teamIndicatorsEnabled
+            this.drawIndicators(match, ctx, lighter, config.indicatorOpacity)
         }
         if (focused || config.showHealthBars) {
             this.drawHealthBar(match, ctx)
@@ -409,11 +419,11 @@ export class Body {
         ctx.globalAlpha = 1
     }
 
-    private drawIndicators(match: Match, ctx: CanvasRenderingContext2D, lighter: boolean): void {
-        const dimension = match.currentRound.map.staticMap.dimension
+    private drawIndicators(match: Match, ctx: CanvasRenderingContext2D, lighter: boolean, opacity: number): void {
+        const dimension = match.currentRound.map.staticMap.dimension  
         // Render indicator dots
         for (const data of this.indicatorDots) {
-            ctx.globalAlpha = lighter ? 0.5 : 1
+            ctx.globalAlpha = lighter ? 0.5 : opacity
             const coords = renderUtils.getRenderCoords(data.location.x, data.location.y, dimension)
             ctx.beginPath()
             ctx.arc(coords.x + 0.5, coords.y + 0.5, INDICATOR_DOT_SIZE, 0, 2 * Math.PI, false)
@@ -424,7 +434,7 @@ export class Body {
 
         ctx.lineWidth = INDICATOR_LINE_WIDTH
         for (const data of this.indicatorLines) {
-            ctx.globalAlpha = lighter ? 0.5 : 1
+            ctx.globalAlpha = lighter ? 0.5 : opacity
             const start = renderUtils.getRenderCoords(data.start.x, data.start.y, dimension)
             const end = renderUtils.getRenderCoords(data.end.x, data.end.y, dimension)
             ctx.beginPath()
