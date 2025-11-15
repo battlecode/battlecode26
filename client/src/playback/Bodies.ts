@@ -423,7 +423,7 @@ export class Body {
         const dimension = match.currentRound.map.staticMap.dimension  
         // Render indicator dots
         for (const data of this.indicatorDots) {
-            ctx.globalAlpha = lighter ? 0.5 :(opacity / 100)
+            ctx.globalAlpha = lighter ? 0.5 : (opacity / 100)
             const coords = renderUtils.getRenderCoords(data.location.x, data.location.y, dimension)
             ctx.beginPath()
             ctx.arc(coords.x + 0.5, coords.y + 0.5, INDICATOR_DOT_SIZE, 0, 2 * Math.PI, false)
