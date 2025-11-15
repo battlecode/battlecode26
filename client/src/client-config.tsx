@@ -26,7 +26,6 @@ const DEFAULT_CONFIG = {
     showAllIndicators: false,
     showTeamOneIndicators: false,
     showTeamTwoIndicators: false,
-    indicatorOpacity: 100,
     showAllRobotRadii: false,
     showTimelineMarkers: true,
     showHealthBars: true,
@@ -43,6 +42,7 @@ const DEFAULT_CONFIG = {
     profileGames: false,
     validateMaps: false,
     resolutionScale: 100,
+    indicatorOpacity: 100,
     colors: {
         [Colors.TEAM_ONE]: '#cdcdcc',
         [Colors.TEAM_TWO]: '#fee493',
@@ -62,7 +62,6 @@ const configDescription: Record<keyof ClientConfig, string> = {
     showAllIndicators: 'Show all indicator dots and lines',
     showTeamOneIndicators: "Show all indicator dots and lines just for Silver team (team 1)",
     showTeamTwoIndicators: "Show all indicator dots and lines just for Gold team (team 2)",
-    indicatorOpacity: "Customize how opaque the indicator dots and lines are",
     showAllRobotRadii: 'Show all robot view and attack radii',
     showTimelineMarkers: 'Show user-generated markers on the timeline',
     showHealthBars: 'Show health bars below all robots',
@@ -79,7 +78,8 @@ const configDescription: Record<keyof ClientConfig, string> = {
     profileGames: 'Enable saving profiling data when running games',
     validateMaps: 'Validate maps before running a game',
     resolutionScale: 'Resolution scale for the game area. Decrease to help performance.',
-    colors: ''
+    indicatorOpacity: "Customize how opaque the indicator dots and lines are",
+    colors: '',
 }
 
 export function getDefaultConfig(): ClientConfig {
