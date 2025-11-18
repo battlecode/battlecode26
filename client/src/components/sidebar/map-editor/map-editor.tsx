@@ -14,7 +14,7 @@ import { ConfirmDialog } from '../../confirm-dialog'
 import GameRunner, { useRound } from '../../../playback/GameRunner'
 import { GameRenderer } from '../../../playback/GameRenderer'
 import { RingBuffer } from '../../../util/ring-buffer'
-import { GenerativeMapCreator } from './GenerativeMapCreator'
+import { GenerativeMapCreator } from './generative-map-creator'
 
 type MapParams = {
     width: number
