@@ -5,7 +5,7 @@ import {
     SinglePointMapEditorBrush,
     SymmetricMapEditorBrush
 } from '../components/sidebar/map-editor/MapEditorBrush'
-import {ACTION_DEFINITIONS} from './Actions'
+import { ACTION_DEFINITIONS } from './Actions'
 import Bodies from './Bodies'
 import { CurrentMap, StaticMap } from './Map'
 import { Vector } from './Vector'
@@ -112,16 +112,15 @@ const makeEditorActionData = (map: StaticMap, atype: schema.Action, tx: number, 
     }
 }
 
-
 const findNearestRobotId = (bodies: Bodies, id: number, x: number, y: number): number | null => {
     // Find the nearest existing body (excluding the one we just spawned)
     let nearestId: number | null = null
     let nearestDist = Number.POSITIVE_INFINITY
     for (const b of bodies.bodies.values()) {
         if (b.id === id) continue
-            const dx = b.pos.x - x
-            const dy = b.pos.y - y
-            const d2 = dx * dx + dy * dy
+        const dx = b.pos.x - x
+        const dy = b.pos.y - y
+        const d2 = dx * dx + dy * dy
         if (d2 < nearestDist) {
             nearestDist = d2
             nearestId = b.id
@@ -129,7 +128,6 @@ const findNearestRobotId = (bodies: Bodies, id: number, x: number, y: number): n
     }
     return nearestId
 }
-
 
 export class RobotBrush extends SinglePointMapEditorBrush<StaticMap> {
     private readonly bodies: Bodies
@@ -212,7 +210,7 @@ export class RobotBrush extends SinglePointMapEditorBrush<StaticMap> {
                     const actionInstance = new ActionCtor(id, adata as any)
                     const actionsArray = this.bodies.game?.currentMatch?.currentRound?.actions?.actions
                     const currentRound = this.bodies.game?.currentMatch?.currentRound
-                    
+
                     if (actionsArray && currentRound) {
                         // Apply immediately for stateful actions (e.g., PaintAction) so map state changes in editor
                         actionInstance.apply(currentRound)
@@ -302,8 +300,6 @@ export class WallsBrush extends SymmetricMapEditorBrush<StaticMap> {
             })
         }
     }
-
-    
 }
 
 export class RuinsBrush extends SymmetricMapEditorBrush<StaticMap> {

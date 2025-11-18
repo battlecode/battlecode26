@@ -14,6 +14,7 @@ import { ConfirmDialog } from '../../confirm-dialog'
 import GameRunner, { useRound } from '../../../playback/GameRunner'
 import { GameRenderer } from '../../../playback/GameRenderer'
 import { RingBuffer } from '../../../util/ring-buffer'
+import { GenerativeMapCreator } from './GenerativeMapCreator'
 
 type MapParams = {
     width: number
@@ -193,6 +194,13 @@ export const MapEditorPage: React.FC<Props> = (props) => {
 
             <div className="h-full flex flex-col flex-grow justify-between">
                 <div>{renderedBrushes}</div>
+                <div>
+                    <GenerativeMapCreator
+                        mapWidth={mapParams.width}
+                        mapHeight={mapParams.height}
+                        currentRound={round}
+                    />
+                </div>
                 <div className="pb-8">
                     <SmallButton
                         onClick={() => setClearConfirmOpen(true)}

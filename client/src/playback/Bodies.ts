@@ -150,8 +150,8 @@ export default class Bodies {
         config: ClientConfig,
         // multiSelectMode: boolean = false,
         selectedBodyID?: number,
-        selectedBodyIDs?:  Array<number>,
-        focusedBodyIDs?:  Array<number>,
+        selectedBodyIDs?: Array<number>,
+        focusedBodyIDs?: Array<number>,
         hoveredTile?: Vector
     ): void {
         for (const body of this.bodies.values()) {
@@ -159,7 +159,7 @@ export default class Bodies {
                 body.draw(match, bodyCtx)
             }
 
-            const selected = (selectedBodyID === body.id || !!selectedBodyIDs?.includes(body.id))
+            const selected = selectedBodyID === body.id || !!selectedBodyIDs?.includes(body.id)
             const hovered = !!hoveredTile && vectorEq(body.pos, hoveredTile)
             const focused = !!focusedBodyIDs?.includes(body.id)
             if (overlayCtx) {
