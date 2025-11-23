@@ -5,7 +5,7 @@ import { ChromePicker, ColorResult } from 'react-color'
 import { AppContextProvider, useAppContext, AppContext } from './app-context'
 import { GameRenderer } from './playback/GameRenderer'
 import { NativeAPI, nativeAPI } from './components/sidebar/runner/native-api-wrapper'
-import { NumInput } from './components/forms'
+import { NumInput, TextInput } from './components/forms'
 import { Colors, Color, Sections } from './colors'
 import { BrightButton, Button } from './components/button'
 import { useKeyboard } from './util/keyboard'
@@ -161,6 +161,12 @@ export const ConfigPage: React.FC<Props> = (props) => {
 
 const ColorConfig = () => {
     const context = useAppContext()
+    const [profileText, setProfileText] = useState<string>(JSON.stringify(saveColorFile()))
+    const [profileError, setProfileError] = useState<string>()
+
+    function resetProfileText(): void {
+        setProfileText(JSON.stringify(saveColorFile()))
+    }
 
     return (
         <>
@@ -172,28 +178,65 @@ const ColorConfig = () => {
                         {
                             Object.values(Colors)
                                 .filter((color) => color.section === section && color.displayName !== undefined)
-                                .map((color) => <SingleColorPicker displayName={color.displayName as string} colorName={color} />)
+                                .map((color) => <SingleColorPicker
+                                    displayName={color.displayName as string}
+                                    colorName={color}
+                                    resetProfileText={resetProfileText}
+                                />)
                         }
                     </div>)
                 }
             </div>
+            <BrightButton
+                className=""
+                onClick={() => {
+                    Object.values(Colors).forEach((color) => {
+                        color.set(color.defaultColor, context)
+                    })
+                    resetProfileText()
+                }}
+            >
+                Reset Colors
+            </BrightButton>
             <div className="flex flex-row mt-8">
                 <BrightButton
-                    className=""
                     onClick={() => {
-                        Object.values(Colors).forEach((color) => {
-                            color.set(color.defaultColor, context)
-                        })
+                        navigator.clipboard.writeText(JSON.stringify(saveColorFile()))
                     }}
-                >
-                    Reset Colors
-                </BrightButton>
+                    className="h-12"
+                    style={{fontSize: "1rem"}}
+                >📋</BrightButton>
+                <TextInput
+                    className="w-72 flex-initial m-1 h-12"
+                    value={profileText}
+                    placeholder="Profile"
+                    onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                            let parsedJSON:string|undefined = undefined
+                            try {
+                                parsedJSON = JSON.parse(profileText)
+                            } catch (error) {
+                                setProfileError("Cannot load JSON")
+                            }
+                            if (parsedJSON !== undefined) {
+                                try {
+                                    const error = loadColorFile(JSON.parse(profileText), context)
+                                    setProfileError(error)
+                                } catch (error) {
+                                    setProfileError("Cannot parse")
+                                }
+                            }
+                        }
+                    }}
+                    onInput={(event) => setProfileText(event.currentTarget.value)}
+                />
             </div>
+            <p>{profileError}</p>
         </>
     )
 }
 
-const SingleColorPicker = (props: { displayName: string; colorName: Color }) => {
+const SingleColorPicker = (props: { displayName: string; colorName: Color; resetProfileText: () => void }) => {
     const context = useAppContext()
     const value = props.colorName.get()
     const ref = useRef<HTMLDivElement>(null)
@@ -223,10 +266,12 @@ const SingleColorPicker = (props: { displayName: string; colorName: Color }) => 
 
     const onChange = (newColor: ColorResult) => {
         props.colorName.set(newColor.hex, context)
+        props.resetProfileText()
     }
 
     const resetColor = () => {
         props.colorName.set(props.colorName.defaultColor, context)
+        props.resetProfileText()
     }
 
     useEffect(() => {
