@@ -30,6 +30,7 @@ module.exports = {
                 centered: '0 0 10px 1px rgba(0,0,0,0.6)'
             },
             colors: {
+                errorred: '#ff9194',
                 team0: 'var(--color-team0)',
                 team1: 'var(--color-team1)',
 
