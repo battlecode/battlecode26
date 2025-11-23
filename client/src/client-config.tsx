@@ -137,6 +137,8 @@ export const ConfigPage: React.FC<Props> = (props) => {
     const [isSearchFocused, setIsSearchFocused] = useState(false)
     const [shouldForceOpen, setShouldForceOpen] = useState(false)
 
+    const sidebarColor = context.state.config.colors[Colors.SIDEBAR_BACKGROUND]
+
     useEffect(() => {
         if (context.state.disableHotkeys || isSearchFocused) return
 
@@ -157,7 +159,8 @@ export const ConfigPage: React.FC<Props> = (props) => {
     const filteredEntries = configEntries.filter(({ key, category }) => {
         if (!input.trim()) return true
         const s = input.toLowerCase()
-        return key.toLowerCase().includes(s) || category.toLowerCase().includes(s)
+        const description = configDescription[key]?.toLowerCase() || ''
+        return key.toLowerCase().includes(s) || description.includes(s)
     })
 
     const groupedCategories = filteredEntries.reduce(
@@ -175,7 +178,7 @@ export const ConfigPage: React.FC<Props> = (props) => {
             <input
                 type="text"
                 placeholder="Search Configs..."
-                className="w-full mb-3 px-3 py-2 bg-[#3f3131] border border-white shadow-lg rounded-xl"
+                className="w-full mb-3 px-3 py-2 border border-white shadow-lg rounded-xl"
                 value={input}
                 onChange={(e) => {
                     setInput(e.target.value)
@@ -192,6 +195,9 @@ export const ConfigPage: React.FC<Props> = (props) => {
                 autoCapitalize="off"
                 autoCorrect="off"
                 autoComplete="off"
+                style={{
+                    backgroundColor: sidebarColor
+                }}
             />
             {Object.entries(groupedCategories)
                 .filter(([category]) => category !== '')
@@ -201,6 +207,7 @@ export const ConfigPage: React.FC<Props> = (props) => {
                         title={category}
                         keys={keys}
                         forceOpen={shouldForceOpen && !!input.trim()}
+                        hasInput={!!input.trim()}
                     />
                 ))}
 
@@ -345,27 +352,25 @@ const SingleColorPicker = (props: { displayName: string; colorName: Colors }) =>
     )
 }
 
-const ConfigCategoryDropdown: React.FC<{ title: string; keys: Array<keyof ClientConfig>; forceOpen?: boolean }> = ({
-    title,
-    keys,
-    forceOpen
-}) => {
+const ConfigCategoryDropdown: React.FC<{
+    title: string
+    keys: Array<keyof ClientConfig>
+    forceOpen?: boolean
+    hasInput?: boolean
+}> = ({ title, keys, forceOpen, hasInput }) => {
     const [open, setOpen] = useState<boolean>(false)
-    const [manuallyToggled, setManuallyToggled] = useState<boolean>(false)
 
     useEffect(() => {
-        if (forceOpen && !manuallyToggled) {
+        if (forceOpen) {
             setOpen(true)
-        } else if (!forceOpen && !manuallyToggled) {
+        } else if (!hasInput) {
             setOpen(false)
         }
-    }, [forceOpen, manuallyToggled])
+    }, [forceOpen, hasInput])
 
     const onClick = () => {
         setOpen(!open)
-        setManuallyToggled(true)
     }
-
     return (
         <div className="mb-3">
             <SectionHeader title={title} open={open} onClick={onClick} children={<div></div>}></SectionHeader>
