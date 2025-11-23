@@ -101,8 +101,8 @@ const configCategories: Record<keyof ClientConfig, string> = {
     populateRunnerGames: 'Game Playback',
 
     // Developer & Validation Tools
-    profileGames: 'Developer & Validation Tools',
-    validateMaps: 'Developer & Validation Tools',
+    profileGames: 'Developer Tools',
+    validateMaps: 'Developer Tools',
 
     // Mischellanous
     resolutionScale: '',
@@ -134,9 +134,11 @@ export const ConfigPage: React.FC<Props> = (props) => {
     const keyboard = useKeyboard()
 
     const [input, setInput] = useState('')
+    const [isSearchFocused, setIsSearchFocused] = useState(false)
+    const [shouldForceOpen, setShouldForceOpen] = useState(false)
 
     useEffect(() => {
-        if (context.state.disableHotkeys) return
+        if (context.state.disableHotkeys || isSearchFocused) return
 
         if (keyboard.keyCode === 'KeyF')
             context.updateConfigValue('focusRobotTurn', !context.state.config.focusRobotTurn)
@@ -173,13 +175,45 @@ export const ConfigPage: React.FC<Props> = (props) => {
             <input
                 type="text"
                 placeholder="Search Configs..."
-                className="w-full mb-3 px-3 py-2 bg-gray-800 text-white rounded-md placeholder-gray-400"
+                className="w-full mb-3 px-3 py-2 bg-[#3f3131] border border-white shadow-lg rounded-xl"
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={(e) => {
+                    setInput(e.target.value)
+                    setShouldForceOpen(true)
+                }}
+                onFocus={(e) => {
+                    setIsSearchFocused(true)
+                    setTimeout(() => e.target.select(), 0)
+                }}
+                onBlur={() => {
+                    setIsSearchFocused(false)
+                    setShouldForceOpen(false)
+                }}
+                autoCapitalize="off"
+                autoCorrect="off"
+                autoComplete="off"
             />
-            {Object.entries(groupedCategories).map(([category, keys]) => (
-                <ConfigCategoryDropdown key={category} title={category} keys={keys} />
-            ))}
+            {Object.entries(groupedCategories)
+                .filter(([category]) => category !== '')
+                .map(([category, keys]) => (
+                    <ConfigCategoryDropdown
+                        key={category}
+                        title={category}
+                        keys={keys}
+                        forceOpen={shouldForceOpen && !!input.trim()}
+                    />
+                ))}
+
+            {groupedCategories[''] && (
+                <div className="mb-3">
+                    {groupedCategories[''].map((key) => {
+                        const value = DEFAULT_CONFIG[key]
+                        if (key === 'colors') return null
+                        if (typeof value === 'number') return <ConfigNumberElement configKey={key} key={key} />
+                        return null
+                    })}
+                </div>
+            )}
 
             <ColorConfig />
         </div>
@@ -311,18 +345,33 @@ const SingleColorPicker = (props: { displayName: string; colorName: Colors }) =>
     )
 }
 
-const ConfigCategoryDropdown: React.FC<{ title: string; keys: Array<keyof ClientConfig> }> = ({ title, keys }) => {
-    const [open, setOpen] = useState<boolean>(true)
+const ConfigCategoryDropdown: React.FC<{ title: string; keys: Array<keyof ClientConfig>; forceOpen?: boolean }> = ({
+    title,
+    keys,
+    forceOpen
+}) => {
+    const [open, setOpen] = useState<boolean>(false)
+    const [manuallyToggled, setManuallyToggled] = useState<boolean>(false)
+
+    useEffect(() => {
+        if (forceOpen && !manuallyToggled) {
+            setOpen(true)
+        } else if (!forceOpen && !manuallyToggled) {
+            setOpen(false)
+        }
+    }, [forceOpen, manuallyToggled])
 
     const onClick = () => {
         setOpen(!open)
+        setManuallyToggled(true)
     }
 
+    const isOpen = open
     return (
         <div className="mb-3">
-            <SectionHeader title={title} open={open} onClick={onClick} children={<div></div>}></SectionHeader>
+            <SectionHeader title={title} open={isOpen} onClick={onClick} children={<div></div>}></SectionHeader>
 
-            {open && (
+            {(open || forceOpen) && (
                 <div className=" px-3 py-2">
                     {keys.map((key) => {
                         const value = DEFAULT_CONFIG[key]
