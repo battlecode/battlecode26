@@ -304,7 +304,7 @@ const SingleColorPicker = (props: { displayName: string; colorName: Color; reset
                     style={{ backgroundColor: value, border: '2px solid white' }}
                     onClick={handleClick}
                 ></button>
-                {props.displayName}
+                <div title={props.colorName.name}>{props.displayName}</div>
             </div>
             <div ref={ref} className={'width: w-min'}>
                 {displayColorPicker && <ChromePicker color={value} onChange={onChange} />}
