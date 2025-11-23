@@ -5,8 +5,8 @@ import { ChromePicker, ColorResult } from 'react-color'
 import { AppContextProvider, useAppContext, AppContext } from './app-context'
 import { GameRenderer } from './playback/GameRenderer'
 import { NativeAPI, nativeAPI } from './components/sidebar/runner/native-api-wrapper'
-import { NumInput, TextInput } from './components/forms'
-import { Colors, Color, Sections } from './colors'
+import { NumInput, TextInput, Select } from './components/forms'
+import { Colors, Color, Sections, ColorFormat, ColorPreset, Presets } from './colors'
 import { BrightButton, Button } from './components/button'
 import { useKeyboard } from './util/keyboard'
 
@@ -66,14 +66,9 @@ const configDescription: Record<keyof ClientConfig, string> = {
     colors: ''
 }
 
-interface colorFormat {
-    version: number,
-    colors: Record<string, string>
-}
-
 const COLOR_FORMAT_VERSION = 0
 
-function saveColorFile(): colorFormat {
+function saveColorFile(): ColorFormat {
     const colors: Record<string, string> = {}
     for (const key in Colors) {
         const color = Colors[key].get()
@@ -88,7 +83,7 @@ function saveColorFile(): colorFormat {
 }
 
 // Returns an error message or undefined if successful.
-function loadColorFile(file: colorFormat, context: AppContext): string | undefined {
+function loadColorFile(file: ColorFormat, context: AppContext): string | undefined {
     if (file.version != COLOR_FORMAT_VERSION) {
         return `Unsupported version ${file.version}`
     }
@@ -163,9 +158,11 @@ const ColorConfig = () => {
     const context = useAppContext()
     const [profileText, setProfileText] = useState<string>(JSON.stringify(saveColorFile()))
     const [profileError, setProfileError] = useState<string>()
+    const [selectedDefaultProfile, setSelectedDefaultProfile] = useState<ColorPreset>()
 
     function resetProfileText(): void {
         setProfileText(JSON.stringify(saveColorFile()))
+        setSelectedDefaultProfile(undefined)
     }
 
     return (
@@ -198,6 +195,23 @@ const ColorConfig = () => {
             >
                 Reset Colors
             </BrightButton>
+            <Select
+                className='m-1'
+                value={selectedDefaultProfile?.displayName ?? ""}
+                onChange={(e) => {
+                    const preset = Presets.find(preset => preset.displayName === e)
+                    if (preset !== undefined) {
+                        loadColorFile(preset.data, context)
+                        setSelectedDefaultProfile(preset)
+                    }
+                }}
+                disabled={Presets.length === 0}
+            >
+                {selectedDefaultProfile === undefined ? <option key="" value="">Select...</option> : undefined}
+                {Presets.map((p) => (
+                    <option key={p.displayName} value={p.displayName}>{p.displayName}</option>
+                ))}
+            </Select>
             <div className="flex flex-row mt-8">
                 <BrightButton
                     onClick={() => {
@@ -222,6 +236,9 @@ const ColorConfig = () => {
                                 try {
                                     const error = loadColorFile(JSON.parse(profileText), context)
                                     setProfileError(error)
+                                    if (error === undefined) {
+                                        setSelectedDefaultProfile(undefined)
+                                    }
                                 } catch (error) {
                                     setProfileError("Cannot parse")
                                 }

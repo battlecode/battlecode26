@@ -5,8 +5,18 @@ import { AppContext } from './app-context'
  * TODO: colors are defined in style.css as well
  */
 
+export interface ColorFormat {
+    version: number,
+    colors: Record<string, string>
+}
+
 export interface ColorSection {
     displayName: string
+}
+
+export interface ColorPreset {
+    displayName: string,
+    data: ColorFormat,
 }
 
 export class Color {
@@ -93,6 +103,10 @@ export const Colors: Record<string, Color> = {
     PAINT_TEAMTWO_ONE: new Color('PAINT_TEAMTWO_ONE', '#b28b52', '--color-paint-team1-0', 'Primary Paint', Sections.GOLD),
     PAINT_TEAMTWO_TWO: new Color('PAINT_TEAMTWO_TWO', '#997746', '--color-paint-team1-1', 'Secondary Paint', Sections.GOLD),
 }
+
+export const Presets: ColorPreset[] = [
+    {displayName: "Battlecode 2025", data: {version: 0, colors: {GAMEAREA_BACKGROUND: "#2e2323", SIDEBAR_BACKGROUND: "#3f3131", RED: "#ff9194", PINK: "#ffb4c1", GREEN: "#00a28e", CYAN: "#02a7b9", CYAN_DARK: "#1899a7", BLUE: "#04a2d9", BLUE_LIGHT: "#26abd9", BLUE_DARK: "#00679e", DARK: "#1f2937", DARK_HIGHLIGHT: "#140f0f", BLACK: "#140f0f", WHITE: "#fcdede", LIGHT: "#aaaaaa22", LIGHT_HIGHLIGHT: "#ffffff33", LIGHT_CARD: "#f7f7f722", WALLS_COLOR: "#547f31", TILES_COLOR: "#4c301e", TEAM_ONE: "#cdcdcc", PAINT_TEAMONE_ONE: "#666666", PAINT_TEAMONE_TWO: "#565656", TEAM_TWO: "#fee493", PAINT_TEAMTWO_ONE: "#b28b52", PAINT_TEAMTWO_TWO: "#997746"}}},
+]
 
 const currentColors: Record<string, string> = {}
 
