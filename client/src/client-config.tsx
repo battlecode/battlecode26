@@ -1,18 +1,12 @@
 import React, { useEffect, useState, MouseEvent, PropsWithChildren, useRef } from 'react'
 import { IconContext } from 'react-icons'
 import { IoCloseCircle, IoCloseCircleOutline } from 'react-icons/io5'
-import { ChromePicker } from 'react-color'
-import { AppContextProvider, useAppContext } from './app-context'
+import { ChromePicker, ColorResult } from 'react-color'
+import { AppContextProvider, useAppContext, AppContext } from './app-context'
 import { GameRenderer } from './playback/GameRenderer'
-import { NumInput } from './components/forms'
-import {
-    Colors,
-    currentColors,
-    updateGlobalColor,
-    getGlobalColor,
-    resetGlobalColors,
-    DEFAULT_GLOBAL_COLORS
-} from './colors'
+import { NativeAPI, nativeAPI } from './components/sidebar/runner/native-api-wrapper'
+import { NumInput, TextInput, Select } from './components/forms'
+import { Colors, Color, Sections, ColorFormat, ColorPreset, Presets } from './colors'
 import { BrightButton, Button } from './components/button'
 import { useKeyboard } from './util/keyboard'
 
@@ -20,6 +14,14 @@ export type ClientConfig = typeof DEFAULT_CONFIG
 
 interface Props {
     open: boolean
+}
+
+function getDefaultColors(): Record<string, string> {
+    const output: Record<string, string> = {}
+    for (const key in Colors) {
+        output[Colors[key].name] = Colors[key].defaultColor
+    }
+    return output
 }
 
 const DEFAULT_CONFIG = {
@@ -43,19 +45,7 @@ const DEFAULT_CONFIG = {
     validateMaps: false,
     resolutionScale: 100,
     indicatorOpacity: 100,
-    colors: {
-        [Colors.TEAM_ONE]: '#cdcdcc',
-        [Colors.TEAM_TWO]: '#fee493',
-
-        [Colors.PAINT_TEAMONE_ONE]: '#666666',
-        [Colors.PAINT_TEAMONE_TWO]: '#565656',
-        [Colors.PAINT_TEAMTWO_ONE]: '#b28b52',
-        [Colors.PAINT_TEAMTWO_TWO]: '#997746',
-        [Colors.WALLS_COLOR]: '#547f31',
-        [Colors.TILE_COLOR]: '#4c301e',
-        [Colors.GAMEAREA_BACKGROUND]: '#2e2323',
-        [Colors.SIDEBAR_BACKGROUND]: '#3f3131'
-    } as Record<Colors, string>
+    colors: getDefaultColors(),
 }
 
 const configDescription: Record<keyof ClientConfig, string> = {
@@ -82,6 +72,45 @@ const configDescription: Record<keyof ClientConfig, string> = {
     colors: '',
 }
 
+const COLOR_FORMAT_VERSION = 0
+
+function saveColorFile(): ColorFormat {
+    const colors: Record<string, string> = {}
+    for (const key in Colors) {
+        const color = Colors[key].get()
+        if (color != Colors[key].defaultColor) {
+            colors[key] = color
+        }
+    }
+    return {
+        version: COLOR_FORMAT_VERSION,
+        colors: colors,
+    }
+}
+
+// Returns an error message or undefined if successful.
+function loadColorFile(file: ColorFormat, context: AppContext): string | undefined {
+    if (file.version != COLOR_FORMAT_VERSION) {
+        return `Unsupported version ${file.version}`
+    }
+    const ColorRegexp = new RegExp(/(?:^#[\da-fA-F]{6}$)|(?:^#[\da-fA-F]{8}$)/)
+    // verify that format is correct before continuing.
+    for (const key in file.colors) {
+        // The key does not correspond to a color.
+        if (Colors[key] === undefined) {
+            return `Unknown color name "${key}"`
+        }
+        // Color is not in the correct format
+        if (!ColorRegexp.test(file.colors[key])) {
+            return `Invalid color "${file.colors[key]}"`
+        }
+    }
+    for (const key in file.colors) {
+        Colors[key].set(file.colors[key], context)
+    }
+    return undefined
+}
+
 export function getDefaultConfig(): ClientConfig {
     const config: ClientConfig = { ...DEFAULT_CONFIG }
     for (const key in config) {
@@ -91,11 +120,10 @@ export function getDefaultConfig(): ClientConfig {
         }
     }
 
-    for (const key in config.colors) {
+    for (const key in Colors) {
         const value = localStorage.getItem('config-colors' + key)
         if (value) {
-            config.colors[key as Colors] = JSON.parse(value)
-            updateGlobalColor(key as Colors, JSON.parse(value))
+            config.colors[key] = value
         }
     }
 
@@ -134,50 +162,106 @@ export const ConfigPage: React.FC<Props> = (props) => {
 
 const ColorConfig = () => {
     const context = useAppContext()
+    const [profileText, setProfileText] = useState<string>(JSON.stringify(saveColorFile()))
+    const [profileError, setProfileError] = useState<string>()
+    const [selectedDefaultProfile, setSelectedDefaultProfile] = useState<ColorPreset>()
 
-    /* TODO: [future] do this dynamically rather than hardcoding sections */
+    function resetProfileText(): void {
+        setProfileText(JSON.stringify(saveColorFile()))
+        setSelectedDefaultProfile(undefined)
+    }
 
     return (
         <>
             <div className="m-0 mt-4">
-                Customize Colors:
-                <div className="text-sm pb-1 pt-1">Interface</div>
-                <SingleColorPicker displayName={'Background'} colorName={Colors.GAMEAREA_BACKGROUND} />
-                <SingleColorPicker displayName={'Sidebar'} colorName={Colors.SIDEBAR_BACKGROUND} />
-                <div className="text-sm pb-1">General</div>
-                <SingleColorPicker displayName={'Walls'} colorName={Colors.WALLS_COLOR} />
-                <SingleColorPicker displayName={'Tiles'} colorName={Colors.TILE_COLOR} />
-                <div className="text-sm pb-1">Silver</div>
-                <SingleColorPicker displayName={'Text'} colorName={Colors.TEAM_ONE} />
-                <SingleColorPicker displayName={'Primary Paint'} colorName={Colors.PAINT_TEAMONE_ONE} />
-                <SingleColorPicker displayName={'Secondary Paint'} colorName={Colors.PAINT_TEAMONE_TWO} />
-                <div className="text-sm pb-1">Gold</div>
-                <SingleColorPicker displayName={'Text'} colorName={Colors.TEAM_TWO} />
-                <SingleColorPicker displayName={'Primary Paint'} colorName={Colors.PAINT_TEAMTWO_ONE} />
-                <SingleColorPicker displayName={'Secondary Paint'} colorName={Colors.PAINT_TEAMTWO_TWO} />
+                <div className="pb-1">Customize Colors:</div>
+                {
+                    Object.values(Sections).map((section) => <div key={`section-${section.displayName}`}>
+                        <div className="text-sm pb-1">{section.displayName}</div>
+                        {
+                            Object.values(Colors)
+                                .filter((color) => color.section === section && color.displayName !== undefined)
+                                .map((color) => <div key={`color-${color.name}`}><SingleColorPicker
+                                    displayName={color.displayName as string}
+                                    colorName={color}
+                                    resetProfileText={resetProfileText}
+                                /></div>)
+                        }
+                    </div>)
+                }
             </div>
+            <BrightButton
+                className=""
+                onClick={() => {
+                    Object.values(Colors).forEach((color) => {
+                        color.set(color.defaultColor, context)
+                    })
+                    resetProfileText()
+                }}
+            >
+                Reset Colors
+            </BrightButton>
+            <Select
+                className='m-1'
+                value={selectedDefaultProfile?.displayName ?? ""}
+                onChange={(e) => {
+                    const preset = Presets.find(preset => preset.displayName === e)
+                    if (preset !== undefined) {
+                        loadColorFile(preset.data, context)
+                        setSelectedDefaultProfile(preset)
+                    }
+                }}
+                disabled={Presets.length === 0}
+            >
+                {selectedDefaultProfile === undefined ? <option key="" value="">Select...</option> : undefined}
+                {Presets.map((p) => (
+                    <option key={p.displayName} value={p.displayName}>{p.displayName}</option>
+                ))}
+            </Select>
             <div className="flex flex-row mt-8">
                 <BrightButton
-                    className=""
                     onClick={() => {
-                        resetGlobalColors()
-
-                        context.setState((prevState) => ({
-                            ...prevState,
-                            config: { ...prevState.config, colors: { ...DEFAULT_GLOBAL_COLORS } }
-                        }))
+                        navigator.clipboard.writeText(JSON.stringify(saveColorFile()))
                     }}
-                >
-                    Reset Colors
-                </BrightButton>
+                    className="h-12"
+                    style={{fontSize: "1rem"}}
+                >📋</BrightButton>
+                <TextInput
+                    className="w-72 flex-initial m-1 h-12"
+                    value={profileText}
+                    placeholder="Profile"
+                    onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                            let parsedJSON:string|undefined = undefined
+                            try {
+                                parsedJSON = JSON.parse(profileText)
+                            } catch (error) {
+                                setProfileError("Cannot load JSON")
+                            }
+                            if (parsedJSON !== undefined) {
+                                try {
+                                    const error = loadColorFile(JSON.parse(profileText), context)
+                                    setProfileError(error)
+                                    if (error === undefined) {
+                                        setSelectedDefaultProfile(undefined)
+                                    }
+                                } catch (error) {
+                                    setProfileError("Cannot parse")
+                                }
+                            }
+                        }
+                    }}
+                    onInput={(event) => setProfileText(event.currentTarget.value)}
+                />
             </div>
+            <p>{profileError}</p>
         </>
     )
 }
 
-const SingleColorPicker = (props: { displayName: string; colorName: Colors }) => {
+const SingleColorPicker = (props: { displayName: string; colorName: Color; resetProfileText: () => void }) => {
     const context = useAppContext()
-    const value = context.state.config.colors[props.colorName]
+    const value = props.colorName.get()
     const ref = useRef<HTMLDivElement>(null)
     const buttonRef = useRef<HTMLButtonElement>(null)
     const [hoveredClose, setHoveredClose] = useState(false)
@@ -203,18 +287,14 @@ const SingleColorPicker = (props: { displayName: string; colorName: Colors }) =>
         }
     }
 
-    const onChange = (newColor: any) => {
-        updateGlobalColor(props.colorName, newColor.hex)
-        context.setState((prevState) => ({
-            ...prevState,
-            config: { ...prevState.config, colors: { ...prevState.config.colors, [props.colorName]: newColor.hex } }
-        }))
-        // hopefully after the setState is done
-        setTimeout(() => GameRenderer.render(), 10)
+    const onChange = (newColor: ColorResult) => {
+        props.colorName.set(newColor.hex, context)
+        props.resetProfileText()
     }
 
     const resetColor = () => {
-        onChange({ hex: DEFAULT_GLOBAL_COLORS[props.colorName as Colors] })
+        props.colorName.set(props.colorName.defaultColor, context)
+        props.resetProfileText()
     }
 
     useEffect(() => {
@@ -226,14 +306,6 @@ const SingleColorPicker = (props: { displayName: string; colorName: Colors }) =>
     return (
         <>
             <div className={'ml-2 mb-2 text-xs flex flex-start justify-start items-center'}>
-                {/*Background:*/}
-                {props.displayName}:
-                <button
-                    ref={buttonRef}
-                    className={'text-xs ml-2 px-4 py-3 mr-2 flex flex-row hover:bg-cyanDark rounded-md text-white'}
-                    style={{ backgroundColor: value, border: '2px solid white' }}
-                    onClick={handleClick}
-                ></button>
                 <div
                     className="rounded-full overflow-clip"
                     onClick={() => resetColor()}
@@ -249,6 +321,13 @@ const SingleColorPicker = (props: { displayName: string; colorName: Colors }) =>
                         {hoveredClose ? <IoCloseCircle /> : <IoCloseCircleOutline />}
                     </IconContext.Provider>
                 </div>
+                <button
+                    ref={buttonRef}
+                    className={'text-xs ml-2 px-4 py-3 mr-2 flex flex-row hover:bg-cyanDark rounded-md text-white'}
+                    style={{ backgroundColor: value, border: '2px solid white' }}
+                    onClick={handleClick}
+                ></button>
+                <div title={props.colorName.name}>{props.displayName}</div>
             </div>
             <div ref={ref} className={'width: w-min'}>
                 {displayColorPicker && <ChromePicker color={value} onChange={onChange} />}
