@@ -173,16 +173,16 @@ const ColorConfig = () => {
             <div className="m-0 mt-4">
                 <div className="pb-1">Customize Colors:</div>
                 {
-                    Object.values(Sections).map((section) => <div>
+                    Object.values(Sections).map((section) => <div key={`section-${section.displayName}`}>
                         <div className="text-sm pb-1">{section.displayName}</div>
                         {
                             Object.values(Colors)
                                 .filter((color) => color.section === section && color.displayName !== undefined)
-                                .map((color) => <SingleColorPicker
+                                .map((color) => <div key={`color-${color.name}`}><SingleColorPicker
                                     displayName={color.displayName as string}
                                     colorName={color}
                                     resetProfileText={resetProfileText}
-                                />)
+                                /></div>)
                         }
                     </div>)
                 }
