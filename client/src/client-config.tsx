@@ -2,8 +2,9 @@ import React, { useEffect, useState, MouseEvent, PropsWithChildren, useRef } fro
 import { IconContext } from 'react-icons'
 import { IoCloseCircle, IoCloseCircleOutline } from 'react-icons/io5'
 import { ChromePicker, ColorResult } from 'react-color'
-import { AppContextProvider, useAppContext } from './app-context'
+import { AppContextProvider, useAppContext, AppContext } from './app-context'
 import { GameRenderer } from './playback/GameRenderer'
+import { NativeAPI, nativeAPI } from './components/sidebar/runner/native-api-wrapper'
 import { NumInput } from './components/forms'
 import { Colors, Color, Sections } from './colors'
 import { BrightButton, Button } from './components/button'
@@ -63,6 +64,50 @@ const configDescription: Record<keyof ClientConfig, string> = {
     validateMaps: 'Validate maps before running a game',
     resolutionScale: 'Resolution scale for the game area. Decrease to help performance.',
     colors: ''
+}
+
+interface colorFormat {
+    version: number,
+    colors: Record<string, string>
+}
+
+const COLOR_FORMAT_VERSION = 0
+
+function saveColorFile(): colorFormat {
+    const colors: Record<string, string> = {}
+    for (const key in Colors) {
+        const color = Colors[key].get()
+        if (color != Colors[key].defaultColor) {
+            colors[key] = color
+        }
+    }
+    return {
+        version: COLOR_FORMAT_VERSION,
+        colors: colors,
+    }
+}
+
+// Returns an error message or undefined if successful.
+function loadColorFile(file: colorFormat, context: AppContext): string | undefined {
+    if (file.version != COLOR_FORMAT_VERSION) {
+        return `Unsupported version ${file.version}`
+    }
+    const ColorRegexp = new RegExp(/(?:^#[\da-fA-F]{6}$)|(?:^#[\da-fA-F]{8}$)/)
+    // verify that format is correct before continuing.
+    for (const key in file.colors) {
+        // The key does not correspond to a color.
+        if (Colors[key] === undefined) {
+            return `Unknown color name "${key}"`
+        }
+        // Color is not in the correct format
+        if (!ColorRegexp.test(file.colors[key])) {
+            return `Invalid color "${file.colors[key]}"`
+        }
+    }
+    for (const key in file.colors) {
+        Colors[key].set(file.colors[key], context)
+    }
+    return undefined
 }
 
 export function getDefaultConfig(): ClientConfig {
