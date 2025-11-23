@@ -366,12 +366,11 @@ const ConfigCategoryDropdown: React.FC<{ title: string; keys: Array<keyof Client
         setManuallyToggled(true)
     }
 
-    const isOpen = open
     return (
         <div className="mb-3">
-            <SectionHeader title={title} open={isOpen} onClick={onClick} children={<div></div>}></SectionHeader>
+            <SectionHeader title={title} open={open} onClick={onClick} children={<div></div>}></SectionHeader>
 
-            {(open || forceOpen) && (
+            {open && (
                 <div className=" px-3 py-2">
                     {keys.map((key) => {
                         const value = DEFAULT_CONFIG[key]
