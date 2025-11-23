@@ -9,6 +9,7 @@ import { NumInput, TextInput, Select } from './components/forms'
 import { Colors, Color, Sections, ColorFormat, ColorPreset, Presets } from './colors'
 import { BrightButton, Button } from './components/button'
 import { useKeyboard } from './util/keyboard'
+import { SectionHeader } from './components/section-header'
 
 export type ClientConfig = typeof DEFAULT_CONFIG
 
@@ -111,6 +112,38 @@ function loadColorFile(file: ColorFormat, context: AppContext): string | undefin
     return undefined
 }
 
+const configCategories: Record<keyof ClientConfig, string> = {
+    // Game Visualization
+    showAllIndicators: 'Game Visualization',
+    showAllRobotRadii: 'Game Visualization',
+    showSRPOutlines: 'Game Visualization',
+    showSRPText: 'Game Visualization',
+    showMapXY: 'Game Visualization',
+    enableFancyPaint: 'Game Visualization',
+
+    // Robot Display & Status
+    showHealthBars: 'Robot Display & Status',
+    showPaintBars: 'Robot Display & Status',
+    showExceededBytecode: 'Robot Display & Status',
+    focusRobotTurn: 'Robot Display & Status',
+
+    // Markers & Paint Debugging
+    showTimelineMarkers: 'Markers & Paint Debugging',
+    showPaintMarkers: 'Markers & Paint Debugging',
+
+    // Game Playback
+    streamRunnerGames: 'Game Playback',
+    populateRunnerGames: 'Game Playback',
+
+    // Developer & Validation Tools
+    profileGames: 'Developer Tools',
+    validateMaps: 'Developer Tools',
+
+    // Mischellanous
+    resolutionScale: '',
+    colors: ''
+}
+
 export function getDefaultConfig(): ClientConfig {
     const config: ClientConfig = { ...DEFAULT_CONFIG }
     for (const key in config) {
@@ -134,8 +167,14 @@ export const ConfigPage: React.FC<Props> = (props) => {
     const context = useAppContext()
     const keyboard = useKeyboard()
 
+    const [input, setInput] = useState('')
+    const [isSearchFocused, setIsSearchFocused] = useState(false)
+    const [shouldForceOpen, setShouldForceOpen] = useState(false)
+
+    const sidebarColor = context.state.config.colors[Colors.SIDEBAR_BACKGROUND]
+
     useEffect(() => {
-        if (context.state.disableHotkeys) return
+        if (context.state.disableHotkeys || isSearchFocused) return
 
         if (keyboard.keyCode === 'KeyF')
             context.updateConfigValue('focusRobotTurn', !context.state.config.focusRobotTurn)
@@ -145,15 +184,77 @@ export const ConfigPage: React.FC<Props> = (props) => {
 
     if (!props.open) return null
 
+    const configEntries = Object.keys(DEFAULT_CONFIG).map((key) => ({
+        key: key as keyof ClientConfig,
+        category: configCategories[key as keyof ClientConfig],
+        value: DEFAULT_CONFIG[key as keyof ClientConfig]
+    }))
+
+    const filteredEntries = configEntries.filter(({ key, category }) => {
+        if (!input.trim()) return true
+        const s = input.toLowerCase()
+        const description = configDescription[key]?.toLowerCase() || ''
+        return key.toLowerCase().includes(s) || description.includes(s)
+    })
+
+    const groupedCategories = filteredEntries.reduce(
+        (acc, { category, key }) => {
+            if (!acc[category]) acc[category] = []
+            acc[category].push(key)
+            return acc
+        },
+        {} as Record<string, Array<keyof ClientConfig>>
+    )
+
     return (
         <div className={'flex flex-col'}>
             <div className="mb-2">Edit Client Config:</div>
-            {Object.entries(DEFAULT_CONFIG).map(([k, v]) => {
-                const key = k as keyof ClientConfig
-                if (typeof v === 'string') return <ConfigStringElement configKey={key} key={key} />
-                if (typeof v === 'boolean') return <ConfigBooleanElement configKey={key} key={key} />
-                if (typeof v === 'number') return <ConfigNumberElement configKey={key} key={key} />
-            })}
+            <input
+                type="text"
+                placeholder="Search Configs..."
+                className="w-full mb-3 px-3 py-2 border border-white shadow-lg rounded-xl"
+                value={input}
+                onChange={(e) => {
+                    setInput(e.target.value)
+                    setShouldForceOpen(true)
+                }}
+                onFocus={(e) => {
+                    setIsSearchFocused(true)
+                    setTimeout(() => e.target.select(), 0)
+                }}
+                onBlur={() => {
+                    setIsSearchFocused(false)
+                    setShouldForceOpen(false)
+                }}
+                autoCapitalize="off"
+                autoCorrect="off"
+                autoComplete="off"
+                style={{
+                    backgroundColor: sidebarColor
+                }}
+            />
+            {Object.entries(groupedCategories)
+                .filter(([category]) => category !== '')
+                .map(([category, keys]) => (
+                    <ConfigCategoryDropdown
+                        key={category}
+                        title={category}
+                        keys={keys}
+                        forceOpen={shouldForceOpen && !!input.trim()}
+                        hasInput={!!input.trim()}
+                    />
+                ))}
+
+            {groupedCategories[''] && (
+                <div className="mb-3">
+                    {groupedCategories[''].map((key) => {
+                        const value = DEFAULT_CONFIG[key]
+                        if (key === 'colors') return null
+                        if (typeof value === 'number') return <ConfigNumberElement configKey={key} key={key} />
+                        return null
+                    })}
+                </div>
+            )}
 
             <ColorConfig />
         </div>
@@ -333,6 +434,44 @@ const SingleColorPicker = (props: { displayName: string; colorName: Color; reset
                 {displayColorPicker && <ChromePicker color={value} onChange={onChange} />}
             </div>
         </>
+    )
+}
+
+const ConfigCategoryDropdown: React.FC<{
+    title: string
+    keys: Array<keyof ClientConfig>
+    forceOpen?: boolean
+    hasInput?: boolean
+}> = ({ title, keys, forceOpen, hasInput }) => {
+    const [open, setOpen] = useState<boolean>(false)
+
+    useEffect(() => {
+        if (forceOpen) {
+            setOpen(true)
+        } else if (!hasInput) {
+            setOpen(false)
+        }
+    }, [forceOpen, hasInput])
+
+    const onClick = () => {
+        setOpen(!open)
+    }
+    return (
+        <div className="mb-3">
+            <SectionHeader title={title} open={open} onClick={onClick} children={<div></div>}></SectionHeader>
+
+            {open && (
+                <div className=" px-3 py-2">
+                    {keys.map((key) => {
+                        const value = DEFAULT_CONFIG[key]
+                        if (typeof value === 'boolean') return <ConfigBooleanElement configKey={key} key={key} />
+                        if (typeof value === 'number') return <ConfigNumberElement configKey={key} key={key} />
+                        if (typeof value === 'string') return <ConfigStringElement configKey={key} key={key} />
+                        return null
+                    })}
+                </div>
+            )}
+        </div>
     )
 }
 
