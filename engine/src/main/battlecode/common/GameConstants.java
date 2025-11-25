@@ -119,6 +119,12 @@ public class GameConstants {
     /** The damage a robot takes after being scratched by a cat */
     public static final int CAT_SCRATCH_DAMAGE = 50;
 
+    /** The distance squared a cat can pounce to */
+    public static final int CAT_POUNCE_MAX_DISTANCE_SQUARED = 9;
+
+    /** Percent damage a rat takes when a cat pounces to an adjacent location (eg. 50 = 50% damage) */
+    public static final int CAT_POUNCE_ADJACENT_DAMAGE_PERCENT = 50;
+
     /** The minimum gap between an enemy robot's health and our own before we can grab it from all angles */
     public static final int HEALTH_GRAB_THRESHOLD = 0;
 
