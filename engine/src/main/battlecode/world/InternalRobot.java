@@ -1,16 +1,20 @@
 package battlecode.world;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
 import battlecode.common.CatStateType;
 import battlecode.common.Direction;
+import battlecode.common.GameActionException;
 import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
 import battlecode.common.Message;
+import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.Team;
+import battlecode.common.TrapType;
 import battlecode.common.UnitType;
 
 /**
@@ -67,6 +71,15 @@ public class InternalRobot implements Comparable<InternalRobot> {
     private int currentWaypoint;
     private CatStateType catState;
     private MapLocation[] catWaypoints;
+
+    static boolean isTracing = false;
+    static int smallestDistance = 10000000;
+    static MapLocation closestLocation = null;
+    static Direction tracingDir= null;
+
+    static MapLocation prevDest = null;
+    static HashSet<MapLocation> line = null;
+    static int obstacleStartDist = 0;
 
     /**
      * Create a new internal representation of a robot
@@ -809,5 +822,85 @@ public class InternalRobot implements Comparable<InternalRobot> {
         if (this.roundsAlive != o.roundsAlive)
             return this.roundsAlive - o.roundsAlive;
         return this.ID - o.ID;
+    }
+
+    public static void bug2(RobotController rc, MapLocation target) throws GameActionException{
+        
+        if(!target.equals(prevDest)) {
+            prevDest = target;
+            line = createLine(rc.getLocation(), target);
+        }
+
+        for(MapLocation loc : line) {
+            rc.setIndicatorDot(loc, 255, 0, 0);
+        }
+
+        if(!isTracing) {
+            Direction dir = rc.getLocation().directionTo(target);
+            rc.setIndicatorDot(rc.getLocation().add(dir), 255, 0, 0);
+
+            if(rc.canMove(dir)){
+                rc.move(dir);
+            } else {
+                isTracing = true;
+                obstacleStartDist = rc.getLocation().distanceSquaredTo(target);
+                tracingDir = dir;
+            }
+        } else {
+            if(line.contains(rc.getLocation()) && rc.getLocation().distanceSquaredTo(target) < obstacleStartDist) {
+                isTracing = false;
+            }
+
+            for(int i = 0; i < 9; i++){
+                if(rc.canMove(tracingDir)){
+                    rc.move(tracingDir);
+                    tracingDir = tracingDir.rotateRight();
+                    tracingDir = tracingDir.rotateRight();
+                    break;
+                } else {
+                    tracingDir = tracingDir.rotateLeft();
+                }
+            }
+        }
+    }
+
+    // Bresenham's line algorithm for bug2
+    public static HashSet<MapLocation> createLine(MapLocation a, MapLocation b) {
+        HashSet<MapLocation> locs = new HashSet<>();
+        int x = a.x, y = a.y;
+        int dx = b.x - a.x;
+        int dy = b.y - a.y;
+        int sx = (int) Math.signum(dx);
+        int sy = (int) Math.signum(dy);
+        dx = Math.abs(dx);
+        dy = Math.abs(dy);
+        int d = Math.max(dx,dy);
+        int r = d/2;
+        if (dx > dy) {
+            for (int i = 0; i < d; i++) {
+                locs.add(new MapLocation(x, y));
+                x += sx;
+                r += dy;
+                if (r >= dx) {
+                    locs.add(new MapLocation(x, y));
+                    y += sy;
+                    r -= dx;
+                }
+            }
+        }
+        else {
+            for (int i = 0; i < d; i++) {
+                locs.add(new MapLocation(x, y));
+                y += sy;
+                r += dx;
+                if (r >= dy) {
+                    locs.add(new MapLocation(x, y));
+                    x += sx;
+                    r -= dy;
+                }
+            }
+        }
+        locs.add(new MapLocation(x, y));
+        return locs;
     }
 }

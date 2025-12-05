@@ -587,7 +587,7 @@ public class GameWorld {
             addCheese(new MapLocation(pairedX, pairedY), GameConstants.CHEESE_SPAWN_AMOUNT);
 
             mine.setLastRound(this.currentRound);
-            pairedMine.setLastRound(this.currentRound)
+            pairedMine.setLastRound(this.currentRound);
 
             // matchMaker.addCheeseSpawnAction(mine, loc); TODO: ADD MATCHMAKER
         }
