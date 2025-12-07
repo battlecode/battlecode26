@@ -7,14 +7,6 @@ public enum DominationFactor {
     // TODO: update with new win conditions (fix game vs match thing)?
     // TODO: for game/match thing, how to aggregate points and tiebreak stats like # rats at end?
     /**
-     * Win by killing all opponent rat kings.
-     */
-    KILL_ALL_RAT_KINGS_BACKSTAB,
-    /**
-     * Win by having the cat kill all opponent rat kings.
-     */
-    KILL_ALL_RAT_KINGS_COOPERATION,
-    /**
      * Win by having more points at the end of the game.
      */
     MORE_POINTS,

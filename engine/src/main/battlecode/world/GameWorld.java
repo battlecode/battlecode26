@@ -574,6 +574,61 @@ public class GameWorld {
         gameStats.setDominationFactor(d);
     }
 
+
+    /**
+     * Set points for each team if game ends in cooperation phase
+     * @return whether one team has more points than the other
+     */
+    public boolean setWinnerIfMoreCooperationPoints() {
+        if (isCooperation()) {
+            ArrayList<Integer> teamPoints = new ArrayList<>();
+
+            for (Team team : List.of(Team.A, Team.B)) {
+                int points = (int) (
+                  (0.5) * (100) +
+                    (0.3) * teamInfo.getNumRatKings(team) +
+                    (0.2) * teamInfo.getCheese(team)); // TODO: Update this to the correct points formula
+                this.teamInfo.addPoints(team, points);
+                teamPoints.add(points);
+            }
+            if (teamPoints.getFirst() > teamPoints.getLast()) {
+                setWinner(Team.A, DominationFactor.MORE_POINTS);
+                return true;
+            } else if (teamPoints.getFirst() < teamPoints.getLast()) {
+                setWinner(Team.B, DominationFactor.MORE_POINTS);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Set points for each team if game ends in backstabbing phase
+     * @return whether one team has more points than the other
+     */
+    public boolean setWinnerIfMoreBackstabbingPoints() {
+        if (!isCooperation()) {
+            ArrayList<Integer> teamPoints = new ArrayList<>();
+
+            for (Team team : List.of(Team.A, Team.B)) {
+                int points = (int) (
+                  (0.3) * (100) +
+                    (0.5) * teamInfo.getNumRatKings(team) +
+                    (0.2) * teamInfo.getCheese(team)); // TODO: Update this to the correct points formula
+                this.teamInfo.addPoints(team, points);
+                teamPoints.add(points);
+            }
+            if (teamPoints.getFirst() > teamPoints.getLast()) {
+                setWinner(Team.A, DominationFactor.MORE_POINTS);
+                return true;
+            } else if (teamPoints.getFirst() < teamPoints.getLast()) {
+                setWinner(Team.B, DominationFactor.MORE_POINTS);
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * @return whether a team has more cheese
      */
@@ -634,6 +689,10 @@ public class GameWorld {
      */
     public void checkEndOfMatch() {
         if (timeLimitReached() && gameStats.getWinner() == null) {
+            if (setWinnerIfMoreCooperationPoints())
+                return;
+            if (setWinnerIfMoreBackstabbingPoints())
+                return;
             if (setWinnerIfMoreCheese())
                 return;
             if (setWinnerIfMoreRatsAlive())
