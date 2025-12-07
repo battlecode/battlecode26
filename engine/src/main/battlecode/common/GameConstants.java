@@ -27,23 +27,8 @@ public class GameConstants {
     /** The maximum possible map width. */
     public static final int MAP_MAX_WIDTH = 60;
 
-    /** The minimum distance between ruins on the map */
-    public static final int MIN_RUIN_SPACING_SQUARED = 25;
-
     /** The maximum percentage of the map that can be walls */
     public static final int MAX_WALL_PERCENTAGE = 20;
-
-    /** The 32 bit representation of the special resource pattern. */
-    public static final int RESOURCE_PATTERN = 28873275; 
-
-    /** The 32 bit representation of the paint tower pattern. */
-    public static final int PAINT_TOWER_PATTERN = 18157905;
-
-    /** The 32 bit representation of the money tower pattern. */
-    public static final int MONEY_TOWER_PATTERN = 15583086;
-
-    /** The 32 bit representation of the defense tower pattern. */
-    public static final int DEFENSE_TOWER_PATTERN = 4685252;
 
     // *********************************
     // ****** GAME PARAMETERS **********
@@ -73,20 +58,11 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
-    /** Paint penalty for ending a turn on enemy territory */
-    public static final int PENALTY_ENEMY_TERRITORY = 2;
-
-    /** Paint penalty for ending a turn on neutral territory */
-    public static final int PENALTY_NEUTRAL_TERRITORY = 1;
-
     /** The amount of money each team starts with. */
-    public static final int INITIAL_TEAM_MONEY = 2500;
+    public static final int INITIAL_TEAM_MONEY = 2500; // TODO need to specify!
 
-    /** The percent of the map which a team needs to paint to win. */
-    public static final int PAINT_PERCENT_TO_WIN = 70;
-
-    /** The maximum number of towers that a team can have. */
-    public static final int MAX_NUMBER_OF_TOWERS = 25;
+    /** The maximum number of rat kings that a team can have. */
+    public static final int MAX_NUMBER_OF_RAT_KINGS = 5; // TODO need to specify!
 
     /** 
      * The maximum execution time that can be spent on a team in one match. If the total time spent executing a team's bots
@@ -98,105 +74,38 @@ public class GameConstants {
     // ****** GAME MECHANICS ***********
     // *********************************
 
-    /** The number of towers a player starts with. */
-    public static final int NUMBER_INITIAL_TOWERS = 2;
-
-    /** The number of paint towers a player starts with */
-    public static final int NUMBER_INITIAL_PAINT_TOWERS = 1;
-
-    /** The number of money towers a player starts with */
-    public static final int NUMBER_INITIAL_MONEY_TOWERS = 1;
-
-    /** The number of defense towers a player starts with */
-    public static final int NUMBER_INITIAL_DEFENSE_TOWERS = 0;
-
-    /** The percentage of a robot's paint capacity that is full when first built. */
-    public static final int INITIAL_ROBOT_PAINT_PERCENTAGE = 100;
-
-    /** How much paint that towers start with when first built */
-    public static final int INITIAL_TOWER_PAINT_AMOUNT = 500;
-
-    /** The width and height of the patterns that robots can draw */
-    public static final int PATTERN_SIZE = 5;
-
-    /** The paint cost of marking a resource or tower pattern */
-    public static final int MARK_PATTERN_PAINT_COST = 25;
-
-    /** The money cost of completing a resource pattern */
-    public static final int COMPLETE_RESOURCE_PATTERN_COST = 200;
-
-    /** The extra resources per turn that resource patterns give */
-    public static final int EXTRA_RESOURCES_FROM_PATTERN = 3;
-
-    /** Resource patterns must exist for this many turns before they start producing resources */
-    public static final int RESOURCE_PATTERN_ACTIVE_DELAY = 50;
-
-    /** The extra damage all ally towers get for each level 1 defense tower */
-    public static final int EXTRA_DAMAGE_FROM_DEFENSE_TOWER = 5;
-
-    /** The increase in extra damage for ally towers for upgrading a defense tower */
-    public static final int EXTRA_TOWER_DAMAGE_LEVEL_INCREASE = 2;
-
-    /** The percent of the defense tower damage buff that is applied to AoE attacks */
-    public static final int DEFENSE_ATTACK_BUFF_AOE_EFFECTIVENESS = 0;
-
-    /** DEPRECATED: See NO_PAINT_DAMAGE */
-    public static final int MAX_TURNS_WITHOUT_PAINT = 10;
-
-    /** Percent of paint capacity at which a robot begins to face increased cooldowns */
-    public static final int INCREASED_COOLDOWN_THRESHOLD = 50;
-
-    /** Intercept in the formula for the increased cooldown */
-    public static final int INCREASED_COOLDOWN_INTERCEPT = 100;
-
-    /** Slope of paint in the formula for the increased cooldown */
-    public static final int INCREASED_COOLDOWN_SLOPE = -2;
-
-    /** Multiplier for paint penalties moppers face for ending on non-ally territory. */
-    public static final int MOPPER_PAINT_PENALTY_MULTIPLIER = 2;
-
-    /** The maximum distance from a robot where information can be sensed */
-    public static final int VISION_RADIUS_SQUARED = 20;
+    /** The number of rat kings a player starts with. */
+    public static final int NUMBER_INITIAL_RAT_KINGS = 1;
 
     /** The maximum distance for marking a map location or removing a marker */
     public static final int MARK_RADIUS_SQUARED = 2;
 
-    /** The maximum distance for transferring paint from/to an ally robot or tower */
-    public static final int PAINT_TRANSFER_RADIUS_SQUARED = 2;
+    /** The maximum distance for transferring cheese to an allied rat king or dropping it on the ground */
+    public static final int CHEESE_DROP_RADIUS_SQUARED = 2;
 
-    /** The maximum distance from a tower for building robots */
+    /** The maximum number of traps a team can have at a given time */
+    public static final int MAX_TRAP_COUNT = 25;
+
+    /** The maximum distance from a rat king for building robots */
     public static final int BUILD_ROBOT_RADIUS_SQUARED = 4;
 
-    /** The maximum distance from a robot for building and upgrading towers */
-    public static final int BUILD_TOWER_RADIUS_SQUARED = 2;
-
-    /** The maximum distance from a robot for completing special resource patterns */
-    // this is 8 so that the robot can complete the pattern anywhere on the 5x5 grid
-    public static final int RESOURCE_PATTERN_RADIUS_SQUARED = 8;
-
-    /** The amount of paint depleted from enemy in a regular mopper attack */
-    public static final int MOPPER_ATTACK_PAINT_DEPLETION = 10;
-
-    /** The amount of paint added to self in a regular mopper attack */
-    public static final int MOPPER_ATTACK_PAINT_ADDITION = 5;
-
-    /** The amount of paint depleted from enemies in a swing mopper attack */
-    public static final int MOPPER_SWING_PAINT_DEPLETION = 5;
+    /** The maximum distance from a robot for building traps or dirt */
+    public static final int BUILD_DISTANCE_SQUARED = 9;
 
     /** The maximum amount of bytes that can be encoded in a message */
-    public static final int MAX_MESSAGE_BYTES = 4;
+    public static final int MAX_MESSAGE_BYTES = 4; // TODO need to spec messages as a whole!
 
     /** The maximum squared radius a robot can send a message to */
-    public static final int MESSAGE_RADIUS_SQUARED = 20;
+    public static final int MESSAGE_RADIUS_SQUARED = 20; // TODO need to spec messages as a whole!
 
     /** The maxmimum squared radius a tower can broadcast a message */
-    public static final int BROADCAST_RADIUS_SQUARED = 80;
+    public static final int BROADCAST_RADIUS_SQUARED = 80; // TODO need to spec messages as a whole!
 
     /** The maximum number of rounds a message will exist for */
-    public static final int MESSAGE_ROUND_DURATION = 5;
+    public static final int MESSAGE_ROUND_DURATION = 5; // TODO need to spec messages as a whole!
 
     /** The maximum number of messages a robot can send per turn */
-    public static final int MAX_MESSAGES_SENT_ROBOT = 1;
+    public static final int MAX_MESSAGES_SENT_ROBOT = 1; // TODO need to spec messages as a whole!
 
     /** The maximum number of messages a tower can send per turn */
     public static final int MAX_MESSAGES_SENT_TOWER = 20;
@@ -204,11 +113,30 @@ public class GameConstants {
     /** A robot takes this much damage every time it ends a turn with 0 paint */
     public static final int NO_PAINT_DAMAGE = 20;
 
+    /** The damage a thrown rat takes upon hitting the ground or a target */
+    public static final int THROW_DAMAGE = 20;
+
+    /** The damage a thrown rat takes per tile it impacts early (i.e. rats that hit a wall after 1 turn take 45 damage) */
+    public static final int THROW_DAMAGE_PER_TURN = 5;
+
+    /** The damage a robot takes after being scratched by a cat */
+    public static final int CAT_SCRATCH_DAMAGE = 50;
+
+    /** The minimum gap between an enemy robot's health and our own before we can grab it from all angles */
+    public static final int HEALTH_GRAB_THRESHOLD = 0;
+
     /** The area effected by the splasher's attack. Within this radius, empty tiles are painted and towers are damaged */
     public static final int SPLASHER_ATTACK_AOE_RADIUS_SQUARED = 4;
+    public static final int MAX_MESSAGES_SENT_TOWER = 20; // TODO need to spec messages as a whole!
 
-    /** The smaller area within the splasher's attack at which enemy paint is also replaced by allied paint */
-    public static final int SPLASHER_ATTACK_ENEMY_PAINT_RADIUS_SQUARED = 2;
+    /** The area effected by the cat's attack. */
+    public static final int CAT_ATTACK_AOE_RADIUS_SQUARED = 4; // TODO need to specify!
+
+    /** The cheese cost to dig up a tile of dirt */
+    public static final int DIG_DIRT_CHEESE_COST = 10;
+
+    /** The cheese cost to place a tile of dirt */
+    public static final int PLACE_DIRT_CHEESE_COST = 20;
 
     // *********************************
     // ****** COOLDOWNS ****************
@@ -226,14 +154,33 @@ public class GameConstants {
      public static final int MOVEMENT_COOLDOWN = 10;
 
     /**
-     * The amount added to the action cooldown counter after a tower builds a robot
+     * The amount added to the movement cooldown counter when a king moves
+     */
+     public static final int RAT_KING_MOVEMENT_COOLDOWN = 100; // TODO need to specify!
+
+    /**
+     * The amount added to the movement cooldown counter when a king moves
+     */
+     public static final int DRAGGING_MOVEMENT_COOLDOWN = 15; // TODO need to specify!
+
+    /**
+     * The amount added to the action cooldown counter after a king builds a robot
      */
      public static final int BUILD_ROBOT_COOLDOWN = 10;
 
-    /** The amount added to the action cooldown counter after attacking (as a mopper for the swing attack) */
-    public static final int ATTACK_MOPPER_SWING_COOLDOWN = 20;
+    /** The amount added to the action cooldown counter after dropping/transferring cheese */
+    public static final int CHEESE_TRANSFER_COOLDOWN = 10;
 
-    /** THe amount added to the action cooldown counter after transferring paint */
-    public static final int PAINT_TRANSFER_COOLDOWN = 10;
+    /** The amount added to the action cooldown counter after digging out a tile of dirt */
+    public static final int DIG_COOLDOWN = 25; // TODO need to specify!
+
+    /** The amount added to the action cooldown counter after building a tile of dirt */
+    public static final int BUILD_COOLDOWN = 35; // TODO need to specify!
+
+    /** The total time a rat can travel for while thrown (rats are stunned while thrown) */
+    public static final int THROW_DURATION = 40;
+
+    /** The total time a rat is stunned after hitting the ground or a target */
+    public static final int THROW_STUN_DURATION = 30;
 
 }

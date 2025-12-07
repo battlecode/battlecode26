@@ -42,6 +42,11 @@ public class LiveMap {
     private boolean[] wallArray;
 
     /**
+     * Whether each square is dirt
+     */
+    private boolean[] dirtArray;
+
+    /**
      * What kind of paint is on the square.
      */
     private byte[] paintArray;
@@ -113,6 +118,7 @@ public class LiveMap {
                    String mapName,
                    MapSymmetry symmetry,
                    boolean[] wallArray,
+                   boolean[] dirtArray,
                    byte[] paintArray,
                    boolean[] ruinArray,
                    int[] patternArray,
@@ -128,6 +134,9 @@ public class LiveMap {
         this.wallArray = new boolean[wallArray.length];
         for (int i = 0; i < wallArray.length; i++) {
             this.wallArray[i] = wallArray[i];
+        }
+        for (int i = 0; i < dirtArray.length; i++) {
+            this.dirtArray[i] = dirtArray[i];
         }
         this.paintArray = new byte[paintArray.length];
         for (int i = 0; i < paintArray.length; i++){
@@ -152,7 +161,7 @@ public class LiveMap {
      */
     public LiveMap(LiveMap gm) {
         this(gm.width, gm.height, gm.origin, gm.seed, gm.rounds, gm.mapName, gm.symmetry,
-         gm.wallArray, gm.paintArray, gm.ruinArray, gm.patternArray, gm.initialBodies);
+         gm.wallArray, gm.dirtArray, gm.paintArray, gm.ruinArray, gm.patternArray, gm.initialBodies);
     }
 
     @Override
@@ -317,6 +326,14 @@ public class LiveMap {
     }
 
     /**
+     * 
+     * @return the dirt array of the map
+     */
+    public boolean[] getDirtArray() {
+        return dirtArray;
+    }
+
+    /**
      * @return the paint array of the map
      */
     public byte[] getPaintArray() {
@@ -387,20 +404,11 @@ public class LiveMap {
                 throw new RuntimeException("Expected initial body team "  + initialBody.team + " to be team A or team B!");
             }
         }
-        if (initialBodyCountTeamA != GameConstants.NUMBER_INITIAL_TOWERS) {
-            throw new RuntimeException("Expected to have "  + GameConstants.NUMBER_INITIAL_TOWERS + " team A towers!");
+        if (initialBodyCountTeamA != GameConstants.NUMBER_INITIAL_RAT_KINGS) {
+            throw new RuntimeException("Expected to have "  + GameConstants.NUMBER_INITIAL_RAT_KINGS + " team A towers!");
         }
-        if (initialBodyCountTeamB != GameConstants.NUMBER_INITIAL_TOWERS) {
-            throw new RuntimeException("Expected to have "  + GameConstants.NUMBER_INITIAL_TOWERS + " team B towers!");
-        }
-        if (towerCountA[FlatHelpers.getRobotTypeFromUnitType(UnitType.LEVEL_ONE_PAINT_TOWER) - 1] != GameConstants.NUMBER_INITIAL_PAINT_TOWERS){
-            throw new RuntimeException("Expected to have "  + GameConstants.NUMBER_INITIAL_PAINT_TOWERS + " paint towers!");
-        }  
-        if (towerCountA[FlatHelpers.getRobotTypeFromUnitType(UnitType.LEVEL_ONE_MONEY_TOWER) - 1] != GameConstants.NUMBER_INITIAL_MONEY_TOWERS){
-            throw new RuntimeException("Expected to have "  + GameConstants.NUMBER_INITIAL_MONEY_TOWERS + " money towers!");
-        }
-        if (towerCountA[FlatHelpers.getRobotTypeFromUnitType(UnitType.LEVEL_ONE_DEFENSE_TOWER) - 1] != GameConstants.NUMBER_INITIAL_DEFENSE_TOWERS){
-            throw new RuntimeException("Expected to have "  + GameConstants.NUMBER_INITIAL_DEFENSE_TOWERS + " defense towers!");
+        if (initialBodyCountTeamB != GameConstants.NUMBER_INITIAL_RAT_KINGS) {
+            throw new RuntimeException("Expected to have "  + GameConstants.NUMBER_INITIAL_RAT_KINGS + " team B towers!");
         }
         for (int i = 0; i < towerCountA.length; i++){
             if (towerCountA[i] != towerCountB[i]){
@@ -421,15 +429,6 @@ public class LiveMap {
         }
         if (numWalls * 100 >= this.width * this.height * GameConstants.MAX_WALL_PERCENTAGE){
             throw new RuntimeException("Too much of the area of the map is composed of walls!");
-        }
-
-        for (int i = 0; i < ruinLocs.size(); i++){
-            MapLocation curRuin = ruinLocs.get(i);
-            for (int j = i + 1; j < ruinLocs.size(); j++){
-                MapLocation otherRuin = ruinLocs.get(j);
-                if (curRuin.distanceSquaredTo(otherRuin) < GameConstants.MIN_RUIN_SPACING_SQUARED)
-                    throw new RuntimeException("Ruins at location " + curRuin.toString() + " and location " + otherRuin.toString() + " are too close to each other!");
-            }
         }
         for (int i = 0; i < this.width * this.height; i++){
             if (this.wallArray[i]){

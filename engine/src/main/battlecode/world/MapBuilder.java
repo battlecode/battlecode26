@@ -21,6 +21,7 @@ public class MapBuilder {
     private MapSymmetry symmetry;
     //TODO; clean up this very outdated file lol
     private boolean[] wallArray;
+    private boolean[] dirtArray;
     private boolean[] damArray;
     private boolean[] waterArray;
     private boolean[] cloudArray;
@@ -96,7 +97,7 @@ public class MapBuilder {
                 UnitType.LEVEL_ONE_PAINT_TOWER,
                 UnitType.LEVEL_ONE_PAINT_TOWER.health,
                 loc,
-                500
+                false
         ));
     }
 
@@ -206,7 +207,7 @@ public class MapBuilder {
     // ********************
 
     public LiveMap build() {
-        return new LiveMap(width, height, origin, seed, 2000, name, symmetry, wallArray, paintArray, ruinArray, patternArray, bodies.toArray(new RobotInfo[bodies.size()]));
+        return new LiveMap(width, height, origin, seed, 2000, name, symmetry, wallArray, dirtArray, paintArray, ruinArray, patternArray, bodies.toArray(new RobotInfo[bodies.size()]));
     }
 
     /**

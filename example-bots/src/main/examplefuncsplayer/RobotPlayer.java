@@ -155,6 +155,7 @@ public class RobotPlayer {
             }
         }
         if (curRuin != null){
+            /* TODO rewrite this whole thing
             MapLocation targetLoc = curRuin.getMapLocation();
             Direction dir = rc.getLocation().directionTo(targetLoc);
             if (rc.canMove(dir))
@@ -179,6 +180,7 @@ public class RobotPlayer {
                 rc.setTimelineMarker("Tower built", 0, 255, 0);
                 System.out.println("Built a tower at " + targetLoc + "!");
             }
+            */
         }
 
         // Move and attack randomly if no objective.
@@ -206,10 +208,6 @@ public class RobotPlayer {
         MapLocation nextLoc = rc.getLocation().add(dir);
         if (rc.canMove(dir)){
             rc.move(dir);
-        }
-        if (rc.canMopSwing(dir)){
-            rc.mopSwing(dir);
-            System.out.println("Mop Swing! Booyah!");
         }
         else if (rc.canAttack(nextLoc)){
             rc.attack(nextLoc);

@@ -231,6 +231,7 @@ public final class GameMapIO {
             final String mapName = raw.name();
             int size = width*height;
             boolean[] wallArray = new boolean[size];
+            boolean[] dirtArray = new boolean[size];
             boolean[] ruinArray = new boolean[size];
             byte[] paintArray = new byte[size];
             int[] patternArray = new int[4];
@@ -255,7 +256,7 @@ public final class GameMapIO {
             RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
         
             return new LiveMap(
-                width, height, origin, seed, rounds, mapName, symmetry, wallArray, paintArray, ruinArray, patternArray, initialBodies);
+                width, height, origin, seed, rounds, mapName, symmetry, wallArray, dirtArray, paintArray, ruinArray, patternArray, initialBodies);
         }
 
 
@@ -359,10 +360,8 @@ public final class GameMapIO {
                 if (teamsReversed){
                     bodyTeam = bodyTeam.opponent();
                 }
-                int initialPaint = GameConstants.INITIAL_TOWER_PAINT_AMOUNT;
-                if (bodyType.isRobotType())
-                    initialPaint = (int) Math.round(bodyType.paintCapacity * GameConstants.INITIAL_ROBOT_PAINT_PERCENTAGE / 100.0);
-                initialBodies.add(new RobotInfo(curId, bodyTeam, bodyType, bodyType.health, new MapLocation(bodyX, bodyY), initialPaint));
+                boolean initialCrouching = false;
+                initialBodies.add(new RobotInfo(curId, bodyTeam, bodyType, bodyType.health, new MapLocation(bodyX, bodyY), initialCrouching));
             }
         }
 

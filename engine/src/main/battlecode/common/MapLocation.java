@@ -107,6 +107,21 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
     }
 
     /**
+     * Computes the squared distance from the 2x2 robot at this location
+     * (centered at this location + (0.5, 0.5)) to the specified location.
+     *
+     * @param location the location to compute the squared distance to
+     * @return the ceiling of the squared distance to the given location
+     *
+     * @battlecode.doc.costlymethod
+     */
+    public final int topRightDistanceSquaredTo(MapLocation location) {
+        double dx = this.x + 0.5 - location.x;
+        double dy = this.y + 0.5 - location.y;
+        return (int) Math.ceil(dx * dx + dy * dy);
+    }
+
+    /**
      * Determines whether this location is within a specified distance
      * from target location.
      *
@@ -118,6 +133,58 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
      */
     public final boolean isWithinDistanceSquared(MapLocation location, int distanceSquared) {
         return this.distanceSquaredTo(location) <= distanceSquared;
+    }
+    
+    /**
+     * Determines whether this location is within a specified distance and cone degree
+     * from target location.
+     *
+     * @param location the location to test
+     * @param distanceSquared the distance squared for the location to be within
+     * @param facingDir the direction robot is facing
+     * @param theta the angle of the vision cone
+     * @return true if the given location is within distanceSquared to this one; false otherwise
+     *
+     * @battlecode.doc.costlymethod
+     */
+    public final boolean isWithinDistanceSquared(MapLocation location, int distanceSquared, Direction facingDir, double theta) {
+        return isWithinDistanceSquared(location, distanceSquared, facingDir, theta, false);
+    }
+
+        /**
+     * Determines whether this location is within a specified distance and cone degree
+     * from target location.
+     *
+     * @param location the location to test
+     * @param distanceSquared the distance squared for the location to be within
+     * @param facingDir the direction robot is facing
+     * @param theta the angle of the vision cone
+     * @param useTopRight true if the top right coordinate of the location should be used (for 2x2 robots)
+     * @return true if the given location is within distanceSquared to this one; false otherwise
+     *
+     * @battlecode.doc.costlymethod
+     */
+    public final boolean isWithinDistanceSquared(MapLocation location, int distanceSquared, Direction facingDir, double theta, boolean useTopRight) {
+
+        // prevent division by 0 error
+        if (this.equals(location)){
+            return true;
+        }
+
+        double adjustment = 1e-3; 
+        // TODO: may have to fix this; also maybe there's a better way to do this whole function given that all looking directions and all cones are all in 45 degree intervals???
+
+        boolean isValidDistance = useTopRight ? this.topRightDistanceSquaredTo(location) <= distanceSquared : this.distanceSquaredTo(location) <= distanceSquared;
+        
+        // calculate angle between facingDir and direction to location
+        double dx = location.x - (useTopRight ? (this.x + 0.5) : this.x);
+        double dy = location.y - (useTopRight ? (this.y + 0.5) : this.y);
+        
+        double cosSim = (facingDir.dx * dx + facingDir.dy * dy)/(Math.sqrt((dx*dx + dy*dy) * (facingDir.dx*facingDir.dx + facingDir.dy*facingDir.dy)));
+        double halfAngle = Math.abs(Math.acos(cosSim));
+        boolean isValidAngle = halfAngle-adjustment <= theta/2;
+        
+        return isValidDistance && isValidAngle;
     }
 
     /**

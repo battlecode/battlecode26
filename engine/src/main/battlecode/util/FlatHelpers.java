@@ -1,8 +1,10 @@
 package battlecode.util;
 
+import battlecode.common.TrapType;
 import battlecode.common.UnitType;
 import battlecode.schema.VecTable;
 import battlecode.schema.WinType;
+import battlecode.schema.BuildActionType;
 import battlecode.world.DominationFactor;
 import battlecode.schema.Action;
 import com.google.flatbuffers.FlatBufferBuilder;
@@ -23,9 +25,31 @@ import java.util.function.ObjIntConsumer;
  */
 public class FlatHelpers {
 
-    //assumes all robots are level 1 (can change levels manually if needed)
-    public static UnitType getUnitTypeFromRobotType(byte b){
-        switch (b){
+    public static byte getTrapActionFromTrapType(TrapType type) {
+        switch (type) {
+            case CATTRAP:
+                return Action.CATTRAP;
+            case RATTRAP:
+                return Action.RATTRAP;
+            default:
+                throw new RuntimeException("No action type for " + type);
+        }
+    }
+
+    public static byte getBuildActionFromTrapType(TrapType type) {
+        switch (type) {
+            case RATTRAP:
+                return BuildActionType.RATTRAP;
+            case CATTRAP:
+                return BuildActionType.CATTRAP;
+            default:
+                throw new RuntimeException("No build action type for " + type);
+        }
+    }
+
+    // assumes all robots are level 1 (can change levels manually if needed)
+    public static UnitType getUnitTypeFromRobotType(byte b) {
+        switch (b) {
             case 1:
                 return UnitType.LEVEL_ONE_PAINT_TOWER;
             case 2:
@@ -43,8 +67,8 @@ public class FlatHelpers {
         }
     }
 
-    public static byte getRobotTypeFromUnitType(UnitType type){
-        switch(type) {
+    public static byte getRobotTypeFromUnitType(UnitType type) {
+        switch (type) {
             case LEVEL_ONE_PAINT_TOWER:
                 return 1;
             case LEVEL_TWO_PAINT_TOWER:
@@ -190,7 +214,7 @@ public class FlatHelpers {
         return VecTable.createVecTable(builder, xsP, ysP);
     }
 
-    public static int RGBtoInt(int red, int green, int blue){
+    public static int RGBtoInt(int red, int green, int blue) {
         return (red << 16) + (green << 8) + blue;
     }
 }
