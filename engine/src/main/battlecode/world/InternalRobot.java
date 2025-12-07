@@ -212,12 +212,13 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 && cachedRobotInfo.ID == ID
                 && cachedRobotInfo.team == team
                 && cachedRobotInfo.health == health
-                && cachedRobotInfo.paintAmount == paintAmount
+                && cachedRobotInfo.crouching == crouching
                 && cachedRobotInfo.location.equals(location)) {
             return cachedRobotInfo;
         }
 
-        this.cachedRobotInfo = new RobotInfo(ID, team, type, health, location, paintAmount, carryingRobot != null ? carryingRobot.getRobotInfo() : null);
+        this.cachedRobotInfo = new RobotInfo(ID, team, type, health, location, carryingRobot != null ?
+          carryingRobot.getRobotInfo() : null, crouching);
         return this.cachedRobotInfo;
     }
 

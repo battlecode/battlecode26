@@ -42,14 +42,14 @@ public class RobotInfo {
      */
     public final RobotInfo carryingRobot;
 
-    public RobotInfo(int ID, Team team, UnitType type, int health, MapLocation location, int paintAmount, RobotInfo carryingRobot, boolean crouching) {
+    public RobotInfo(int ID, Team team, UnitType type, int health, MapLocation location, RobotInfo carryingRobot, boolean crouching) {
         super();
         this.ID = ID;
         this.team = team;
         this.type = type;
         this.health = health;
         this.location = location;
-        this.crouching = type.isRatType() && crouching;
+        this.crouching = type.isCatType() && crouching;
         this.carryingRobot = carryingRobot;
     }
 
