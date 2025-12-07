@@ -14,6 +14,7 @@ public class TeamInfo {
 
     private GameWorld gameWorld;
     private int[] moneyCounts;
+    private int[] dirtCounts;
     private int[] totalPaintedSquares;
     private int[] totalNumberOfTowers;
     private int[] oldMoneyCounts;
@@ -26,6 +27,7 @@ public class TeamInfo {
     public TeamInfo(GameWorld gameWorld) {
         this.gameWorld = gameWorld;
         this.moneyCounts = new int[2];
+        this.dirtCounts = new int[2];
         this.oldMoneyCounts = new int[2];
         this.totalPaintedSquares = new int[2];
         this.totalNumberOfTowers = new int[2];
@@ -44,6 +46,16 @@ public class TeamInfo {
 
     public int getMoney(Team team) {
         return this.moneyCounts[team.ordinal()];
+    }
+
+    /**
+     * Get the amount of dirt.
+     * 
+     * @param team the team to query
+     * @return the team's dirt count
+     */
+    public int getDirt(Team team) {
+        return this.dirtCounts[team.ordinal()];
     }
 
     /**
@@ -102,6 +114,20 @@ public class TeamInfo {
             throw new IllegalArgumentException("Invalid bread change");
         }
         this.moneyCounts[team.ordinal()] += amount;
+    }
+
+    /**
+     * Update the amount of dirt. 
+     * 
+     * @param team   the team to query
+     * @param isPlace whether dirt is being placed (true) or removed (false)
+     */
+    public void updateDirt(Team team, boolean isPlace) {
+        if (isPlace) {
+            this.dirtCounts[team.ordinal()] -= 1;
+        } else {
+            this.dirtCounts[team.ordinal()] += 1;
+        }
     }
 
     private void checkWin(Team team) {

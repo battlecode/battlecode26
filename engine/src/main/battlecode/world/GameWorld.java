@@ -766,7 +766,7 @@ public class GameWorld {
                                                                             int width, int height,
                                                                             MapLocation center,
                                                                             Direction lookDirection,
-                                                                            double totalAngle, int radiusSquared) {
+                                                                            double angle, int radiusSquared) {
         ArrayList<MapLocation> returnLocations = new ArrayList<MapLocation>();
         int ceiledRadius = (int) Math.ceil(Math.sqrt(radiusSquared)) + 1; // add +1 just to be safe
         int minX = Math.max(center.x - ceiledRadius, origin.x);
@@ -776,15 +776,9 @@ public class GameWorld {
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 MapLocation newLocation = new MapLocation(x, y);
-                int xDiff = newLocation.x - center.x;
-                int yDiff = newLocation.y - center.y;
-                double angle = Math.abs(Math.acos((xDiff * lookDirection.dx + yDiff * lookDirection.dy) / Math.sqrt((xDiff * xDiff + yDiff * yDiff) * (lookDirection.dx * lookDirection.dx + lookDirection.dy * lookDirection.dy))));
-                if (center.isWithinDistanceSquared(newLocation, radiusSquared) && Math.abs(angle)-0.001 <= totalAngle/2) // TODO this 0.001 is a bit of a kludge to fix floating point errors
+                if (center.isWithinDistanceSquared(newLocation, radiusSquared, lookDirection, angle))
                     returnLocations.add(newLocation);
             }
-        }
-        if (!returnLocations.contains(center)) {
-            returnLocations.add(center);
         }
         return returnLocations.toArray(new MapLocation[returnLocations.size()]);
     }

@@ -146,6 +146,11 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public int getDirt() {
+        return this.gameWorld.getTeamInfo().getDirt(getTeam());
+    }
+
+    @Override
     public UnitType getType(){
         return this.robot.getType();
     }
@@ -178,22 +183,25 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     private void assertCanActLocation(MapLocation loc, int maxRadiusSquared) throws GameActionException {
-        assertNotNull(loc);
-        if (getLocation().distanceSquaredTo(loc) > maxRadiusSquared)
+        // assumes maxRadiusSquared <= visionRadiusSquared. 
+        // This handles the angle checking, so we only check distance.
+        assertCanSenseLocation(loc);
+        int distance = (this.getType().usesTopRightLocationForDistance()) ? (getLocation().topRightDistanceSquaredTo(loc)) : (getLocation().distanceSquaredTo(loc));
+        if (distance > maxRadiusSquared)
             throw new GameActionException(OUT_OF_RANGE,
                     "Target location not within action range");
-        if (!this.gameWorld.getGameMap().onTheMap(loc))
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target location is not on the map");
     }
-
     
     private void assertCanPlaceDirt(MapLocation loc) throws GameActionException {
         assertIsRobotType(this.robot.getType());
         // Use unit action radius as the allowed range for the action
-        assertCanActLocation(loc, this.robot.getType().actionRadiusSquared);
+        assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
 
         // state checks :
+        if (this.gameWorld.getTeamInfo().getDirt(this.robot.getTeam()) <= 0)
+            throw new GameActionException(CANT_DO_THAT, "No dirt available to place!");
+        if (this.gameWorld.getAllCheese() < GameConstants.PLACE_DIRT_CHEESE_COST)
+            throw new GameActionException(CANT_DO_THAT, "Insufficient cheese to place dirt!");
         if (this.gameWorld.getWall(loc))
             throw new GameActionException(CANT_DO_THAT, "Can't place dirt on a wall!");
         if (this.gameWorld.getRobot(loc) != null)
@@ -204,8 +212,10 @@ public final class RobotControllerImpl implements RobotController {
 
     private void assertCanRemoveDirt(MapLocation loc) throws GameActionException {
         assertIsRobotType(this.robot.getType());
-        assertCanActLocation(loc, this.robot.getType().actionRadiusSquared);
+        assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
 
+        if (this.gameWorld.getAllCheese() < GameConstants.DIG_DIRT_CHEESE_COST)
+            throw new GameActionException(CANT_DO_THAT, "Insufficient cheese to place dirt!");
         if (!this.gameWorld.getDirt(loc))
             throw new GameActionException(CANT_DO_THAT, "No dirt to remove at that location!");
     }
@@ -221,12 +231,30 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public void placeDirt(MapLocation loc) {
+        if (canPlaceDirt(loc)) {
+            this.gameWorld.setDirt(loc, true);
+            this.gameWorld.getTeamInfo().updateDirt(this.robot.getTeam(), true);
+            this.robot.addCheese(-1*GameConstants.PLACE_DIRT_CHEESE_COST);   
+        }
+    }
+
+    @Override
     public boolean canRemoveDirt(MapLocation loc) {
         try {
             assertCanRemoveDirt(loc);
             return true;
         } catch (GameActionException e) {
             return false;
+        }
+    }
+
+    @Override
+    public void removeDirt(MapLocation loc) {
+        if (canRemoveDirt(loc)) {
+            this.gameWorld.setDirt(loc, false);
+            this.gameWorld.getTeamInfo().updateDirt(this.robot.getTeam(), false);
+            this.robot.addCheese(-1*GameConstants.DIG_DIRT_CHEESE_COST);
         }
     }
 
@@ -307,8 +335,8 @@ public final class RobotControllerImpl implements RobotController {
     public RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) throws GameActionException {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
-        int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS_SQUARED
-                : Math.min(radiusSquared, GameConstants.VISION_RADIUS_SQUARED);
+        int actualRadiusSquared = radiusSquared == -1 ? this.robot.getVisionRadiusSquared()
+                : Math.min(radiusSquared, this.robot.getVisionRadiusSquared());
         InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, actualRadiusSquared, team);
         List<RobotInfo> validSensedRobots = new ArrayList<>();
         for (InternalRobot sensedRobot : allSensedRobots) {
@@ -390,9 +418,9 @@ public final class RobotControllerImpl implements RobotController {
             throws GameActionException {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
-        int actualRadiusSquared = radiusSquared == -1 ? GameConstants.VISION_RADIUS_SQUARED
-                : Math.min(radiusSquared, GameConstants.VISION_RADIUS_SQUARED);
-        MapLocation[] possibleLocs = this.gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
+        int actualRadiusSquared = radiusSquared == -1 ? this.robot.getVisionRadiusSquared()
+                : Math.min(radiusSquared, this.robot.getVisionRadiusSquared());
+        MapLocation[] possibleLocs = this.gameWorld.getAllLocationsWithinConeRadiusSquared(center, this.robot.getDirection(), this.robot.getVisionConeAngle(), actualRadiusSquared);
         List<MapLocation> visibleLocs = Arrays.asList(possibleLocs).stream().filter(x -> canSenseLocation(x))
                 .collect(Collectors.toList());
         return visibleLocs.toArray(new MapLocation[visibleLocs.size()]);
@@ -726,6 +754,20 @@ public final class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Moppers cannot attack squares with walls or ruins on them!");
     }
 
+    private void assertCanAttackRat(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
+        assertCanActLocation(loc, UnitType.RAT.actionRadiusSquared);
+        if (!this.gameWorld.isPassable(loc))
+            throw new GameActionException(CANT_DO_THAT, "Rats cannot attack squares with walls or dirt on them!");
+    }
+
+    private void assertCanAttackCat(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
+        assertCanActLocation(loc, UnitType.CAT.actionRadiusSquared);
+        if (!this.gameWorld.isPassable(loc))
+            throw new GameActionException(CANT_DO_THAT, "Cats cannot attack squares with walls or dirt on them!");
+    }
+
     private void assertCanAttackTower(MapLocation loc) throws GameActionException {
         if(loc == null) { // area attack
             if (this.robot.hasTowerAreaAttacked()){
@@ -754,6 +796,12 @@ public final class RobotControllerImpl implements RobotController {
                 break;
             case MOPPER:
                 assertCanAttackMopper(loc);
+                break;
+            case RAT:
+                assertCanAttackRat(loc);
+                break;
+            case CAT:
+                assertCanAttackCat(loc);
                 break; 
             default:
                 assertCanAttackTower(loc);
@@ -772,32 +820,11 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public void attack(MapLocation loc, boolean useSecondaryColor) throws GameActionException {
+    public void attack(MapLocation loc) throws GameActionException {
         assertCanAttack(loc);
         if (this.robot.getType().isRobotType())
             this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
-        this.robot.attack(loc, useSecondaryColor);
-    }
-
-    @Override
-    public void attack(MapLocation loc) throws GameActionException {
-        attack(loc, false);
-    }
-
-    private void assertCanMopSwing(Direction dir) throws GameActionException {
-        assertNotNull(dir);
-        assertIsActionReady();
-        if (!(dir == Direction.SOUTH || dir == Direction.NORTH || dir == Direction.WEST || dir == Direction.EAST)){
-            throw new GameActionException(CANT_DO_THAT, "Must pass in a cardinal direction to mop swing");
-        }
-        if (this.robot.getType() != UnitType.MOPPER){
-            throw new GameActionException(CANT_DO_THAT, "Unit must be a mopper!");
-        }
-        MapLocation nextLoc = this.robot.getLocation().add(dir);
-        if (!onTheMap(nextLoc)){
-            throw new GameActionException(CANT_DO_THAT, "Can't do a mop swing off the edge of the map!");
-        }
-
+        this.robot.attack(loc);
     }
 
     // ***********************************
