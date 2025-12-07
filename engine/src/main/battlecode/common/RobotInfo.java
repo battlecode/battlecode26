@@ -44,7 +44,7 @@ public class RobotInfo {
         this.type = type;
         this.health = health;
         this.location = location;
-        this.crouching = type.isRatType() && crouching;
+        this.crouching = type.isCatType() && crouching;
     }
 
     /**

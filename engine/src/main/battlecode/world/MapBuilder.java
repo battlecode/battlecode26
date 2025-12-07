@@ -97,7 +97,7 @@ public class MapBuilder {
                 UnitType.LEVEL_ONE_PAINT_TOWER,
                 UnitType.LEVEL_ONE_PAINT_TOWER.health,
                 loc,
-                500
+                false
         ));
     }
 

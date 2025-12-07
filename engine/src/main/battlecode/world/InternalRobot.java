@@ -20,7 +20,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
     private final RobotControllerImpl controller;
     protected final GameWorld gameWorld;
 
-    private int paintAmount;
     private UnitType type;
 
     private final int ID;
@@ -76,7 +75,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.incomingMessages = new LinkedList<>();
         this.towerHasSingleAttacked = this.towerHasAreaAttacked = false;
 
-        this.paintAmount = 0;
+        this.crouching = false;
 
         this.controlBits = 0;
         this.currentBytecodeLimit = type.isRobotType() ? GameConstants.ROBOT_BYTECODE_LIMIT : GameConstants.TOWER_BYTECODE_LIMIT;
@@ -143,19 +142,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
         return health;
     }
 
-    public int getPaint() {
-        return paintAmount;
-    }
-
-    public void addPaint(int amount) {
-        int newPaintAmount = this.paintAmount + amount;
-        if (newPaintAmount > this.type.paintCapacity) {
-            this.paintAmount = this.type.paintCapacity;
-        } else if (newPaintAmount < 0) {
-            this.paintAmount = 0;
-        } else {
-            this.paintAmount = newPaintAmount;
-        }
+    public boolean getCrouching() {
+        return crouching;
     }
 
     public boolean hasTowerSingleAttacked() {
@@ -198,12 +186,12 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 && cachedRobotInfo.ID == ID
                 && cachedRobotInfo.team == team
                 && cachedRobotInfo.health == health
-                && cachedRobotInfo.paintAmount == paintAmount
+                && cachedRobotInfo.crouching == crouching
                 && cachedRobotInfo.location.equals(location)) {
             return cachedRobotInfo;
         }
 
-        this.cachedRobotInfo = new RobotInfo(ID, team, type, health, location, paintAmount);
+        this.cachedRobotInfo = new RobotInfo(ID, team, type, health, location, crouching);
         return this.cachedRobotInfo;
     }
 
@@ -683,9 +671,11 @@ public class InternalRobot implements Comparable<InternalRobot> {
             */
         }
 
+        /*
         if (this.paintAmount == 0 && type.isRobotType()){
             // TODO this is paint depletion logic this.addHealth(-GameConstants.NO_PAINT_DAMAGE);
         }
+         */
 
         this.gameWorld.getMatchMaker().endTurn(this.ID, this.health, this.paintAmount, this.movementCooldownTurns, this.actionCooldownTurns, this.bytecodesUsed, this.location);
         this.roundsAlive++;
