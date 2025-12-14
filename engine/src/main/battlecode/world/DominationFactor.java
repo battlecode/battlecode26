@@ -9,11 +9,7 @@ public enum DominationFactor {
     /**
      * Win by killing all opponent rat kings.
      */
-    KILL_ALL_RAT_KINGS_BACKSTAB,
-    /**
-     * Win by having the cat kill all opponent rat kings.
-     */
-    KILL_ALL_RAT_KINGS_COOPERATION,
+    KILL_ALL_RAT_KINGS,
     /**
      * Win by having more points at the end of the game.
      */

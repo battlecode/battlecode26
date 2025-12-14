@@ -82,11 +82,17 @@ public class RobotPlayer {
                 if (turnCount % 100 == 0) {
                     System.out.println("Turn " + turnCount + ": I am a " + rc.getType().toString());
                 }
-                
+
+                if (turnCount >= 11){
+                    continue;
+                }
+                                
                 // Try to move forward one step.
                 if (rc.canMoveForward()) {
+                    System.out.println("Turn " + turnCount + "Trying to move " + rc.getDirection());
                     rc.moveForward();
                 } else {
+                    System.out.println("couldn't move forward on turn " + turnCount + " at location " + rc.getLocation() + rc.getDirection());
                     // If we can't move forward, try to turn a random direction.
                     int randomDirection = rng.nextInt(8);
                     

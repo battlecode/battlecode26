@@ -174,6 +174,9 @@ public class GameConstants {
     /** The area effected by the cat's attack. */
     public static final int CAT_ATTACK_AOE_RADIUS_SQUARED = 4; // TODO need to specify!
 
+    /** The cheese cost for upgrading a rat into a rat king */
+    public static final int RAT_KING_UPGRADE_CHEESE_COST = 50;
+  
     /** The cheese cost to dig up a tile of dirt */
     public static final int DIG_DIRT_CHEESE_COST = 10;
 

@@ -115,9 +115,9 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
      *
      * @battlecode.doc.costlymethod
      */
-    public final int topRightDistanceSquaredTo(MapLocation location) {
+    public final int topLeftDistanceSquaredTo(MapLocation location) {
         double dx = this.x + 0.5 - location.x;
-        double dy = this.y + 0.5 - location.y;
+        double dy = this.y - 0.5 - location.y;
         return (int) Math.ceil(dx * dx + dy * dy);
     }
 
@@ -174,7 +174,7 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
         double adjustment = 1e-3; 
         // TODO: may have to fix this; also maybe there's a better way to do this whole function given that all looking directions and all cones are all in 45 degree intervals???
 
-        boolean isValidDistance = useTopRight ? this.topRightDistanceSquaredTo(location) <= distanceSquared : this.distanceSquaredTo(location) <= distanceSquared;
+        boolean isValidDistance = useTopRight ? this.topLeftDistanceSquaredTo(location) <= distanceSquared : this.distanceSquaredTo(location) <= distanceSquared;
         
         // calculate angle (degrees) between facingDir and direction to location
         double dx = location.x - (useTopRight ? (this.x + 0.5) : this.x);

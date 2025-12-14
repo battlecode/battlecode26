@@ -405,11 +405,8 @@ public class Server implements Runnable {
         DominationFactor dom = stats.getDominationFactor();
 
         switch (dom) {
-            case KILL_ALL_RAT_KINGS_BACKSTAB:
+            case KILL_ALL_RAT_KINGS:
                 sb.append("The winning team destroyed all of the enemy team's rat kings.");
-                break;
-            case KILL_ALL_RAT_KINGS_COOPERATION:
-                sb.append("The cat destroyed all of the enemy team's rat kings.");
                 break;
             case MORE_POINTS:
                 sb.append("The winning team had more points at the end of the game.");

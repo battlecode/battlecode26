@@ -56,12 +56,12 @@ public enum UnitType {
     }
 
     public MapLocation[] getAllLocations(MapLocation center){
-        // return in CW order starting form top left
+        // return in CCW order starting from top left
         MapLocation[] locs = new MapLocation[size * size];
         int c = 0;
         for (int i = - (size-1) / 2; i <= size / 2; i++){
             for (int j = - (size-1) / 2; j <= size / 2; j++){
-                locs[c] = new MapLocation(center.x + i, center.y + j);
+                locs[c] = new MapLocation(center.x + i, center.y - j);
                 c += 1;
             }
         }

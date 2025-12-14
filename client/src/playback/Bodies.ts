@@ -74,13 +74,46 @@ export default class Bodies {
 
         const bodyClass = BODY_DEFINITIONS[type] ?? assert.fail(`Body type ${type} not found in BODY_DEFINITIONS`)
 
+        
+
         const body = new bodyClass(this.game, pos, team, id)
+
+        // if (this.checkBodyCollisionAtLocation(type, pos)) {
+        //     assert.fail(`Trying to spawn body of type ${type} at occupied location (${pos.x}, ${pos.y})`)
+        // }
+
         this.bodies.set(id, body)
 
         // Populate default hp, cooldowns, etc
         body.populateDefaultValues()
 
         return body
+    }
+
+    checkBodyCollisionAtLocation(type: schema.RobotType, pos: Vector): boolean {
+        const bodyClass = BODY_DEFINITIONS[type] ?? assert.fail(`Body type ${type} not found in BODY_DEFINITIONS`)
+        const tempBody = new bodyClass(this.game, pos, this.game.getTeamByID(1), 0)
+        const bodySize = tempBody.size;
+        const occupiedSpaces: Vector[] = []
+
+        for (const otherBody of this.bodies.values()) {
+            if (otherBody.id === tempBody.id || otherBody.dead) continue // skip self or dead
+            for(let xoff = 0; xoff < otherBody.size; xoff++){
+                for(let yoff = 0; yoff < otherBody.size; yoff++){
+                    occupiedSpaces.push({ x: otherBody.pos.x + xoff, y: otherBody.pos.y - yoff } )
+                    // console.log(`Added occupied space at (${otherBody.pos.x + xoff}, ${otherBody.pos.y - yoff}) for body ID ${otherBody.id}`) ;
+                }
+            }
+        }
+        // check occupied spaces
+        for (const space of occupiedSpaces){
+            // console.log(`Checking occupied space at (${space.x}, ${space.y}) against new body at (${pos.x}, ${pos.y}) with size ${bodySize}`) ;
+            if(space.x-pos.x < bodySize &&  space.x-pos.x >= 0 && pos.y-space.y < bodySize && pos.y-space.y >= 0){
+                return true;
+            }
+        }
+
+        return false
     }
 
     markBodyAsDead(id: number): void {
@@ -218,7 +251,7 @@ export class Body {
     public robotName: string = ''
     public robotType: schema.RobotType = schema.RobotType.NONE
     public imgPath: string = ''
-    protected size: number = 1
+    public size: number = 1
     public lastPos: Vector
     private prevSquares: Vector[]
     public indicatorDots: { location: Vector; color: string }[] = []
@@ -296,6 +329,11 @@ export class Body {
     public draw(match: Match, ctx: CanvasRenderingContext2D): void {
         const pos = this.getInterpolatedCoords(match)
         const renderCoords = renderUtils.getRenderCoords(pos.x, pos.y, match.currentRound.map.staticMap.dimension)
+
+
+        renderCoords.x += (this.size-1)*0.5
+        renderCoords.y += (this.size-1)*0.5
+
 
         if (this.dead) ctx.globalAlpha = 0.5
         renderUtils.renderCenteredImageOrLoadingIndicator(ctx, getImageIfLoaded(this.imgPath), renderCoords, this.size)

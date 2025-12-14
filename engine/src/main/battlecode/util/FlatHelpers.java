@@ -75,9 +75,7 @@ public class FlatHelpers {
 
     public static byte getWinTypeFromDominationFactor(DominationFactor factor) {
         switch (factor) {
-            case KILL_ALL_RAT_KINGS_BACKSTAB:
-                return WinType.BACKSTAB_RATKING_DESTROYED;
-            case KILL_ALL_RAT_KINGS_COOPERATION:
+            case KILL_ALL_RAT_KINGS:
                 return WinType.RATKING_DESTROYED;
             case MORE_POINTS:
                 return WinType.MORE_POINTS;
