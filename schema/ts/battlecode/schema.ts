@@ -40,6 +40,7 @@ export { RobotType } from './schema/robot-type';
 export { RobotTypeMetadata } from './schema/robot-type-metadata';
 export { Round } from './schema/round';
 export { SpawnAction } from './schema/spawn-action';
+export { StunAction } from './schema/stun-action';
 export { TeamData } from './schema/team-data';
 export { ThrowRat } from './schema/throw-rat';
 export { TimelineMarker } from './schema/timeline-marker';

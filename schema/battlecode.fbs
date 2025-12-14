@@ -103,11 +103,13 @@ struct ThrowRat {
     loc: ushort;
 }
 
+
 /// Upgrade a 3x3 area of rats into a rat king
 struct UpgradeToRatKing {
     /// Placeholder data bc the struct cant be empty
     phantom: ushort;
 }
+
 
 /// Rat Collision
 struct RatCollision {
@@ -189,6 +191,13 @@ struct DamageAction {
 }
 
 
+/// Action for when a robot is stunned
+struct StunAction {
+    id: ushort;
+    cooldown: ushort;
+}
+
+
 /// Indicate that this robot was spawned on this turn
 struct SpawnAction {
     /// Id of the bot that spawned
@@ -247,6 +256,7 @@ union Action {
     UpgradeToRatKing,
     RatSqueak,
     DamageAction,
+    StunAction,
     SpawnAction,
     DieAction,
     IndicatorStringAction,
