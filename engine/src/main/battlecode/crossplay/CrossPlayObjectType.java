@@ -15,6 +15,7 @@ public enum CrossPlayObjectType {
     ROBOT_CONTROLLER,
     ROBOT_INFO,
     TEAM,
+    THROWN_GAME_ACTION_EXCEPTION,
     // TODO add more types
     ;
 

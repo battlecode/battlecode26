@@ -30,3 +30,17 @@ class Direction(_Enum):
         super().__init__()
         self.dx = dx
         self.dy = dy
+
+class MapLocation:
+    def __init__(self, x, y):
+        self.x = int(x)
+        self.y = int(y)
+
+    def to_tuple(self):
+        return (self.x, self.y)
+
+    def __repr__(self):
+        return f"MapLocation({self.x}, {self.y})"
+
+class GameActionException(Exception):
+    pass

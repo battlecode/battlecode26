@@ -583,7 +583,6 @@ public interface RobotController {
     /**
      * Checks whether this robot can turn.
      * 
-     * @param d
      * @return
      */
     boolean canTurn();
@@ -610,21 +609,21 @@ public interface RobotController {
     int getCurrentRatCost();
 
     /**
-     * Checks if a rat king can spawn a robot at the given location.
-     * Robots can spawn within a circle of radius of sqrt(4) of the rat king.
+     * Checks if a rat king can spawn a baby rat at the given location.
+     * Rats can spawn within a circle of radius of sqrt(4) of the rat king.
      * 
-     * @param loc the location to spawn the robot at
-     * @return true if robot can be built at loc
+     * @param loc the location to spawn the rat at
+     * @return true if rat can be built at loc
      * 
      * @battlecode.doc.costlymethod
      */
     boolean canBuildRobot(MapLocation loc);
 
     /**
-     * Spawns a robot at the given location.
-     * Robots can spawn within a circle of radius of sqrt(4) of the rat king.
+     * Spawns a baby rat at the given location.
+     * Rats can spawn within a circle of radius of sqrt(4) of the rat king.
      * 
-     * @param loc the location to spawn the robot at
+     * @param loc the location to spawn the rat at
      * 
      * @battlecode.doc.costlymethod
      */

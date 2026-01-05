@@ -1,5 +1,7 @@
 package battlecode.crossplay;
 
+import battlecode.common.MapLocation;
+import battlecode.common.MapInfo;
 import battlecode.common.Team;
 
 import org.json.*;
@@ -48,6 +50,13 @@ public class CrossPlayLiteral extends CrossPlayObject {
                 break;
             case TEAM:
                 json.put("value", ((Team)this.value).ordinal());
+                break;
+            case MAP_LOCATION:
+                MapLocation ml = (MapLocation)this.value;
+                JSONObject mlJson = new JSONObject();
+                mlJson.put("x", ml.x);
+                mlJson.put("y", ml.y);
+                json.put("value", mlJson);
                 break;
             default:
                 throw new CrossPlayException("Cannot encode CrossPlayObject of type " + type + " as a literal.");
@@ -102,6 +111,8 @@ public class CrossPlayLiteral extends CrossPlayObject {
             return ofArray((CrossPlayObject[])value);
         } else if (value instanceof Team) {
             return ofTeam((Team)value);
+        } else if (value instanceof MapLocation) {
+            return ofMapLocation((MapLocation)value);
         } else {
             throw new CrossPlayException("Cannot create CrossPlayLiteral from value of type " + value.getClass().getName());
         }
@@ -113,26 +124,64 @@ public class CrossPlayLiteral extends CrossPlayObject {
         FALSE = new CrossPlayLiteral(CrossPlayObjectType.BOOLEAN, false);
 
     public static CrossPlayLiteral ofBoolean(Boolean value) {
+        if (value == null) return NULL;
         return value ? TRUE : FALSE;
     }
 
     public static CrossPlayLiteral ofInt(Integer value) {
+        if (value == null) return NULL;
         return new CrossPlayLiteral(CrossPlayObjectType.INTEGER, value);
     }
 
     public static CrossPlayLiteral ofDouble(Double value) {
+        if (value == null) return NULL;
         return new CrossPlayLiteral(CrossPlayObjectType.DOUBLE, value);
     }
 
     public static CrossPlayLiteral ofString(String value) {
+        if (value == null) return NULL;
         return new CrossPlayLiteral(CrossPlayObjectType.STRING, value);
     }
 
     public static CrossPlayLiteral ofArray(CrossPlayObject[] value) {
+        if (value == null) return NULL;
         return new CrossPlayLiteral(CrossPlayObjectType.ARRAY, value);
     }
 
     public static CrossPlayLiteral ofTeam(Team value) {
+        if (value == null) return NULL;
         return new CrossPlayLiteral(CrossPlayObjectType.TEAM, value);
+    }
+
+    public static CrossPlayLiteral ofMapLocation(MapLocation value) {
+        if (value == null) return NULL;
+        return new CrossPlayLiteral(CrossPlayObjectType.MAP_LOCATION, value);
+    }
+
+    public static CrossPlayLiteral fromMapInfo(MapInfo mi) {
+        if (mi == null) return NULL;
+
+        CrossPlayObject[] miArr = new CrossPlayObject[] {
+            ofMapLocation(mi.getMapLocation()),
+            ofBoolean(mi.isPassable()),
+            ofBoolean(mi.isWall()),
+            ofBoolean(mi.isDirt()),
+            ofInt(mi.getCheeseAmount()),
+            ofInt(mi.getTrap().ordinal()),
+            ofBoolean(mi.hasCheeseMine())
+        };
+
+        return ofArray(miArr);
+    }
+
+    public static CrossPlayLiteral ofMapInfoArray(MapInfo[] infos) {
+        if (infos == null) return ofArray(new CrossPlayObject[0]);
+        CrossPlayObject[] arr = new CrossPlayObject[infos.length];
+
+        for (int i = 0; i < infos.length; i++) {
+            arr[i] = fromMapInfo(infos[i]);
+        }
+
+        return ofArray(arr);
     }
 }

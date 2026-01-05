@@ -310,10 +310,10 @@ public class SandboxedRobotPlayer {
     private void loadAndRunPlayerCrossPlay(String teamName, String playerClassName)
             throws InvocationTargetException, IllegalAccessException, InstrumentationException {
         while (true) {
-            try {
+            /*try {*/
                 /*int bytecodeUsed =*/ crossPlay.playTurn(robotController, systemOut);
                 // TODO set bytecode limit somehow (maybe in python, maybe here)
-            } catch (GameActionException e) {
+            /*} catch (GameActionException e) {
                 String message = "GameActionException thrown during cross-play turn: " + e.getMessage();
 
                 if (systemOut instanceof RoboPrintStream rps) {
@@ -321,7 +321,7 @@ public class SandboxedRobotPlayer {
                 } else {
                     System.out.println(message);
                 }
-            }
+            }*/
 
             this.pauseMethod.invoke(null);
         }
