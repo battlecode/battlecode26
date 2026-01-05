@@ -104,7 +104,14 @@ headlessPy.mustRunAfter crossPlayPy
 // keep the client happy because it references this step
 task unpackClient() {}
 
-task run(dependsOn: ['crossPlayPy', 'headlessPy', 'unpackClient']) {}
+task run(dependsOn: ['unpackClient']) {}
+
+if (project.hasProperty('languageA') && project.property('languageA') == 'python' ||
+    project.hasProperty('languageB') && project.property('languageB') == 'python') {
+  run.dependsOn crossPlayPy, headlessPy
+} else {
+  run.dependsOn headless
+}
 
 task runClient {
   doLast {
