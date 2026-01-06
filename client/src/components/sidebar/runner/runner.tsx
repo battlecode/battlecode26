@@ -21,8 +21,8 @@ type RunnerPageProps = {
 }
 
 type Preset = {
-    name: string,
-    maps: Set<string>,
+    name: string
+    maps: Set<string>
 }
 
 export const RunnerPage: React.FC<RunnerPageProps> = ({ open, scaffold }) => {
@@ -121,7 +121,7 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ open, scaffold }) => {
                 </>
             ) : (
                 <>
-                    <LanguageSelector language={language} onChange={changeLanguage} />
+                    {/*<LanguageSelector language={language} onChange={changeLanguage} />*/}
                     <LanguageVersionSelector
                         language={language}
                         version={langVersion}
@@ -149,8 +149,14 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ open, scaffold }) => {
                     <MapSelector
                         maps={maps}
                         availableMaps={availableMaps}
-                        onSelect={(m) => {setMaps(new Set([...maps, ...m])); setPreset(undefined)}}
-                        onDeselect={(m) => {setMaps(new Set([...maps].filter((x) => !m.includes(x)))); setPreset(undefined)}}
+                        onSelect={(m) => {
+                            setMaps(new Set([...maps, ...m]))
+                            setPreset(undefined)
+                        }}
+                        onDeselect={(m) => {
+                            setMaps(new Set([...maps].filter((x) => !m.includes(x))))
+                            setPreset(undefined)
+                        }}
                     />
                     <PresetSelector
                         preset={preset}
@@ -164,8 +170,9 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ open, scaffold }) => {
                         newPreset={(n) => {
                             const preexisting: Preset | undefined = availablePresets.find((x) => x.name === n)
                             if (preexisting === undefined) {
-                                const p = {name: n, maps: maps}
-                                setAvailablePresets(new Array(...availablePresets, p)); setPreset(p)
+                                const p = { name: n, maps: maps }
+                                setAvailablePresets(new Array(...availablePresets, p))
+                                setPreset(p)
                             } else {
                                 preexisting.maps = maps
                                 setPreset(preexisting)
@@ -422,26 +429,40 @@ interface PresetSelectorProps {
     deletePreset: (preset: Preset | undefined) => void
 }
 
-const PresetSelector: React.FC<PresetSelectorProps> = ({ preset, availablePresets, setPreset, newPreset, deletePreset }) => {
-    const [newName, setNewName] = useState<string>("")
+const PresetSelector: React.FC<PresetSelectorProps> = ({
+    preset,
+    availablePresets,
+    setPreset,
+    newPreset,
+    deletePreset
+}) => {
+    const [newName, setNewName] = useState<string>('')
     return (
         <div className="mt-3">
             <label>Map Presets</label>
             <div className="flex flex-row">
                 <Button
                     className="flex-none m-1 w-10 h-10"
-                    style={{padding: 10}}
+                    style={{ padding: 10 }}
                     onClick={() => deletePreset(preset)}
                     disabled={preset === undefined}
-                ><BsTrash className="font-bold stroke-[0.5] text-xl"/></Button>
+                >
+                    <BsTrash className="font-bold stroke-[0.5] text-xl" />
+                </Button>
                 <Select
                     className="flex-initial m-1"
-                    style={{width: 192, height: 40}} // Select has w-full and h-full by default
-                    value={preset?.name ?? ""}
-                    onChange={(e) => {setPreset(availablePresets.find(preset => preset.name === e))}}
+                    style={{ width: 192, height: 40 }} // Select has w-full and h-full by default
+                    value={preset?.name ?? ''}
+                    onChange={(e) => {
+                        setPreset(availablePresets.find((preset) => preset.name === e))
+                    }}
                     disabled={availablePresets.length === 0}
                 >
-                    {preset === undefined ? <option key="" value="">Select...</option> : undefined}
+                    {preset === undefined ? (
+                        <option key="" value="">
+                            Select...
+                        </option>
+                    ) : undefined}
                     {availablePresets.map((p) => (
                         <option key={p.name} value={p.name}>
                             {p.name}
@@ -452,13 +473,15 @@ const PresetSelector: React.FC<PresetSelectorProps> = ({ preset, availablePreset
                     className="w-28 flex-initial m-1 h-10"
                     value={newName}
                     placeholder="New"
-                    onKeyDown={ev => {
-                        if (ev.key === "Enter") {
-                            if (newName !== "") { newPreset(newName) }
-                            setNewName("")
+                    onKeyDown={(ev) => {
+                        if (ev.key === 'Enter') {
+                            if (newName !== '') {
+                                newPreset(newName)
+                            }
+                            setNewName('')
                         }
                     }}
-                    onInput={n => setNewName(n.currentTarget.value)}
+                    onInput={(n) => setNewName(n.currentTarget.value)}
                 />
             </div>
         </div>
@@ -473,7 +496,7 @@ type Props = {
 
 export const Console: React.FC<Props> = ({ lines }) => {
     const consoleRef = useRef<HTMLDivElement>(null)
-    const listRef = useRef<FixedSizeList>(null);
+    const listRef = useRef<FixedSizeList>(null)
 
     const [tail, setTail] = useState(true)
     const [popout, setPopout] = useState(false)
@@ -486,15 +509,14 @@ export const Console: React.FC<Props> = ({ lines }) => {
     const goToNextMatch = () => {
         if (!matches.length) return
         setActiveMatch((prev) => (prev + 1) % matches.length)
-        listRef.current?.scrollToItem(matches[activeMatch], 'center');
+        listRef.current?.scrollToItem(matches[activeMatch], 'center')
     }
 
     const goToPrevMatch = () => {
         if (!matches.length) return
         setActiveMatch((prev) => (prev - 1 + matches.length) % matches.length)
-        listRef.current?.scrollToItem(matches[activeMatch], 'center');
+        listRef.current?.scrollToItem(matches[activeMatch], 'center')
     }
-
 
     const getLineClass = (line: ConsoleLine) => {
         switch (line.type) {
@@ -520,19 +542,19 @@ export const Console: React.FC<Props> = ({ lines }) => {
             }
         }, 5)
     }
-    
+
     const ConsoleRow = (props: { index: number; style: any }) => {
         const row = lines.get(props.index)!
         const content = row.content
 
-        const isMatch = query.length > 0 && content.toLowerCase().includes(query.toLowerCase());
-        const isActive = isMatch && matches[activeMatch] === props.index;
+        const isMatch = query.length > 0 && content.toLowerCase().includes(query.toLowerCase())
+        const isActive = isMatch && matches[activeMatch] === props.index
 
         const getHighlightClass = () => {
-            if (isActive) return ' bg-yellow-400/60 text-black';
-            if (isMatch) return ' bg-yellow-200/20';
-            return '';
-        };
+            if (isActive) return ' bg-yellow-400/60 text-black'
+            if (isMatch) return ' bg-yellow-200/20'
+            return ''
+        }
 
         // Check if the printout is from a bot. If so, add a special click element
         // that selects the bot
@@ -558,7 +580,10 @@ export const Console: React.FC<Props> = ({ lines }) => {
         }
 
         return (
-            <span style={props.style} className={getLineClass(row) + ' text-xs whitespace-nowrap' + getHighlightClass()}>
+            <span
+                style={props.style}
+                className={getLineClass(row) + ' text-xs whitespace-nowrap' + getHighlightClass()}
+            >
                 {content}
             </span>
         )
@@ -656,7 +681,6 @@ export const Console: React.FC<Props> = ({ lines }) => {
         setActiveMatch(0)
     }, [query, lines.effectiveLength()])
 
-
     return (
         <>
             <Tooltip location="bottom" text={'View output from running the game'}>
@@ -664,58 +688,57 @@ export const Console: React.FC<Props> = ({ lines }) => {
             </Tooltip>
             <BasicDialog open={popout} onCancel={() => updatePopout(false)} title="Console" width="lg">
                 <div className="relative flex flex-col grow h-full w-full min-h-[400px]">
-                {searchOpen && (
-                <div className="flex items-center gap-2 mb-1">
-                    <input
-                    autoFocus
-                    className="flex-grow px-2 py-1 text-xs bg-black border border-white rounded"
-                    placeholder="Find…"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Escape') {
-                        setSearchOpen(false)
-                        setQuery('')
-                        }
-                        if (e.key === 'Enter') {
-                            e.shiftKey ? goToPrevMatch() : goToNextMatch()
-                        }
-                    }}
-                    />
-                    <button
-                    className="px-2 py-1 text-xs border border-white rounded disabled:opacity-40"
-                    onClick={goToPrevMatch}
-                    disabled={matches.length === 0}
-                    title="Previous match"
-                    >
-                        <ChevronUpIcon className="w-4 h-4" />
-                    </button>
-                    <button
-                    className="px-2 py-1 text-xs border border-white rounded disabled:opacity-40"
-                    onClick={goToNextMatch}
-                    disabled={matches.length === 0}
-                    title="Next match"
-                    >
-                        <ChevronDownIcon className="w-4 h-4" />
-                    </button>
-                    <span className="text-xs opacity-70">
-                    {matches.length ? `${activeMatch + 1}/${matches.length}` : '0/0'}
-                    </span>
-                </div>
+                    {searchOpen && (
+                        <div className="flex items-center gap-2 mb-1">
+                            <input
+                                autoFocus
+                                className="flex-grow px-2 py-1 text-xs bg-black border border-white rounded"
+                                placeholder="Find…"
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Escape') {
+                                        setSearchOpen(false)
+                                        setQuery('')
+                                    }
+                                    if (e.key === 'Enter') {
+                                        e.shiftKey ? goToPrevMatch() : goToNextMatch()
+                                    }
+                                }}
+                            />
+                            <button
+                                className="px-2 py-1 text-xs border border-white rounded disabled:opacity-40"
+                                onClick={goToPrevMatch}
+                                disabled={matches.length === 0}
+                                title="Previous match"
+                            >
+                                <ChevronUpIcon className="w-4 h-4" />
+                            </button>
+                            <button
+                                className="px-2 py-1 text-xs border border-white rounded disabled:opacity-40"
+                                onClick={goToNextMatch}
+                                disabled={matches.length === 0}
+                                title="Next match"
+                            >
+                                <ChevronDownIcon className="w-4 h-4" />
+                            </button>
+                            <span className="text-xs opacity-70">
+                                {matches.length ? `${activeMatch + 1}/${matches.length}` : '0/0'}
+                            </span>
+                        </div>
+                    )}
 
-                )}
-
-                <div className="flex flex-col grow h-full w-full">
-                    <div
-                        ref={consoleRef}
-                        tabIndex={0}
-                        className="flex-grow border border-white py-1 px-1 rounded-md overflow-auto flex flex-col min-h-[250px] w-full"
-                        style={{ height: '75vh', maxHeight: '75vh' }}
-                        onKeyDown={handleKeyDown}
-                    >
-                        {popout && lineList}
+                    <div className="flex flex-col grow h-full w-full">
+                        <div
+                            ref={consoleRef}
+                            tabIndex={0}
+                            className="flex-grow border border-white py-1 px-1 rounded-md overflow-auto flex flex-col min-h-[250px] w-full"
+                            style={{ height: '75vh', maxHeight: '75vh' }}
+                            onKeyDown={handleKeyDown}
+                        >
+                            {popout && lineList}
+                        </div>
                     </div>
-                </div>
                 </div>
             </BasicDialog>
         </>

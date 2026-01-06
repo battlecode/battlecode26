@@ -38,8 +38,8 @@ type Scaffold = [
 
 export const useScaffold = (): Scaffold => {
     const getDefaultLanguage = () => {
-        const stored = localStorage.getItem('language')
-        if (stored) return stored as SupportedLanguage
+        //const stored = localStorage.getItem('language')
+        //if (stored) return stored as SupportedLanguage
         return SupportedLanguage.Java
     }
 
