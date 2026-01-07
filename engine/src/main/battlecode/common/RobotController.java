@@ -1034,5 +1034,3 @@ public interface RobotController {
      */
     void setTimelineMarker(String label, int red, int green, int blue);
 }
-// TODO: update bytecode costs, particularly for new methods + methods that got
-// renamed from last year

@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-// TODO: map serialization and deserialization
+
 /**
  * This class contains the code for reading a flatbuffer map file and converting
  * it
@@ -420,7 +420,7 @@ public final class GameMapIO {
 
                 Team bodyTeam = TeamMapping.team(curSpawnAction.team());
 
-                if (bodyType == UnitType.CAT){ // TODO: this is a temporary fix
+                if (bodyType == UnitType.CAT) {
                     bodyTeam = Team.NEUTRAL;
                 }
                 

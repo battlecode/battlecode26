@@ -98,8 +98,6 @@ public class GameMakerTest {
     //     assertEquals("yellow", h.teams(1).name());
     //     assertEquals("org.yellow", h.teams(1).packageName());
 
-    //     // TODO more sanity checking
-
     //     assertEquals(Event.MatchHeader, output.events(1).eType());
     //     assertEquals(Event.Round, output.events(2).eType());
     //     assertEquals(Event.Round, output.events(3).eType());

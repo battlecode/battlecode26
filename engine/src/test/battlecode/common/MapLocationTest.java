@@ -6,7 +6,6 @@ import static org.junit.Assert.*;
 
 public class MapLocationTest {
 
-    // TODO: write a bunch more of these
 
     @Test
     public void testConstructor() {

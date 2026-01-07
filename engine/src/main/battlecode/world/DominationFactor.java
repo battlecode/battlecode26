@@ -4,8 +4,6 @@ package battlecode.world;
  * Determines roughly by how much the winning team won.
  */
 public enum DominationFactor {
-    // TODO: update with new win conditions (fix game vs match thing)?
-    // TODO: for game/match thing, how to aggregate points and tiebreak stats like # rats at end?
     /**
      * Win by killing all opponent rat kings.
      */

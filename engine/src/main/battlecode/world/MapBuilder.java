@@ -30,7 +30,6 @@ public class MapBuilder {
 
     private List<RobotInfo> bodies;
 
-    // TODO: get rid of origin
     public MapBuilder(String name, int width, int height, int originX, int originY, int seed) {
         assert(originX == 0);
         assert(originY == 0);
@@ -144,7 +143,6 @@ public class MapBuilder {
         this.wallArray[locationToIndex(symmetricX(x), symmetricY(y))] = value;
     }
 
-    //TODO: kept for now for reference 
     // public void setSymmetricCloud(int x, int y, boolean value) {
     //     this.cloudArray[locationToIndex(x, y)] = value;
     //     this.cloudArray[locationToIndex(symmetricX(x), symmetricY(y))] = value;
@@ -211,7 +209,6 @@ public class MapBuilder {
      * @return the list of symmetries, empty if map is invalid
      */
     private ArrayList<MapSymmetry> getSymmetry(RobotInfo[] robots) {
-        //TODO: not properly implemented
         ArrayList<MapSymmetry> possible = new ArrayList<MapSymmetry>();
         possible.add(MapSymmetry.ROTATIONAL);
         possible.add(MapSymmetry.HORIZONTAL);
@@ -233,7 +230,7 @@ public class MapBuilder {
                         possible.remove(symmetry);
                     } else if (cheeseArray[curIdx] != cheeseArray[symIdx]) {
                         possible.remove(symmetry);
-                    } // TODO add more checks here
+                    }
                 }
             }
         }

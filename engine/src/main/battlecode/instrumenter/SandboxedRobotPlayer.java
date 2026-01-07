@@ -295,7 +295,6 @@ public class SandboxedRobotPlayer {
         // Is the RobotPlayer terminated?
         if (terminated) {
             return; // the player screwed up but they're not gonna lose the robot hehehe
-            // TODO: restore this for future games
             //throw new RuntimeException("Step called after robot killed");
         }
         // Update the robot's information

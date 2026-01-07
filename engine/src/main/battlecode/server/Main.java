@@ -118,7 +118,6 @@ public class Main {
             System.err.println("invalid bc.server.mode");
             System.exit(64);
         } else {
-            // TODO: figure out what process isn't being killed that makes this necessary
             System.exit(0);
         }
 

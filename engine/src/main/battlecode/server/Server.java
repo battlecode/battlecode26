@@ -267,7 +267,6 @@ public class Server implements Runnable {
 
         // Get started
         if (interactive) {
-            // TODO necessary?
             // Poll for RUNNING, if we're in interactive mode
             while (!ServerState.RUNNING.equals(state)) {
                 try {

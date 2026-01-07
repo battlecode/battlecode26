@@ -492,8 +492,13 @@ export class CatBrush extends SymmetricMapEditorBrush<StaticMap> {
             if (body && body.robotType === schema.RobotType.CAT) {
                 this.lastSelectedCat = selectedBodyID
                 lastSelectedCatLoc = this.bodies.getById(this.lastSelectedCat)?.pos
+            } else {
+                this.lastSelectedCat = -1
+                lastSelectedCatLoc = null
             }
         }
+        
+        // console.log(`last selected cat: ${this.lastSelectedCat}`)
 
         if (fields.catOrWaypointMode.value === 1) {
             // Waypoint mode

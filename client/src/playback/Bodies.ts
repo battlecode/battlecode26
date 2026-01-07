@@ -363,6 +363,7 @@ export class Body {
     public moveCooldown: number = 0
     public actionCooldown: number = 0
     public turningCooldown: number = 0
+    public carriedRobot: number | undefined = undefined  // id of carried robot
     public bytecodesUsed: number = 0
     public cheese: number = 0
 
@@ -687,6 +688,7 @@ export class Body {
             `Move Cooldown: ${this.moveCooldown}`,
             `Action Cooldown: ${this.actionCooldown}`,
             `${this.robotType !== schema.RobotType.CAT ? 'Turning Cooldown: ' + this.turningCooldown : ''}`,
+            `${this.carriedRobot !== undefined ? 'Carrying: ' + this.carriedRobot : ''}`,
             `Bytecodes Used: ${this.bytecodesUsed}${
                 this.bytecodesUsed >= this.metadata.bytecodeLimit() ? ' <EXCEEDED!>' : ''
             }`

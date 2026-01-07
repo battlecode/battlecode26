@@ -437,39 +437,36 @@ public class LiveMap {
             throw new RuntimeException("MAP HEIGHT BENEATH GameConstants.MAP_MIN_HEIGHT");
         }
 
-        // TODO: update initial body stuff to be rat king related
-        // int[] towerCountA = new int[3];
-        // int[] towerCountB = new int[3];
-        // int initialBodyCountTeamA = 0;
-        // int initialBodyCountTeamB = 0;
-        // for (RobotInfo initialBody : initialBodies) {
-        //     if (initialBody.team == Team.A) {
-        //         towerCountA[FlatHelpers.getRobotTypeFromUnitType(initialBody.type) - 1] += 1;
-        //         initialBodyCountTeamA++;
-        //     } else if (initialBody.team == Team.B) {
-        //         towerCountB[FlatHelpers.getRobotTypeFromUnitType(initialBody.type) - 1] += 1;
-        //         initialBodyCountTeamB++;
-        //     } else {
-        //         throw new RuntimeException(
-        //                 "Expected initial body team " + initialBody.team + " to be team A or team B!");
-        //     }
-        // }
+        int initialBodyCountTeamA = 0;
+        int initialBodyCountTeamB = 0;
 
-        // TODO uncomment when maps have rat kings
-        // if (initialBodyCountTeamA != GameConstants.NUMBER_INITIAL_RAT_KINGS) {
-        //     throw new RuntimeException(
-        //             "Expected to have " + GameConstants.NUMBER_INITIAL_RAT_KINGS + " initial team A rat kings!");
-        // }
-        // if (initialBodyCountTeamB != GameConstants.NUMBER_INITIAL_RAT_KINGS) {
-        //     throw new RuntimeException(
-        //             "Expected to have " + GameConstants.NUMBER_INITIAL_RAT_KINGS + " initial team B rat kings!");
-        // }
-        // for (int i = 0; i < towerCountA.length; i++) {
-        //     if (towerCountA[i] != towerCountB[i]) {
-        //         throw new RuntimeException("Expected both teams to have the same number of towers of type "
-        //                 + FlatHelpers.getUnitTypeFromRobotType((byte) (i + 1)));
-        //     }
-        // }
+        for (RobotInfo initialBody : initialBodies) {
+            if (initialBody.team == Team.A) {
+                if (initialBody.type != UnitType.RAT_KING) {
+                    throw new RuntimeException(
+                            "Expected initial body type " + initialBody.type + " to be RAT_KING for team A!");
+                }
+
+                initialBodyCountTeamA++;
+            } else if (initialBody.team == Team.B) {
+                if (initialBody.type != UnitType.RAT_KING) {
+                    throw new RuntimeException(
+                            "Expected initial body type " + initialBody.type + " to be RAT_KING for team B!");
+                }
+
+                initialBodyCountTeamB++;
+            }
+        }
+
+        if (initialBodyCountTeamA != GameConstants.NUMBER_INITIAL_RAT_KINGS) {
+            throw new RuntimeException(
+                    "Expected to have " + GameConstants.NUMBER_INITIAL_RAT_KINGS + " initial team A rat kings!");
+        }
+
+        if (initialBodyCountTeamB != GameConstants.NUMBER_INITIAL_RAT_KINGS) {
+            throw new RuntimeException(
+                    "Expected to have " + GameConstants.NUMBER_INITIAL_RAT_KINGS + " initial team B rat kings!");
+        }
 
         ArrayList<MapLocation> cheeseMineLocs = new ArrayList<>();
         int numWalls = 0;

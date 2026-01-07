@@ -72,7 +72,7 @@ export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, tea
         ratKingPercent = teamStat.ratKingPercent
     }
 
-    const formatPercent = (val: number) => (val * 100).toFixed(1)
+    const formatPercent = (val: number) => (val * 100).toFixed(1).toString() + '%'
 
     const teamName = TEAM_COLOR_NAMES[teamIdx].toLowerCase()
     return (
@@ -82,7 +82,7 @@ export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, tea
                     <div className="w-[30px] h-[30px] mr-5">
                         <img style={{ transform: 'scale(1.5)' }} src={imageSource(`icons/cheese_64x64.png`)} />
                     </div>
-                    <div>Count:</div>
+                    <div>Amount:</div>
                     <div className="ml-1">
                         <b>{cheeseAmount}</b>
                     </div>

@@ -1,4 +1,4 @@
-export const CLIENT_VERSION = '1.0.0'
+export const CLIENT_VERSION = '1.0.2'
 export const SPEC_VERSION = '1'
 export const BATTLECODE_YEAR: number = 2026
 export const MAP_SIZE_RANGE = {

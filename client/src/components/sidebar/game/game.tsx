@@ -94,11 +94,11 @@ export const GamePage: React.FC<Props> = React.memo((props) => {
     }
 
     const isGameModeCooperation =
-        !!round &&
+        (round ?? true) &&
         !!game &&
         (() => {
-            const t0 = round.stat.getTeamStat(game.teams[0])?.gameModeCooperation ?? true
-            const t1 = round.stat.getTeamStat(game.teams[1])?.gameModeCooperation ?? true
+            const t0 = round?.stat.getTeamStat(game.teams[0])?.gameModeCooperation ?? true
+            const t1 = round?.stat.getTeamStat(game.teams[1])?.gameModeCooperation ?? true
             return t0 && t1
         })()
 

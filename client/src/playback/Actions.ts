@@ -188,6 +188,9 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             // move the target onto the source adjust target's size using scale factor
             const src = round.bodies.getById(this.robotId)
             const target = round.bodies.getById(this.actionData.id()) // rat getting napped
+            
+            target.carriedRobot = undefined
+            src.carriedRobot = target.id
 
             target.lastPos = { ...target.pos }
             target.pos = { x: src.pos.x + RatNapAction.OFFSET.x, y: src.pos.y + RatNapAction.OFFSET.y }

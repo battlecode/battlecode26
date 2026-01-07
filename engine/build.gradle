@@ -76,7 +76,7 @@ jar {
 
 javadoc {
   includes = ["**/common/**"]
-  options.windowTitle = "Battlecode 2025"
+  options.windowTitle = "Battlecode 2026"
   options.classpath = sourceSets.main.compileClasspath as List
   options.doclet = "jdk.javadoc.doclet.StandardDoclet"
   options.taglets = ["battlecode.doc.CostlyMethodTaglet"]

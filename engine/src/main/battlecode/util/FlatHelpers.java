@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.ObjIntConsumer;
 
-// TODO; update as necessary for whatever's need with GameMaker stuff
 
 /**
  * Misc. helper functions for working with flatbuffers.
@@ -101,7 +100,6 @@ public class FlatHelpers {
     }
 
     public static int getOrdinalFromDirection(Direction dir){
-        // TODO: double check this
         switch (dir){
             case CENTER:
                 return 0;

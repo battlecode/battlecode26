@@ -11,7 +11,7 @@ const EMPTY_ROBOT_COUNTS: Record<schema.RobotType, number> = {
 }
 
 export class TeamRoundStat {
-    gameModeCooperation: boolean = false
+    gameModeCooperation: boolean = true
     cheeseAmount: number = 0
     cheesePercent: number = 0
     catDamageAmount: number = 0
