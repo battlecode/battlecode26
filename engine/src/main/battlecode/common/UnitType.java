@@ -2,9 +2,9 @@ package battlecode.common;
 
 public enum UnitType {
     // health, size, speed, visionRadius, actionCooldown
-    BABY_RAT(100, 1, 20, 90, 10, 10, 10000),
+    BABY_RAT(100, 1, 20, 90, 10, 10, 17500),
     RAT_KING(500, 3, 25, 360, 10, 40, 20000),
-    CAT(10_000, 2, 30, 180, 15, 10, 10000);
+    CAT(10_000, 2, 30, 180, 15, 10, 17500);
 
     // amount of health robot initially starts with
     public final int health;
@@ -74,11 +74,11 @@ public enum UnitType {
         return locs;
     }
 
-    UnitType(int health, int size, int visionConeRadius, int visionConeAngle, int actionCooldown,
+    UnitType(int health, int size, int visionConeRadiusSquared, int visionConeAngle, int actionCooldown,
             int movementCooldown, int bytecodeLimit) {
         this.health = health;
         this.size = size;
-        this.visionConeRadiusSquared = visionConeRadius;
+        this.visionConeRadiusSquared = visionConeRadiusSquared;
         this.visionConeAngle = visionConeAngle;
         this.actionCooldown = actionCooldown;
         this.movementCooldown = movementCooldown;

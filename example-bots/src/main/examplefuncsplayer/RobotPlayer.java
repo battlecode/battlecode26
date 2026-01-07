@@ -77,23 +77,23 @@ public class RobotPlayer {
                 // different types. Here, we separate the control depending on the UnitType, so we can
                 // use different strategies on different robots. If you wish, you are free to rewrite
                 // this into a different control structure!
-                
+
                 // Every 10 turns, print out what type of robot we are.
                 if (turnCount % 100 == 0) {
                     System.out.println("Turn " + turnCount + ": I am a " + rc.getType().toString());
                 }
-                                
+
                 // Try to move forward one step.
                 if (rc.canMoveForward()) {
-                    System.out.println("Turn " + turnCount + "Trying to move " + rc.getDirection());
+                    System.out.println("Turn " + turnCount + ": Trying to move " + rc.getDirection());
                     rc.moveForward();
                 } else {
-                    System.out.println("couldn't move forward on turn " + turnCount + " at location " + rc.getLocation() + rc.getDirection());
+                    System.out.println("couldn't move forward on turn " + turnCount + " at location " + rc.getLocation() + " facing " + rc.getDirection());
                     // If we can't move forward, try to turn a random direction.
                     int randomDirection = rng.nextInt(8);
                     
                     if (rc.canTurn()) {
-                        rc.turn(rc.getDirection());
+                        rc.turn(directions[randomDirection]);
                     }
                 }
             } catch (GameActionException e) {

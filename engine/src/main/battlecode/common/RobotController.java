@@ -130,7 +130,7 @@ public interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    public int getGlobalCheese();
+    int getGlobalCheese();
 
     /**
      * Returns the amount of cheese the robot has access to.
@@ -139,7 +139,7 @@ public interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    public int getAllCheese();
+    int getAllCheese();
 
     /**
      * Returns the amount of dirt that this robot's team has.
@@ -608,25 +608,25 @@ public interface RobotController {
     int getCurrentRatCost();
 
     /**
-     * Checks if a rat king can spawn a robot at the given location.
-     * Robots can spawn within a circle of radius of sqrt(4) of the rat king.
+     * Checks if a rat king can spawn a baby rat at the given location.
+     * Rats can spawn within a circle of radius of sqrt(4) of the rat king.
      * 
-     * @param loc the location to spawn the robot at
-     * @return true if robot can be built at loc
+     * @param loc the location to spawn the rat at
+     * @return true if rat can be built at loc
      * 
      * @battlecode.doc.costlymethod
      */
-    boolean canBuildRobot(MapLocation loc);
+    boolean canBuildRat(MapLocation loc);
 
     /**
-     * Spawns a robot at the given location.
-     * Robots can spawn within a circle of radius of sqrt(4) of the rat king.
+     * Spawns a baby rat at the given location.
+     * Rats can spawn within a circle of radius of sqrt(4) of the rat king.
      * 
-     * @param loc the location to spawn the robot at
+     * @param loc the location to spawn the rat at
      * 
      * @battlecode.doc.costlymethod
      */
-    void buildRobot(MapLocation loc) throws GameActionException;
+    void buildRat(MapLocation loc) throws GameActionException;
 
     /**
      * Checks if a rat can become a rat king, when 7 allied rats are in the 3x3
@@ -822,11 +822,12 @@ public interface RobotController {
      * for increasing bite strength
      *
      * @param loc the target location to attack
+     * @param cheeseAmount amount of cheese to spend on the attack
      * @throws GameActionException if conditions for attacking are not satisfied
      *
      * @battlecode.doc.costlymethod
      */
-    void attack(MapLocation loc, int cheese) throws GameActionException;
+    void attack(MapLocation loc, int cheeseAmount) throws GameActionException;
 
     // ***********************************
     // ****** COMMUNICATION METHODS ******

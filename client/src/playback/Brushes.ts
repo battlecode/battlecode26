@@ -546,7 +546,12 @@ export class CatBrush extends SymmetricMapEditorBrush<StaticMap> {
         const add = (x: number, y: number, team: Team) => {
             const pos = { x, y }
 
-            if (this.bodies.checkBodyCollisionAtLocation(schema.RobotType.CAT, pos)) return null
+            if (
+                this.bodies.checkBodyCollisionAtLocation(schema.RobotType.CAT, pos)||
+                !this.bodies.checkBodyOutofBoundsAtLocation(schema.RobotType.CAT, pos)
+            ) {
+                return null
+            }
 
             const id = this.bodies.getNextID()
             this.bodies.spawnBodyFromValues(id, schema.RobotType.CAT, team, pos, 0, robotOne ? 0 : 1)
@@ -650,7 +655,8 @@ export class RatKingBrush extends SymmetricMapEditorBrush<StaticMap> {
             const pos = { x, y }
             if (
                 this.bodies.getBodyAtLocation(x, y) ||
-                this.bodies.checkBodyCollisionAtLocation(schema.RobotType.RAT_KING, pos)
+                this.bodies.checkBodyCollisionAtLocation(schema.RobotType.RAT_KING, pos) ||
+                !this.bodies.checkBodyOutofBoundsAtLocation(schema.RobotType.RAT_KING, pos)
             ) {
                 return null
             }

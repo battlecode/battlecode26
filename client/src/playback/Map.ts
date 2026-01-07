@@ -41,7 +41,7 @@ export class CurrentMap {
     public readonly markers: [Int8Array, Int8Array] // Each team has markers
     public readonly ratTrapData: Int8Array
     public readonly catTrapData: Int8Array
-    public readonly cheeseData: Int8Array
+    public readonly cheeseData: Int32Array
     public readonly resourcePatterns: ResourcePatternData[]
 
     get width(): number {
@@ -60,7 +60,7 @@ export class CurrentMap {
 
             this.staticMap = from
             this.dirt = new Int8Array(from.initialDirt)
-            this.cheeseData = new Int8Array(from.cheese)
+            this.cheeseData = new Int32Array(from.cheese)
             this.markers = [new Int8Array(this.width * this.height), new Int8Array(this.width * this.height)]
             this.resourcePatterns = []
             this.ratTrapData = new Int8Array(this.width * this.height)
@@ -70,7 +70,7 @@ export class CurrentMap {
 
             this.staticMap = from.staticMap
             this.dirt = new Int8Array(from.dirt)
-            this.cheeseData = new Int8Array(from.cheeseData)
+            this.cheeseData = new Int32Array(from.cheeseData)
             this.markers = [new Int8Array(from.markers[0]), new Int8Array(from.markers[1])]
 
             // Assumes ResourcePatternData is immutable
@@ -284,6 +284,8 @@ export class CurrentMap {
 
         const dirt = this.dirt[schemaIdx]
         const wall = this.staticMap.walls[schemaIdx]
+        const ratTrap = this.ratTrapData[schemaIdx]
+        const catTrap = this.catTrapData[schemaIdx]
         const cheeseMine = this.staticMap.cheeseMines.find((r) => r.x === square.x && r.y === square.y)
         const cheese = this.cheeseData[schemaIdx]
         const srp = this.resourcePatterns.find((r) => r.center.x === square.x && r.center.y === square.y)
@@ -312,6 +314,12 @@ export class CurrentMap {
         }
         if (dirt) {
             info.push('Dirt')
+        }
+        if (ratTrap) {
+            info.push('Rat Trap')
+        }
+        if (ratTrap) {
+            info.push('Cat Trap')
         }
         if (cheese) {
             info.push(`Cheese: ${cheese}`)
@@ -552,7 +560,7 @@ export class StaticMap {
         }
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(ctx: CanvasRenderingContext2D, config: ClientConfig) {
         // Fill background
         ctx.fillStyle = Colors.TILES_COLOR.get()
         ctx.fillRect(
@@ -569,10 +577,15 @@ export class StaticMap {
 
                 // Render rounded (clipped) wall
                 if (this.walls[schemaIdx]) {
-                    renderUtils.renderRounded(ctx, i, j, this, this.walls, () => {
+                    if (config.enableFancyPaint) {
+                        renderUtils.renderRounded(ctx, i, j, this, this.walls, () => {
+                            ctx.fillStyle = Colors.WALLS_COLOR.get()
+                            ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
+                        })
+                    } else {
                         ctx.fillStyle = Colors.WALLS_COLOR.get()
                         ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
-                    })
+                    }
                 }
 
                 // Draw grid

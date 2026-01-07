@@ -70,8 +70,8 @@ battlecode/common/RobotController/move                                  1    tru
 battlecode/common/RobotController/canTurn                               1    true
 battlecode/common/RobotController/turn                                  1    true
 battlecode/common/RobotController/getCurrentRatCost                     1    true
-battlecode/common/RobotController/canBuildRobot                         10   true
-battlecode/common/RobotController/buildRobot                            20   true
+battlecode/common/RobotController/canBuildRat                           10   true
+battlecode/common/RobotController/buildRat                              20   true
 battlecode/common/RobotController/canBecomeRatKing                      10   true
 battlecode/common/RobotController/becomeRatKing                         20   true
 battlecode/common/RobotController/canPlaceDirt                          5    true
@@ -126,7 +126,7 @@ battlecode/common/RobotInfo/getDirection                                2    fal
 battlecode/common/RobotInfo/getChirality                                1    false
 battlecode/common/RobotInfo/getType                                     1    false 
 battlecode/common/RobotInfo/getRawCheeseAmount                          2    false 
-battlecode/common/RobotInfo/getCarryingRobot                            2    false
+battlecode/common/RobotInfo/getCarrying                                 2    false
 battlecode/common/RobotInfo/equals                                      15   false
 battlecode/common/RobotInfo/hashCode                                    15   false
 battlecode/common/RobotInfo/toString                                    15   false

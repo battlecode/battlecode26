@@ -88,11 +88,11 @@ public class GameConstants {
      */
     public static final double CHEESE_COOLDOWN_PENALTY = 0.01;
 
-    /** The amount of cheese the ratking consumes each round. */
-    public static final int RATKING_CHEESE_CONSUMPTION = 3;
+    /** The amount of cheese the rat king consumes each round. */
+    public static final int RAT_KING_CHEESE_CONSUMPTION = 3;
 
-    /** The amount of health the ratking loses by not eating cheese. */
-    public static final int RATKING_HEALTH_LOSS = 10;
+    /** The amount of health the rat king loses by not eating cheese. */
+    public static final int RAT_KING_HEALTH_LOSS = 10;
 
     /** Probability parameter for cheese spawn at a mine. **/
     public static final float CHEESE_MINE_SPAWN_PROBABILITY = 0.01f;

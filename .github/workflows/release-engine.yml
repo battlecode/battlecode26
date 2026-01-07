@@ -92,79 +92,79 @@ jobs:
 
       - name: Upload specs
         run: gsutil -m rsync -a $OBJECT_ACL -r ./specs gs://$GCS_BUCKET/specs/${RELEASE_ARTIFACT_ID}/$RELEASE_VERSION
-  release-python:
-    name: Release Python
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
+  # release-python:
+  #   name: Release Python
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     id-token: write
 
-    steps:
-      - uses: conda-incubator/setup-miniconda@v3
-        with:
-          python-version: 3.12
+  #   steps:
+  #     - uses: conda-incubator/setup-miniconda@v3
+  #       with:
+  #         python-version: 3.12
 
-      - name: Checkout branch
-        uses: actions/checkout@v3
+  #     - name: Checkout branch
+  #       uses: actions/checkout@v3
 
-      - name: Inject release version
-        run: |
-          release_version=${GITHUB_REF#refs/*/}
-          release_version=${release_version#engine.}
-          echo "RELEASE_VERSION=$release_version" >> $GITHUB_ENV
-          echo "The release version is $release_version"
+  #     - name: Inject release version
+  #       run: |
+  #         release_version=${GITHUB_REF#refs/*/}
+  #         release_version=${release_version#engine.}
+  #         echo "RELEASE_VERSION=$release_version" >> $GITHUB_ENV
+  #         echo "The release version is $release_version"
 
-      - name: Authenticate to Google Cloud Platform
-        uses: google-github-actions/auth@v1
-        with:
-          create_credentials_file: true
-          workload_identity_provider: projects/830784087321/locations/global/workloadIdentityPools/releases/providers/github-workflow
-          service_account: releases-agent@mitbattlecode.iam.gserviceaccount.com
+  #     - name: Authenticate to Google Cloud Platform
+  #       uses: google-github-actions/auth@v1
+  #       with:
+  #         create_credentials_file: true
+  #         workload_identity_provider: projects/830784087321/locations/global/workloadIdentityPools/releases/providers/github-workflow
+  #         service_account: releases-agent@mitbattlecode.iam.gserviceaccount.com
 
-      - name: Set up Google Cloud SDK
-        uses: 'google-github-actions/setup-gcloud@v1'
+  #     - name: Set up Google Cloud SDK
+  #       uses: 'google-github-actions/setup-gcloud@v1'
 
-      - name: Clone private maps
-        if: ${{ env.IS_PUBLIC != 'YES' }}
-        uses: actions/checkout@v3
-        with:
-          repository: battlecode/private-maps
-          token: ${{ secrets.CI_REPOSITORY_CLONE_PAT }}
-          path: private-maps
+  #     - name: Clone private maps
+  #       if: ${{ env.IS_PUBLIC != 'YES' }}
+  #       uses: actions/checkout@v3
+  #       with:
+  #         repository: battlecode/private-maps
+  #         token: ${{ secrets.CI_REPOSITORY_CLONE_PAT }}
+  #         path: private-maps
       
-      - name: Inject private maps
-        if: ${{ env.IS_PUBLIC != 'YES' }}
-        run: |
-          source="private-maps/$RELEASE_ARTIFACT_ID"
-          dest="$RELEASE_ARTIFACT_ID/maps"
-          if [ -d "$source" ]; then
-            cp -r -i "$source/." "$dest/" < /dev/null &> private-maps-copy-log
-            if [ -s "private-maps-copy-log" ]; then
-              echo "FAILED! Public and private maps should not intersect."
-              cat private-maps-copy-log
-              exit 1
-            fi
-          fi
+  #     - name: Inject private maps
+  #       if: ${{ env.IS_PUBLIC != 'YES' }}
+  #       run: |
+  #         source="private-maps/$RELEASE_ARTIFACT_ID"
+  #         dest="$RELEASE_ARTIFACT_ID/maps"
+  #         if [ -d "$source" ]; then
+  #           cp -r -i "$source/." "$dest/" < /dev/null &> private-maps-copy-log
+  #           if [ -s "private-maps-copy-log" ]; then
+  #             echo "FAILED! Public and private maps should not intersect."
+  #             cat private-maps-copy-log
+  #             exit 1
+  #           fi
+  #         fi
           
-      - name: Build python package 
-        shell: bash -el {0} # Make sure conda is activated
-        run: |
-          conda info
-          python --version
-          pip install --upgrade build
-          SETUPTOOLS_SCM_PRETEND_VERSION=${RELEASE_VERSION} python -m build
+  #     - name: Build python package 
+  #       shell: bash -el {0} # Make sure conda is activated
+  #       run: |
+  #         conda info
+  #         python --version
+  #         pip install --upgrade build
+  #         SETUPTOOLS_SCM_PRETEND_VERSION=${RELEASE_VERSION} python -m build
 
-      - name: Determine access control
-        run: |
-          [[ "$IS_PUBLIC" = "YES" ]] && acl="public-read" || acl="project-private"
-          echo "OBJECT_ACL=$acl" >> $GITHUB_ENV
-          echo "Objects will be uploaded with ACL $acl"
+  #     - name: Determine access control
+  #       run: |
+  #         [[ "$IS_PUBLIC" = "YES" ]] && acl="public-read" || acl="project-private"
+  #         echo "OBJECT_ACL=$acl" >> $GITHUB_ENV
+  #         echo "Objects will be uploaded with ACL $acl"
 
-      - name: Upload python package to remote repository
-        run: |
-          mv *.tar.gz battlecode.tar.gz
-          gsutil -m cp -a $OBJECT_ACL battlecode.tar.gz gs://$GCS_BUCKET/maven/org/battlecode/${RELEASE_ARTIFACT_ID}-python/${RELEASE_VERSION}/
-        working-directory: ./dist
+  #     - name: Upload python package to remote repository
+  #       run: |
+  #         mv *.tar.gz battlecode.tar.gz
+  #         gsutil -m cp -a $OBJECT_ACL battlecode.tar.gz gs://$GCS_BUCKET/maven/org/battlecode/${RELEASE_ARTIFACT_ID}-python/${RELEASE_VERSION}/
+  #       working-directory: ./dist
 
       # TODO: docs?
       #- name: Upload javadocs

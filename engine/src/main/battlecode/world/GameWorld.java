@@ -517,8 +517,8 @@ public class GameWorld {
                 mine.setLastRound(this.currentRound);
                 pairedMine.setLastRound(this.currentRound);
 
-                matchMaker.addCheeseSpawnAction(ogSpawnLoc, GameConstants.CHEESE_SPAWN_AMOUNT);
-                matchMaker.addCheeseSpawnAction(pairedSpawnLoc, GameConstants.CHEESE_SPAWN_AMOUNT);
+                matchMaker.addCheeseSpawnAction(ogSpawnLoc, GameConstants.CHEESE_SPAWN_AMOUNT + this.getCheeseAmount(ogSpawnLoc));
+                matchMaker.addCheeseSpawnAction(pairedSpawnLoc, GameConstants.CHEESE_SPAWN_AMOUNT + this.getCheeseAmount(pairedSpawnLoc));
             }
 
         }
@@ -602,15 +602,12 @@ public class GameWorld {
         if (type == TrapType.CAT_TRAP && robot.getType().isCatType()) {
             this.teamInfo.addDamageToCats(trap.getTeam(), type.damage);
         }
-        // TODO once the cat exists, alert cat of trap trigger
 
         if (trap.getType() != TrapType.CAT_TRAP) {
             // initiate backstab
             this.isCooperation = false;
         }
 
-        this.trapLocations[locationToIndex(loc)] = null;
-        // matchMaker.addTriggeredTrap(trap.getId());
         matchMaker.addTrapTriggerAction(trap.getId(), loc, triggeringTeam, type);
 
         removeTrap(loc);
@@ -1085,13 +1082,13 @@ public class GameWorld {
                 removeRobot(robotLoc);
             }
             if (robot.isCarryingRobot()) {
-                InternalRobot carryingRobot = robot.getCarryingRobot();
+                InternalRobot carryingRobot = robot.getRobotBeingCarried();
                 carryingRobot.getDropped(loc);
             }
             if (robot.isGrabbedByRobot()) {
                 InternalRobot carrier = robot.getGrabbedByRobot();
                 robot.clearGrabbedByRobot();
-                if (carrier != null && carrier.getCarryingRobot() == robot) {
+                if (carrier != null && carrier.getRobotBeingCarried() == robot) {
                     carrier.clearCarryingRobot();
                 }
             }

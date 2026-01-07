@@ -289,7 +289,7 @@ table GameMap {
     randomSeed: int;
     walls: [bool];
     dirt: [bool];
-    cheese: [byte];
+    cheese: [int];
     cheeseMines: VecTable;
     catWaypointIds: [ushort];
     catWaypointVecs: [VecTable];

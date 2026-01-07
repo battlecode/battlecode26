@@ -185,7 +185,7 @@ class GameRendererClass {
         const ctx = this.ctx(CanvasLayers.Background)
         const match = GameRunner.match
         if (!match || !ctx) return
-        match.currentRound.map.staticMap.draw(ctx)
+        match.currentRound.map.staticMap.draw(ctx, GameConfig.config)
         this.render()
     }
 

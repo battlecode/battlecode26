@@ -3,7 +3,7 @@ import Game, { Team } from '../../../playback/Game'
 import Match from '../../../playback/Match'
 import { CurrentMap, StaticMap } from '../../../playback/Map'
 import Round from '../../../playback/Round'
-import Bodies from '../../../playback/Bodies'
+import Bodies, { Body } from '../../../playback/Bodies'
 import { BATTLECODE_YEAR, DIRECTIONS, TEAM_COLOR_NAMES } from '../../../constants'
 import { nativeAPI } from '../runner/native-api-wrapper'
 import { Vector } from '../../../playback/Vector'
@@ -180,6 +180,13 @@ function verifyMap(map: CurrentMap, bodies: Bodies): string {
                 `>= 3 away`
             )
         }
+
+        if (body.robotType === schema.RobotType.CAT) {
+            if (!map.staticMap.catWaypoints.get(body.id) || map.staticMap.catWaypoints.get(body.id)?.length === 0) {
+                return `Cat with id ${body.id} has no waypoints`
+            }
+        }
+
     }
 
     return ''
