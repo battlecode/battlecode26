@@ -72,6 +72,8 @@ export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, tea
         ratKingPercent = teamStat.ratKingPercent
     }
 
+    const formatPercent = (val: number) => (val * 100).toFixed(1)
+
     const teamName = TEAM_COLOR_NAMES[teamIdx].toLowerCase()
     return (
         <div className="flex flex-col items-center">
@@ -88,7 +90,7 @@ export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, tea
                 <div className="flex items-center w-[145px]">
                     <div>Percent:</div>
                     <div className="ml-1">
-                        <b>{cheesePercent}</b>
+                        <b>{formatPercent(cheesePercent)}</b>
                     </div>
                 </div>
             </div>
@@ -97,7 +99,7 @@ export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, tea
                     <div className="w-[30px] h-[30px] mr-5">
                         <img style={{ transform: 'scale(1.5)' }} src={imageSource(`robots/cat/cat_0.png`)} />
                     </div>
-                    <div>Count:</div>
+                    <div>Damage:</div>
                     <div className="ml-1">
                         <b>{catDamageAmount}</b>
                     </div>
@@ -105,7 +107,7 @@ export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, tea
                 <div className="flex items-center w-[145px]">
                     <div>Percent:</div>
                     <div className="ml-1">
-                        <b>{catDamagePercent}</b>
+                        <b>{formatPercent(catDamagePercent)}</b>
                     </div>
                 </div>
             </div>
@@ -125,7 +127,7 @@ export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, tea
                 <div className="flex items-center w-[145px]">
                     <div>Percent:</div>
                     <div className="ml-1">
-                        <b>{ratKingPercent}</b>
+                        <b>{formatPercent(ratKingPercent)}</b>
                     </div>
                 </div>
             </div>
