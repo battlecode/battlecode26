@@ -89,7 +89,7 @@ public class GameConstants {
     public static final double CHEESE_COOLDOWN_PENALTY = 0.01;
 
     /** The amount of cheese the rat king consumes each round. */
-    public static final int RAT_KING_CHEESE_CONSUMPTION = 3;
+    public static final int RAT_KING_CHEESE_CONSUMPTION = 2;
 
     /** The amount of health the rat king loses by not eating cheese. */
     public static final int RAT_KING_HEALTH_LOSS = 10;
@@ -101,16 +101,16 @@ public class GameConstants {
     public static final int SQ_CHEESE_SPAWN_RADIUS = 4;
 
     /** How much cheese each mine spawns at once */
-    public static final int CHEESE_SPAWN_AMOUNT = 5;
+    public static final int CHEESE_SPAWN_AMOUNT = 20;
 
     /** The number of rat kings a player starts with. */
     public static final int NUMBER_INITIAL_RAT_KINGS = 1;
 
-    /**
-     * The maximum distance for transferring cheese to an allied rat king or
-     * dropping it on the ground
-     */
-    public static final int CHEESE_DROP_RADIUS_SQUARED = 9;
+    /** The maximum distance for transferring cheese to an allied rat king */
+    public static final int CHEESE_TRANSFER_RADIUS_SQUARED = 9;
+
+    /** The maximum distance for picking up cheese on the map */
+    public static final int CHEESE_PICK_UP_RADIUS_SQUARED = 2;
 
     /** The maximum distance from a rat king for building robots */
     public static final int BUILD_ROBOT_RADIUS_SQUARED = 4;

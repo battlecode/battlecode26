@@ -364,8 +364,11 @@ export class Body {
     public actionCooldown: number = 0
     public turningCooldown: number = 0
     public carriedRobot: number | undefined = undefined  // id of carried robot
+    public carrierRobot: number | undefined = undefined  // id of robot carrying this robot
+    public beingCarried: boolean = false
     public bytecodesUsed: number = 0
     public cheese: number = 0
+    public textureOverride: boolean = false
 
     constructor(
         private game: Game,
@@ -428,7 +431,13 @@ export class Body {
     }
 
     public draw(match: Match, ctx: CanvasRenderingContext2D): void {
+        const OFFSET = { x: .35, y: 0 } // to center the rat on the tile
+        const ratnapped = this.robotType === schema.RobotType.RAT && this.beingCarried
+
+        if(ratnapped) this.pos.x += OFFSET.x
         const pos = this.getInterpolatedCoords(match)
+        if(ratnapped) this.pos.x -= OFFSET.x
+
         const renderCoords = renderUtils.getRenderCoords(pos.x, pos.y, match.currentRound.map.staticMap.dimension)
 
         if (this.robotType == schema.RobotType.CAT) {
@@ -792,7 +801,7 @@ export const BODY_DEFINITIONS: Record<schema.RobotType, typeof Body> = {
 
         public draw(match: Match, ctx: CanvasRenderingContext2D): void {
             const dir = this.direction
-            this.imgPath = `robots/${this.team.colorName.toLowerCase()}/rat_${dir}_64x64.png`
+            if (!this.textureOverride) this.imgPath = `robots/${this.team.colorName.toLowerCase()}/rat_${dir}_64x64.png`
             super.draw(match, ctx)
         }
     },
@@ -810,7 +819,7 @@ export const BODY_DEFINITIONS: Record<schema.RobotType, typeof Body> = {
 
         public draw(match: Match, ctx: CanvasRenderingContext2D): void {
             const dir = this.direction
-            this.imgPath = `robots/${this.team.colorName.toLowerCase()}/rat_king_64x64.png`
+            if (!this.textureOverride) this.imgPath = `robots/${this.team.colorName.toLowerCase()}/rat_king_64x64.png`
             super.draw(match, ctx)
         }
     },
@@ -828,7 +837,7 @@ export const BODY_DEFINITIONS: Record<schema.RobotType, typeof Body> = {
 
         public draw(match: Match, ctx: CanvasRenderingContext2D): void {
             const dir = this.direction
-            this.imgPath = `robots/cat/cat_${dir}.png`
+            if (!this.textureOverride) this.imgPath = `robots/cat/cat_${dir}.png`
             super.draw(match, ctx)
         }
     }

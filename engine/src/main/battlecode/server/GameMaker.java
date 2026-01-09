@@ -559,9 +559,9 @@ public class GameMaker {
             });
         }
 
-        public void addRatNapAction(int grabberRobotID) {
+        public void addRatNapAction(int nappedID) {
             applyToBuilders((builder) -> {
-                int action = RatNap.createRatNap(builder, grabberRobotID);
+                int action = RatNap.createRatNap(builder, nappedID);
                 builder.addAction(action, Action.RatNap);
             });
         }

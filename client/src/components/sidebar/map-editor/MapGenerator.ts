@@ -147,13 +147,27 @@ function verifyMap(map: CurrentMap, bodies: Bodies): string {
     // Validate initial bodies
     for (const body of bodies.bodies.values()) {
         // Check distance from cat to other cats and cheese mines
+        let body_type = undefined
+        switch (body.robotType) {
+            case RobotType.CAT:
+                body_type = 'Cat'
+                break
+            case RobotType.RAT:
+                body_type = 'Rat'
+                break
+            case RobotType.RAT_KING:
+                body_type = 'Rat King'
+                break
+            default:
+                body_type = 'Unknown'
+        }
 
         for (const checkCheeseMine of map.staticMap.cheeseMines) {
-            if (squareIntersects(checkCheeseMine, body.pos, 4)) {
+            if (squareIntersects(checkCheeseMine, body.pos, 2)) {
                 return (
-                    `Cheese mine at (${checkCheeseMine.x}, ${checkCheeseMine.y}) is too close to cheese mine ` +
+                    `Cheese mine at (${checkCheeseMine.x}, ${checkCheeseMine.y}) is too close to ${body_type} ` +
                     `at (${body.pos.x}, ${body.pos.y}), must be ` +
-                    `>= 5 away`
+                    `>= 3 away`
                 )
             }
         }
@@ -162,7 +176,7 @@ function verifyMap(map: CurrentMap, bodies: Bodies): string {
             if (checkBody === body) continue
             if (squareIntersects(checkBody.pos, body.pos, 0)) {
                 return (
-                    `Cat at (${body.pos.x}, ${body.pos.y}) is too close to cat ` +
+                    `${body_type} at (${body.pos.x}, ${body.pos.y}) is too close to cat ` +
                     `at (${checkBody.pos.x}, ${checkBody.pos.y}), must be ` +
                     `>= 1 away`
                 )
@@ -175,7 +189,7 @@ function verifyMap(map: CurrentMap, bodies: Bodies): string {
         if (wall !== -1) {
             const pos = map.indexToLocation(wall)
             return (
-                `Cat at (${body.pos.x}, ${body.pos.y}) is too close to wall ` +
+                `${body_type} at (${body.pos.x}, ${body.pos.y}) is too close to wall ` +
                 `at (${pos.x}, ${pos.y}), must be ` +
                 `>= 3 away`
             )

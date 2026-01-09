@@ -4,7 +4,7 @@ public enum UnitType {
     // health, size, speed, visionRadius, actionCooldown
     BABY_RAT(100, 1, 20, 90, 10, 10, 17500),
     RAT_KING(500, 3, 25, 360, 10, 40, 20000),
-    CAT(10_000, 2, 30, 180, 15, 10, 17500);
+    CAT(10_000, 2, 17, 180, 15, 20, 17500);
 
     // amount of health robot initially starts with
     public final int health;

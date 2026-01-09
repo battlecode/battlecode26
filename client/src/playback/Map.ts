@@ -318,7 +318,7 @@ export class CurrentMap {
         if (ratTrap) {
             info.push('Rat Trap')
         }
-        if (ratTrap) {
+        if (catTrap) {
             info.push('Cat Trap')
         }
         if (cheese) {

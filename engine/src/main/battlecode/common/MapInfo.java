@@ -50,9 +50,9 @@ public class MapInfo {
     }
 
     /**
-     * Returns if this square is a wall.
+     * Returns if this square is a dirt.
      * 
-     * @return whether this square is a wall
+     * @return whether this square is dirt
      * 
      * @battlecode.doc.costlymethod
      */
