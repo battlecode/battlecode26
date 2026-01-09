@@ -139,8 +139,8 @@ public class RobotPlayer {
             MapLocation randomLocation = rc.getLocation().add(directions[randomDirection])
                     .add(directions[randomDirection]);
 
-            if (rc.canBuildRobot(randomLocation)) {
-                rc.buildRobot(randomLocation);
+            if (rc.canBuildRat(randomLocation)) {
+                rc.buildRat(randomLocation);
             }
         }
 
