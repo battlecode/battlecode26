@@ -193,7 +193,7 @@ const ZoomableGameRenderer: React.FC<{
     // Adjust hovered tile if hovering over a body
     const hoveredBody = hoveredTile ? round?.bodies.getBodyAtLocation(hoveredTile.x, hoveredTile.y) : undefined
 
-    if (hoveredBody && hoveredTile){
+    if (hoveredBody && hoveredBody.pos && hoveredTile){
         hoveredTile = hoveredBody.pos
         if (hoveredBody.robotType == schema.RobotType.RAT_KING){
             hoveredTile = vectorAdd(hoveredTile, {x: -1, y: -1} )

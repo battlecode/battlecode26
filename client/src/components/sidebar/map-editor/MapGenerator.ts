@@ -149,13 +149,13 @@ function verifyMap(map: CurrentMap, bodies: Bodies): string {
         // Check distance from cat to other cats and cheese mines
         let body_type = undefined
         switch (body.robotType) {
-            case RobotType.CAT:
+            case schema.RobotType.CAT:
                 body_type = 'Cat'
                 break
-            case RobotType.RAT:
+            case schema.RobotType.RAT:
                 body_type = 'Rat'
                 break
-            case RobotType.RAT_KING:
+            case schema.RobotType.RAT_KING:
                 body_type = 'Rat King'
                 break
             default:

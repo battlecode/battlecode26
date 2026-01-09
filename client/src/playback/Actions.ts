@@ -104,10 +104,10 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             // chomping animation
             const src = match.currentRound.bodies.getById(this.robotId) // cat
             // const target = match.currentRound.bodies.getById(this.actionData.id()) // rat being eaten
-            const coords = renderUtils.getRenderCoords(src.pos.x, src.pos.y, match.map.dimension, true)
-            const random1 = ((src.pos.x * 491 + src.pos.y * 603 + match.currentRound.roundNumber * 343) / 100) % 1 // https://xkcd.com/221/
-            const random2 = ((src.pos.x * 259 + src.pos.y * 429 + match.currentRound.roundNumber * 224) / 100) % 1
-            const interpolationFactor = match.getInterpolationFactor()
+            // const coords = renderUtils.getRenderCoords(src.pos.x, src.pos.y, match.map.dimension, true)
+            // const random1 = ((src.pos.x * 491 + src.pos.y * 603 + match.currentRound.roundNumber * 343) / 100) % 1 // https://xkcd.com/221/
+            // const random2 = ((src.pos.x * 259 + src.pos.y * 429 + match.currentRound.roundNumber * 224) / 100) % 1
+            // const interpolationFactor = match.getInterpolationFactor()
 
             // ctx.save()
             // ctx.globalAlpha = 0.5 - 0.5 * interpolationFactor * interpolationFactor
@@ -132,6 +132,8 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             const srcBody = match.currentRound.bodies.getById(this.robotId)
             const dstBody = match.currentRound.bodies.getById(this.actionData.id())
+
+            if (!dstBody) return
 
             const from = srcBody.getInterpolatedCoords(match)
             const to = dstBody.getInterpolatedCoords(match)
@@ -192,8 +194,11 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             
             if (target.beingCarried) {
                 // drop the target
-                const carrier = round.bodies.getById(target.carrierRobot!)
-                carrier.carriedRobot = undefined
+                // const carrier = round.bodies.getById(target.carrierRobot!)
+                if(target.carrierRobot !== undefined) {
+                    const carrier = round.bodies.getById(target.carrierRobot)
+                    carrier.carriedRobot = undefined
+                }
                 target.size = 1
                 target.beingCarried = false
                 target.carrierRobot = undefined
@@ -357,6 +362,8 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             const srcBody = match.currentRound.bodies.getById(this.robotId)
             const targetBody = match.currentRound.bodies.getById(this.actionData.id())
+
+            if (!targetBody) return
 
             const from = srcBody.getInterpolatedCoords(match)
             const to = targetBody.getInterpolatedCoords(match)
@@ -562,26 +569,27 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
     [schema.Action.ThrowRat]: class ThrowRatAction extends Action<schema.ThrowRat> {
         apply(round: Round): void {
             // maybe move rat to target loc
-            const body = round.bodies.getById(this.robotId)
+            const body = round.bodies.getById(this.actionData.id())
             const endLoc = round.map.indexToLocation(this.actionData.loc())
-            if( body.carriedRobot !== undefined ) {
-                const carrier = round.bodies.getById(body.carriedRobot)
+            if( body.carrierRobot !== undefined && round.bodies.hasId(body.carrierRobot)) {
+                const carrier = round.bodies.getById(body.carrierRobot)
                 carrier.carriedRobot = undefined
             }
             body.carrierRobot = undefined
             body.beingCarried = false
             body.size = 1
-            body.pos = { ...endLoc }
+            // body.pos = { ...endLoc }
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
-            const body = match.currentRound.bodies.getById(this.robotId)
+            if( !match.currentRound.bodies.hasId(this.actionData.id()) ) return
+            const body = match.currentRound.bodies.getById(this.actionData.id())
             const pos = body.getInterpolatedCoords(match)
             const coords = renderUtils.getRenderCoords(pos.x, pos.y, match.map.dimension, true)
             const interp = match.getInterpolationFactor()
 
             const from = pos
             const to = match.currentRound.map.indexToLocation(this.actionData.loc())
-            console.log('throw from', from, 'to', to)
+
             const dx = to.x - from.x
             const dy = to.y - from.y
             const mag = Math.hypot(dx, dy)
@@ -697,6 +705,8 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         apply(round: Round): void {
             const src = round.bodies.getById(this.robotId)
             const target = round.bodies.getById(this.actionData.id())
+
+            if (!target) return
 
             const damage = this.actionData.damage()
             target.hp = Math.max(target.hp - damage, 0)
