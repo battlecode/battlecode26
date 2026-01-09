@@ -201,6 +201,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
                 }
                 target.beingCarried = false
                 target.carrierRobot = undefined
+                target.size = 1
             } else {
                 // pick up the target
                 src.carriedRobot = target.id
@@ -209,6 +210,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
                 target.beingCarried = true
 
                 target.lastPos = { ...target.pos }
+                target.size = 0.6
                 // target.pos = { x: src.pos.x + RatNapAction.OFFSET.x, y: src.pos.y + RatNapAction.OFFSET.y }  
             }
         }
