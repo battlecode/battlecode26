@@ -432,9 +432,6 @@ export class Body {
     }
 
     public draw(match: Match, ctx: CanvasRenderingContext2D): void {
-        const OFFSET = { x: .35, y: 0 } // to center the rat on the tile
-        const ratnapped = this.robotType === schema.RobotType.RAT && this.beingCarried
-
         const pos = this.getInterpolatedCoords(match)
         
         const renderCoords = renderUtils.getRenderCoords(pos.x, pos.y, match.currentRound.map.staticMap.dimension)

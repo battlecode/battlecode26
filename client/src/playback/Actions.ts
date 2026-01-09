@@ -195,11 +195,10 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             if (target.beingCarried) {
                 // drop the target
                 // const carrier = round.bodies.getById(target.carrierRobot!)
-                if(target.carrierRobot !== undefined) {
+                if(target.carrierRobot !== undefined && round.bodies.hasId(target.carrierRobot)) {
                     const carrier = round.bodies.getById(target.carrierRobot)
                     carrier.carriedRobot = undefined
                 }
-                target.size = 1
                 target.beingCarried = false
                 target.carrierRobot = undefined
             } else {
@@ -210,8 +209,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
                 target.beingCarried = true
 
                 target.lastPos = { ...target.pos }
-                // target.pos = { x: src.pos.x + RatNapAction.OFFSET.x, y: src.pos.y + RatNapAction.OFFSET.y }
-                target.size = 0.6
+                // target.pos = { x: src.pos.x + RatNapAction.OFFSET.x, y: src.pos.y + RatNapAction.OFFSET.y }  
             }
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
@@ -576,7 +574,6 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
                 carrier.carriedRobot = undefined
             }
             body.carrierRobot = undefined
-            body.beingCarried = false
             body.size = 1
             // body.pos = { ...endLoc }
         }
