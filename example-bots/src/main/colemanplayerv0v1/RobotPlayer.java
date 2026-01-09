@@ -30,7 +30,7 @@ public class RobotPlayer {
     static RobotController rc;
 
     static final int HOLDOVER_TURNS = 2;
-    static final int CHEESE_CONSUMPTION = GameConstants.RATKING_CHEESE_CONSUMPTION; // Saves a bytecode by making it a local static field (I think)
+    static final int CHEESE_CONSUMPTION = GameConstants.RAT_KING_CHEESE_CONSUMPTION; // Saves a bytecode by making it a local static field (I think)
     static final int CHEESE_RETURN_QTY = 10;
 
     static MapLocation kingLocation = null;
@@ -144,7 +144,7 @@ public class RobotPlayer {
                     .println("Turn " + turnCount + "SPAWNING RAT at location " + rc.getLocation() + " with cheese " + cheese);
             Direction dir = rc.getLocation().directionTo(new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2));
             MapLocation loc = rc.getLocation().add(dir).add(dir);
-            rc.buildRobot(loc);
+            rc.buildRat(loc);
             commToNewRat(rc, loc);
         } else {
             // TODO System.out.println("Turn " + turnCount + " NOT ENOUGH CHEESE to spawn RAT at location " + rc.getLocation() + " with cheese "+ cheese);
