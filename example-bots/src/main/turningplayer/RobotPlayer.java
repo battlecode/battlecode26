@@ -1,18 +1,12 @@
-package examplefuncsplayer;
+package turningplayer;
 
-import battlecode.common.*;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
-import java.util.EnumMap;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.stream.Stream;
+import battlecode.common.Clock;
+import battlecode.common.Direction;
+import battlecode.common.GameActionException;
+import battlecode.common.MapLocation;
+import battlecode.common.RobotController;
 
 
 /**
@@ -79,23 +73,33 @@ public class RobotPlayer {
                 // this into a different control structure!
                 
                 // Every 10 turns, print out what type of robot we are.
-                if (turnCount % 100 == 0) {
-                    System.out.println("Turn " + turnCount + ": I am a " + rc.getType().toString());
-                }
-                                
+                             
                 // Try to move forward one step.
                 if (rc.canMoveForward()) {
-                    System.out.println("Turn " + turnCount + "Trying to move " + rc.getDirection());
+                    System.out.println("Turn " + turnCount + "MOVING" + rc.getDirection());
                     rc.moveForward();
                 } else {
                     System.out.println("couldn't move forward on turn " + turnCount + " at location " + rc.getLocation() + rc.getDirection());
                     // If we can't move forward, try to turn a random direction.
                     int randomDirection = rng.nextInt(8);
                     
-                    if (rc.canTurn()) {
-                        rc.turn(rc.getDirection());
+                }
+                if (rc.canTurn()) {
+                    System.out.println("Turn " + turnCount + "TURNING Clockwise");
+                    Direction direction = rc.getDirection().rotateRight();
+                    rc.turn(direction);
+                }
+                else{
+                    System.out.println("couldn't turn on turn" + turnCount);
+                }
+
+                for(MapLocation partLoc : rc.getAllPartLocations()){
+                    if(rc.canPickUpCheese(partLoc)){
+                        System.out.println("standing on cheese! picking it up");
+                        rc.pickUpCheese(partLoc);
                     }
                 }
+  
             } catch (GameActionException e) {
                 // Oh no! It looks like we did something illegal in the Battlecode world. You should
                 // handle GameActionExceptions judiciously, in case unexpected events occur in the game

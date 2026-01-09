@@ -1,18 +1,8 @@
-package examplefuncsplayer;
+package maxplayer;
 
 import battlecode.common.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Random;
-import java.util.Set;
-
-import java.util.EnumMap;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.stream.Stream;
 
 
 /**
@@ -27,6 +17,8 @@ public class RobotPlayer {
      * these variables are static, in Battlecode they aren't actually shared between your robots.
      */
     static int turnCount = 0;
+
+    static int turnsSinceCarry = 100;
 
     /**
      * A random number generator.
@@ -55,7 +47,6 @@ public class RobotPlayer {
      * @param rc  The RobotController object. You use it to perform actions from this robot, and to get
      *            information on its current status. Essentially your portal to interacting with the world.
      **/
-    @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
         // Hello world! Standard output is very useful for debugging.
         // Everything you say here will be directly viewable in your terminal when you run a match!
@@ -70,6 +61,7 @@ public class RobotPlayer {
             // loop, we call Clock.yield(), signifying that we've done everything we want to do.
 
             turnCount += 1;  // We have now been alive for one more turn!
+            turnsSinceCarry += 1;
 
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode.
             try {
@@ -77,12 +69,12 @@ public class RobotPlayer {
                 // different types. Here, we separate the control depending on the UnitType, so we can
                 // use different strategies on different robots. If you wish, you are free to rewrite
                 // this into a different control structure!
-                
+
                 // Every 10 turns, print out what type of robot we are.
                 if (turnCount % 100 == 0) {
                     System.out.println("Turn " + turnCount + ": I am a " + rc.getType().toString());
                 }
-                                
+
                 // Try to move forward one step.
                 if (rc.canMoveForward()) {
                     System.out.println("Turn " + turnCount + "Trying to move " + rc.getDirection());
@@ -93,7 +85,40 @@ public class RobotPlayer {
                     int randomDirection = rng.nextInt(8);
                     
                     if (rc.canTurn()) {
-                        rc.turn(rc.getDirection());
+                        rc.turn(directions[randomDirection]);
+                    }
+
+                    if (rc.getType() == UnitType.RAT_KING) {
+                        MapLocation[] partLocs = rc.getAllPartLocations();
+                        
+                        for (MapLocation loc : partLocs) {
+                            MapLocation newLoc = loc.add(rc.getDirection());
+
+                            if (rc.canBuildRat(newLoc)) {
+                                rc.buildRat(newLoc);
+                            }
+                        }
+                    } else if (rc.getType() == UnitType.BABY_RAT) {
+                        for (Direction dir : directions) {
+                            if (turnsSinceCarry == 3 && rc.canThrowRat()) {
+                                rc.throwRat();
+                                break;
+                            }
+
+                            MapLocation targetLoc = rc.getLocation().add(dir);
+
+                            if (rc.canCarryRat(targetLoc)) {
+                                rc.carryRat(targetLoc);
+                                turnsSinceCarry = 0;
+                                break;
+                            } else if (rc.canAttack(targetLoc, 1)) {
+                                rc.attack(targetLoc, 1);
+                                break;
+                            } else if (rc.canPickUpCheese(targetLoc)) {
+                                rc.pickUpCheese(targetLoc);
+                                break;
+                            }
+                        }
                     }
                 }
             } catch (GameActionException e) {
