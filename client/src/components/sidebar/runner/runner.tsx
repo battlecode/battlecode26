@@ -121,7 +121,7 @@ export const RunnerPage: React.FC<RunnerPageProps> = ({ open, scaffold }) => {
                 </>
             ) : (
                 <>
-                    {/*<LanguageSelector language={language} onChange={changeLanguage} />*/}
+                    <LanguageSelector language={language} onChange={changeLanguage} />
                     <LanguageVersionSelector
                         language={language}
                         version={langVersion}

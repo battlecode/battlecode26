@@ -392,7 +392,19 @@ async function dispatchMatch(
             break
         }
         case SupportedLanguage.Python: {
-            options = [`run.py`, `run`, `--p1=${teamA}`, `--p2=${teamB}`, `--maps=${[...selectedMaps].join(',')}`]
+            options = [
+                `run`,
+                `-x`,
+                `unpackClient`,
+                `-PwaitForClient=true`,
+                `-PteamA=${teamA}`,
+                `-PteamB=${teamB}`,
+                `-PlanguageA=python`,
+                `-PlanguageB=python`,
+                `-Pmaps=${[...selectedMaps].join(',')}`,
+                `-PvalidateMaps=${validate}`,
+                `-PenableProfiler=${profile}`
+            ]
             break
         }
     }
