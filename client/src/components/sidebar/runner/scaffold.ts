@@ -409,5 +409,5 @@ async function dispatchMatch(
         }
     }
 
-    return nativeAPI.child_process.spawn(scaffoldPath, language, langVersion.path, options)
+    return nativeAPI.child_process.spawn(scaffoldPath, SupportedLanguage.Java, langVersion.path, options)
 }
