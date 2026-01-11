@@ -280,15 +280,27 @@ def main(args=None):
         get_code(team_a, dir_a)
         get_code(team_b, dir_b)
 
-        Popen(
-            new_args,
-            shell=False,
-            stdin=None,
-            stdout=None,
-            stderr=None,
-            close_fds=True,
-            creationflags=DETACHED_PROCESS,
-        )
+        if os.name == "nt": 
+            Popen(
+                new_args,
+                shell=False,
+                stdin=None,
+                stdout=None,
+                stderr=None,
+                close_fds=True,
+                creationflags=DETACHED_PROCESS,
+            )
+        else:
+            Popen(
+                new_args,
+                shell=False,
+                stdin=None,
+                stdout=None,
+                stderr=None,
+                close_fds=True,
+                start_new_session=True
+            )
+        
     else:
         play(team_a=parsed_args.teamA, team_b=parsed_args.teamB,
              dir_a=parsed_args.dirA, dir_b=parsed_args.dirB,
