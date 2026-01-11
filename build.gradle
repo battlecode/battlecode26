@@ -32,9 +32,9 @@ repositories {
 }
 
 dependencies {
-    scala group: 'org.scala-lang', name: 'scala-library', version: '2.11.7'
-    scala group: 'org.scala-lang', name: 'scala-compiler', version: '2.11.7'
-    scala group: 'org.scala-lang', name: 'scala-reflect', version: '2.11.7'
+    scala group: 'org.scala-lang', name: 'scala-library', version: '2.13.11'
+    scala group: 'org.scala-lang', name: 'scala-compiler', version: '2.13.11'
+    scala group: 'org.scala-lang', name: 'scala-reflect', version: '2.13.11'
 
     engine project(":engine")
     bots project(":example-bots")
