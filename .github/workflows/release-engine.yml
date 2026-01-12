@@ -136,7 +136,7 @@ jobs:
         if: ${{ env.IS_PUBLIC != 'YES' }}
         run: |
           source="private-maps/$RELEASE_ARTIFACT_ID"
-          dest="$RELEASE_ARTIFACT_ID/maps"
+          dest="engine/src/main/battlecode/world/resources"
           if [ -d "$source" ]; then
             cp -r -i "$source/." "$dest/" < /dev/null &> private-maps-copy-log
             if [ -s "private-maps-copy-log" ]; then
