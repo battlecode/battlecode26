@@ -317,9 +317,11 @@ export class CurrentMap {
         }
         if (ratTrap) {
             info.push('Rat Trap')
+            info.push(`Placed by ${TEAM_COLOR_NAMES[ratTrap - 2]}`)
         }
         if (catTrap) {
             info.push('Cat Trap')
+            info.push(`Placed by ${TEAM_COLOR_NAMES[catTrap - 2]}`)
         }
         if (cheese) {
             info.push(`Cheese: ${cheese}`)

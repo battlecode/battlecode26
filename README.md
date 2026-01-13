@@ -4,7 +4,7 @@
 
 ## Note, Competitors
 This is the development repo! You most likely won't need anything in here; do not clone this.
-Instead, follow the instructions [here](https://play.battlecode.org/bc26java/quick_start) to get started.
+Instead, follow the instructions [here](https://play.battlecode.org/bc26/quick_start) to get started.
 
 ## Repository Structure
 

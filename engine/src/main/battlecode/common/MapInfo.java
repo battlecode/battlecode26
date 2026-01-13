@@ -18,6 +18,12 @@ public class MapInfo {
     private boolean hasCheeseMine;
 
     public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, boolean isDirt, int cheeseAmount, TrapType trap, boolean hasCheeseMine) {
+        if (loc == null) {
+            throw new IllegalArgumentException("MapLocation in MapInfo constructor cannot be null");
+        } else if (trap == null) {
+            throw new IllegalArgumentException("TrapType in MapInfo constructor cannot be null, use TrapType.NONE instead.");
+        }
+
         this.loc = loc;
         this.isPassable = isPassable;
         this.isWall = isWall;

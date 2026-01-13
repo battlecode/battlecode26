@@ -2,6 +2,8 @@ package battlecode.server;
 
 import java.io.File;
 
+import battlecode.crossplay.CrossPlayLanguage;
+
 public class Main {
 
     private static boolean runHeadless(Config options) {
@@ -16,6 +18,7 @@ public class Main {
                 System.err.println("Can't run match without bc.game.team-a set!");
                 return false;
             }
+
             final String teamAURL;
             if (options.get("bc.game.team-a.url") != null) {
                 teamAURL = options.get("bc.game.team-a.url");
@@ -23,6 +26,7 @@ public class Main {
                 System.err.println("Can't run match without bc.game.team-a.url set!");
                 return false;
             }
+
             final String teamAPackage;
             if (options.get("bc.game.team-a.package") != null) {
                 teamAPackage = options.get("bc.game.team-a.package");
@@ -30,11 +34,19 @@ public class Main {
                 teamAPackage = teamA;
             }
 
+            final CrossPlayLanguage teamALanguage;
+            if (options.get("bc.game.team-a.language") != null) {
+                teamALanguage = CrossPlayLanguage.parse(options.get("bc.game.team-a.language"));
+            } else {
+                teamALanguage = CrossPlayLanguage.JAVA;
+            }
+
             final String teamB = options.get("bc.game.team-b");
             if (teamB == null) {
                 System.err.println("Can't run match without bc.game.team-b set!");
                 return false;
             }
+
             final String teamBURL;
             if (options.get("bc.game.team-b.url") != null) {
                 teamBURL = options.get("bc.game.team-b.url");
@@ -42,11 +54,19 @@ public class Main {
                 System.err.println("Can't run match without bc.game.team-b.url set!");
                 return false;
             }
+
             final String teamBPackage;
             if (options.get("bc.game.team-b.package") != null) {
                 teamBPackage = options.get("bc.game.team-b.package");
             } else {
                 teamBPackage = teamB;
+            }
+
+            final CrossPlayLanguage teamBLanguage;
+            if (options.get("bc.game.team-b.language") != null) {
+                teamBLanguage = CrossPlayLanguage.parse(options.get("bc.game.team-b.language"));
+            } else {
+                teamBLanguage = CrossPlayLanguage.JAVA;
             }
 
             final String mapsCommaSep = options.get("bc.game.maps");
@@ -65,8 +85,8 @@ public class Main {
             }
 
             server.addGameNotification(new GameInfo(
-                    teamA, teamAPackage, teamAURL,
-                    teamB, teamBPackage, teamBURL,
+                    teamA, teamALanguage, teamAPackage, teamAURL,
+                    teamB, teamBLanguage, teamBPackage, teamBURL,
                     maps,
                     saveFile,
                     options.getBoolean("bc.game.best-of-three") && maps.length == 3

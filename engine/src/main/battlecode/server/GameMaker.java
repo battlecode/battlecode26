@@ -14,7 +14,6 @@ import battlecode.util.FlatHelpers;
 import battlecode.util.TeamMapping;
 import battlecode.world.*;
 import com.google.flatbuffers.FlatBufferBuilder;
-import gnu.trove.TByteArrayList;
 import gnu.trove.TIntArrayList;
 import java.util.List;
 import java.util.ArrayList;
@@ -27,8 +26,6 @@ import java.nio.ByteBuffer;
 import java.util.function.ToIntFunction;
 import java.util.function.Consumer;
 import java.util.zip.GZIPOutputStream;
-
-import static battlecode.util.FlatHelpers.*;
 
 /**
  * Writes a game to a flatbuffer, hooray.
@@ -355,7 +352,7 @@ public class GameMaker {
         // private TByteArrayList trapAddedTypes;
         // private TByteArrayList trapAddedTeams;
 
-        private TIntArrayList trapTriggeredIds;
+        // private TIntArrayList trapTriggeredIds;
 
         private int currentRound;
         private int currentMapWidth = -1;

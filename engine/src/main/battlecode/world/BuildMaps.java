@@ -2,8 +2,6 @@ package battlecode.world;
 
 import battlecode.world.maps.*;
 
-import java.io.IOException;
-
 /**
  * Generate a map.
  */

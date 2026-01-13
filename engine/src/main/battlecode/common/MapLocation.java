@@ -168,7 +168,7 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
      * @param facingDir       the direction robot is facing (if Center, ignores
      *                        theta argument and uses a 360 degree vision cone)
      * @param theta           the angle of the vision cone in degrees
-     * @param useTopRight     true if the top right coordinate of this location (not
+     * @param useBottomLeft     true if the bottom left coordinate of this location (not
      *                        the "location" argument) should be used (for 2x2
      *                        robots)
      * @return true if the given location is within distanceSquared to this one;
@@ -177,7 +177,7 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
      * @battlecode.doc.costlymethod
      */
     public final boolean isWithinDistanceSquared(MapLocation location, int distanceSquared, Direction facingDir,
-            double theta, boolean useTopRight) {
+            double theta, boolean useBottomLeft) {
 
         // prevent division by 0 error
         if (this.equals(location)) {
@@ -186,12 +186,12 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
 
         double adjustment = 1e-3;
 
-        boolean isValidDistance = useTopRight ? this.bottomLeftDistanceSquaredTo(location) <= distanceSquared
+        boolean isValidDistance = useBottomLeft ? this.bottomLeftDistanceSquaredTo(location) <= distanceSquared
                 : this.distanceSquaredTo(location) <= distanceSquared;
 
         // calculate angle (degrees) between facingDir and direction to location
-        double dx = location.x - (useTopRight ? (this.x + 0.5) : this.x);
-        double dy = location.y - (useTopRight ? (this.y + 0.5) : this.y);
+        double dx = location.x - (useBottomLeft ? (this.x + 0.5) : this.x);
+        double dy = location.y - (useBottomLeft ? (this.y + 0.5) : this.y);
 
         boolean isValidAngle;
         if (facingDir == Direction.CENTER) { //
@@ -316,6 +316,7 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
      *
      * @battlecode.doc.costlymethod
      */
+    @SuppressWarnings("unused")
     private MapLocation() {
         this(0, 0);
     }

@@ -1,10 +1,6 @@
 package battlecode.world;
 
-import battlecode.common.GameConstants;
-import battlecode.common.MapLocation;
 import battlecode.common.Team;
-import java.util.*;
-import static battlecode.common.GameActionExceptionType.*;
 
 /**
  * This class is used to hold information regarding team specific values such as
@@ -12,7 +8,7 @@ import static battlecode.common.GameActionExceptionType.*;
  */
 public class TeamInfo {
 
-    private GameWorld gameWorld;
+    // private GameWorld gameWorld;
     private int[] globalCheese;
     private int[] dirtCounts;
     private int[] oldCheeseCounts;
@@ -30,7 +26,7 @@ public class TeamInfo {
      * @param gameWorld the gameWorld the teams exist in
      */
     public TeamInfo(GameWorld gameWorld) {
-        this.gameWorld = gameWorld;
+        // this.gameWorld = gameWorld;
         this.globalCheese = new int[2];
         this.dirtCounts = new int[2];
         this.oldCheeseCounts = new int[2];

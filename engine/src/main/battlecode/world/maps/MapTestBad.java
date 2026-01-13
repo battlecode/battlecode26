@@ -1,11 +1,5 @@
 package battlecode.world.maps;
 
-import java.io.IOException;
-
-import battlecode.common.MapLocation;
-import battlecode.common.Team;
-import battlecode.world.*;
-
 public class MapTestBad {
     public static void main(String[] args){
         System.out.println("running!");

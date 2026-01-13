@@ -187,6 +187,7 @@ export const MapEditorPage: React.FC<Props> = (props) => {
     }
 
     useEffect(() => {
+        if (!canvasMouseDown || !hoveredTile) return;
         if (canvasMouseDown && hoveredTile) applyBrush(hoveredTile)
         // added defensive checks just in case stuff is null for some reason
         if (canvasMouseDown && hoveredTile && typeof hoveredTile.x === 'number' && typeof hoveredTile.y === 'number') {

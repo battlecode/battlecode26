@@ -6,18 +6,15 @@ import battlecode.common.UnitType;
 import battlecode.schema.VecTable;
 import battlecode.schema.WinType;
 import battlecode.world.DominationFactor;
-import battlecode.schema.Action;
+
 import com.google.flatbuffers.FlatBufferBuilder;
+
 // import gnu.trove.TByteCollection;
 // import gnu.trove.TByteList;
 // import gnu.trove.TFloatList;
 import gnu.trove.TIntArrayList;
 // import gnu.trove.TCharList;
 // import gnu.trove.TByteArrayList;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.function.ObjIntConsumer;
 
 
 /**

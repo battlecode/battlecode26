@@ -8,6 +8,10 @@ import battlecode.instrumenter.stream.SilencedPrintStream;
 import battlecode.server.ErrorReporter;
 import battlecode.world.control.PlayerControlProvider;
 import battlecode.server.Config;
+import battlecode.crossplay.CrossPlay;
+import battlecode.crossplay.CrossPlayLanguage;
+import battlecode.crossplay.NonJavaBotException;
+import battlecode.crossplay.RethrownGameActionException;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -46,6 +50,11 @@ public class SandboxedRobotPlayer {
     private final RobotController robotController;
 
     /**
+     * A handle to the cross play server used for communicating with external bots
+     */
+    private final CrossPlay crossPlayServer;
+
+    /**
      * The seed to use in all "random" operations.
      */
     private final int seed;
@@ -64,6 +73,11 @@ public class SandboxedRobotPlayer {
      * The main thread the player is running on.
      */
     private final Thread mainThread;
+
+    /**
+     * Used to pause the player thread after loading
+     */
+    private final Method pauseMethod;
 
     /**
      * The cached 'killRobot' method of the monitor.
@@ -100,6 +114,8 @@ public class SandboxedRobotPlayer {
      * Create a new sandboxed robot player.
      *
      * @param teamName          the name of the team to create a player for
+     * @param teamLanguage      the language that the team's code is written in
+     * @param crossPlayServer   handle to a CrossPlay server
      * @param robotController   the robot we're loading a player for
      * @param seed              the seed the robot should use for random operations
      * @param loader            the classloader to load classes with
@@ -108,6 +124,8 @@ public class SandboxedRobotPlayer {
      * @throws RuntimeException if our code fails for some reason
      */
     public SandboxedRobotPlayer(String teamName,
+                                CrossPlayLanguage teamLanguage,
+                                CrossPlay crossPlayServer,
                                 RobotController robotController,
                                 int seed,
                                 TeamClassLoaderFactory.Loader loader,
@@ -116,6 +134,7 @@ public class SandboxedRobotPlayer {
                                 PlayerControlProvider provider)
             throws InstrumentationException {
         this.robotController = robotController;
+        this.crossPlayServer = crossPlayServer;
         this.seed = seed;
         this.terminated = false;
         this.notifier = new Object();
@@ -126,8 +145,7 @@ public class SandboxedRobotPlayer {
         // Load monitor / monitor methods
         // Used to initialize the RobotMonitor for the player
         final Method initMethod;
-        // Used to pause the player thread after loading
-        final Method pauseMethod;
+
         try {
             // The loaded, uninstrumented-but-individual RobotMonitor for this player.
             Class<?> monitor = individualLoader
@@ -181,19 +199,23 @@ public class SandboxedRobotPlayer {
                 // Pause immediately
                 pauseMethod.invoke(null);
                 // Run the robot!
-                loadAndRunPlayer(teamName, PLAYER_CLASS_NAME);
+                loadAndRunPlayer(teamName, teamLanguage, PLAYER_CLASS_NAME);
+
                 // If we get here, we've returned from the 'run' method. Tell the user.
-                if (robotController.getLocation() != null){
-                System.out.println(robotController.getTeam().toString() + "'s " +
+                if (robotController.getLocation() != null) {
+                    System.out.println(robotController.getTeam().toString() + "'s " +
                         robotController.getID() + " at location " + robotController.getLocation().toString()
                         + " froze in round " +robotController.getRoundNum() +
-                        " because it returned from its run() method!"); }
-                else{
+                        " because it returned from its run() method!");
+                } else {
                     System.out.println(robotController.getTeam().toString() + "'s " +
                         robotController.getID() + " that has not spawned yet " 
                         + " froze in round " +robotController.getRoundNum() +
                         " because it returned from its run() method!");
                 }
+            } catch (final NonJavaBotException e) {
+                crossPlayServer.printException(robotController.getTeam(),
+                    robotController.getID(), robotController.getRoundNum(), e);
             } catch (final IllegalAccessException e) {
                 ErrorReporter.report(e, true);
             } catch (final InvocationTargetException e) {
@@ -240,13 +262,22 @@ public class SandboxedRobotPlayer {
         }
     }
 
+    private void loadAndRunPlayer(String teamName, CrossPlayLanguage teamLanguage, String playerClassName)
+            throws InvocationTargetException, IllegalAccessException, InstrumentationException, NonJavaBotException {
+        if (teamLanguage == CrossPlayLanguage.JAVA) {
+            loadAndRunPlayerJava(teamName, playerClassName);
+        } else {
+            loadAndRunPlayerCrossPlay(teamName, playerClassName);
+        }
+    }
+
     /**
      * Load the player class and invoke "run", counting bytecode as we go.
      * We do this after the rest of the player state is initialized, so that
      * static initialization will be counted as part of the bytecode used of
      * the first step.
      */
-    private void loadAndRunPlayer(String teamName, String playerClassName)
+    private void loadAndRunPlayerJava(String teamName, String playerClassName)
             throws InvocationTargetException, IllegalAccessException, InstrumentationException {
         // Load player in sandbox
         Class<?> robotPlayer;
@@ -273,6 +304,21 @@ public class SandboxedRobotPlayer {
 
         // Run!
         runMethod.invoke(null, robotController);
+    }
+
+    private void loadAndRunPlayerCrossPlay(String teamName, String playerClassName)
+            throws InvocationTargetException, IllegalAccessException, InstrumentationException, NonJavaBotException {
+        while (true) {
+            try {
+                // TODO set bytecode limit somehow (maybe in python, maybe here)
+                // int bytecodeUsed = crossPlay.playTurn(robotController, systemOut);
+                crossPlayServer.playTurn(robotController, systemOut);
+            } catch (RethrownGameActionException e) {
+                throw new NonJavaBotException(e.getMessage());
+            }
+
+            this.pauseMethod.invoke(null);
+        }
     }
 
     /**

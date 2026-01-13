@@ -1,16 +1,9 @@
 package battlecode.world.maps;
 
 import battlecode.common.MapLocation;
-import battlecode.common.Team;
-import battlecode.world.GameMapIO;
-import battlecode.world.LiveMap;
 import battlecode.world.MapBuilder;
-import battlecode.world.TestMapBuilder;
 import battlecode.common.Direction;
-import battlecode.common.GameConstants;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;

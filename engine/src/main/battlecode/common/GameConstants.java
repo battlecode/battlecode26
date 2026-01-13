@@ -133,6 +133,13 @@ public class GameConstants {
     /** The maximum distance from a robot for building traps or dirt */
     public static final int BUILD_DISTANCE_SQUARED = 2;
 
+    /**
+     * The maximum distance squared a rat king can attack, measured from the king's center.
+     * All rats (including rat kings) can only attack adjacent squares,
+     * and the rat king is 3x3, so this is 8.
+     */
+    public static final int RAT_KING_ATTACK_DISTANCE_SQUARED = 8;
+
     /** The maximum number of rounds a message will exist for */
     public static final int MESSAGE_ROUND_DURATION = 5;
 
@@ -143,28 +150,24 @@ public class GameConstants {
     public static final int SQUEAK_RADIUS_SQUARED = 16;
 
     /** The base damage a thrown rat takes upon hitting the ground */
-    public static final int THROW_DAMAGE = 20;
+    public static final int THROW_DAMAGE = 10;
 
     /**
      * The damage a thrown rat takes per tile it impacts early (i.e. rats that hit a
      * wall after 1 turn take 20+3*5=35 damage)
      */
-    public static final int THROW_DAMAGE_PER_TILE = 5;
+    public static final int THROW_DAMAGE_PER_TILE = 4;
+
+    public static final int TILES_FLOWN_PER_TURN = 2; // how many tiles the flying rat travels per turn
 
     /** The damage a robot takes after being bitten by a rat */
     public static final int RAT_BITE_DAMAGE = 10;
 
     /** The damage a robot takes after being scratched by a cat */
-    public static final int CAT_SCRATCH_DAMAGE = 50;
+    public static final int CAT_SCRATCH_DAMAGE = 20;
 
     /** The distance squared a cat can pounce to */
     public static final int CAT_POUNCE_MAX_DISTANCE_SQUARED = 9;
-
-    /**
-     * Percent damage a rat takes when a cat pounces to an adjacent location (eg. 50
-     * = 50% damage)
-     */
-    public static final int CAT_POUNCE_ADJACENT_DAMAGE_PERCENT = 50;
 
     public static final int CAT_DIG_ADDITIONAL_COOLDOWN = 5;
 
@@ -243,11 +246,16 @@ public class GameConstants {
      */
     public static final int THROW_DURATION = 4;
 
+    /**
+     * Incurred cooldown for throwing a rat
+     */
+    public static final int THROW_RAT_COOLDOWN = 20;
+
     /** The stun cooldown after hitting the ground after being thrown */
-    public static final int HIT_GROUND_COOLDOWN = 10;
+    public static final int HIT_GROUND_COOLDOWN = 10;    
 
     /** The stun cooldown after hitting the target after being thrown */
-    public static final int HIT_TARGET_COOLDOWN = 30;
+    public static final int HIT_TARGET_COOLDOWN = 20;
 
     /** Amount of rounds a cat sleeps for when fed */
     public static final int CAT_SLEEP_TIME = 2;

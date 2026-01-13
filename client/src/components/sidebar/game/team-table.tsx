@@ -62,6 +62,7 @@ export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, tea
     let catDamagePercent = 0
     let ratKingCount = 0
     let ratKingPercent = 0
+    let globalCheese = 0
 
     if (map && teamStat) {
         cheeseAmount = teamStat.cheeseAmount
@@ -70,6 +71,7 @@ export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, tea
         catDamagePercent = teamStat.catDamagePercent
         ratKingCount = teamStat.ratKingCount
         ratKingPercent = teamStat.ratKingPercent
+        globalCheese = teamStat.globalCheeseAmount
     }
 
     const formatPercent = (val: number) => (val * 100).toFixed(1).toString() + '%'
@@ -131,6 +133,7 @@ export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, tea
                     </div>
                 </div>
             </div>
+            <div className="flex items-center w-full mt-2 mb-1 text-xs font-bold justify-around">Global Cheese Amount: {globalCheese}</div>
         </div>
     )
 }
@@ -148,9 +151,9 @@ export const UnitsTable: React.FC<UnitsTableProps> = ({ teamStat, teamIdx }) => 
         ['Baby Rats', <UnitsIcon teamIdx={teamIdx} img="rat" key="3" />]
     ]
 
-    let data: [string, number[]][] = [['Count', [0, 0, 0, 0]]]
+    let data: [string, number[]][] = [['Count:', [0, 0, 0, 0]]]
     if (teamStat) {
-        data = [['Count', [teamStat.dirtAmount, teamStat.ratTrapAmount, teamStat.catTrapAmount, teamStat.babyRatCount]]]
+        data = [['Count:', [teamStat.dirtAmount, teamStat.ratTrapAmount, teamStat.catTrapAmount, teamStat.babyRatCount]]]
     }
 
     return (

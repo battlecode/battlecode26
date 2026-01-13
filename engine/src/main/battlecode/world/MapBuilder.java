@@ -1,12 +1,9 @@
 package battlecode.world;
 
 import battlecode.common.*;
-import battlecode.schema.RobotType;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
-import java.util.function.*;
 
 /**
  * Build and validate maps easily.
@@ -26,7 +23,7 @@ public class MapBuilder {
     private ArrayList<Integer> catIDs;
     private ArrayList<int[]> catWaypoints;
 
-    private int idCounter;
+    // private int idCounter;
 
     private List<RobotInfo> bodies;
 
@@ -42,7 +39,7 @@ public class MapBuilder {
 
         // default values
         this.symmetry = MapSymmetry.ROTATIONAL;
-        this.idCounter = 0;
+        // this.idCounter = 0;
         
         int numSquares = width * height;
 
@@ -68,9 +65,9 @@ public class MapBuilder {
         return x + y * width;
     }
 
-    private int locationToIndex(MapLocation loc) {
-        return loc.x + loc.y * width;
-    }
+    // private int locationToIndex(MapLocation loc) {
+    //     return loc.x + loc.y * width;
+    // }
 
     // public void setWall(int x, int y, boolean value) {
     //     this.wallArray[locationToIndex(x, y)] = value;
@@ -208,36 +205,36 @@ public class MapBuilder {
     /**
      * @return the list of symmetries, empty if map is invalid
      */
-    private ArrayList<MapSymmetry> getSymmetry(RobotInfo[] robots) {
-        ArrayList<MapSymmetry> possible = new ArrayList<MapSymmetry>();
-        possible.add(MapSymmetry.ROTATIONAL);
-        possible.add(MapSymmetry.HORIZONTAL);
-        possible.add(MapSymmetry.VERTICAL);
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                MapLocation current = new MapLocation(x, y);
-                int curIdx = locationToIndex(current.x, current.y);
-                for (int i = possible.size() - 1; i >= 0; i--) { // iterating backwards so we can remove in the loop
-                    MapSymmetry symmetry = possible.get(i);
-                    MapLocation symm = new MapLocation(symmetricX(x, symmetry), symmetricY(y, symmetry));
-                    int symIdx = locationToIndex(symm.x, symm.y);
+    // private ArrayList<MapSymmetry> getSymmetry(RobotInfo[] robots) {
+    //     ArrayList<MapSymmetry> possible = new ArrayList<MapSymmetry>();
+    //     possible.add(MapSymmetry.ROTATIONAL);
+    //     possible.add(MapSymmetry.HORIZONTAL);
+    //     possible.add(MapSymmetry.VERTICAL);
+    //     for (int x = 0; x < width; x++) {
+    //         for (int y = 0; y < height; y++) {
+    //             MapLocation current = new MapLocation(x, y);
+    //             int curIdx = locationToIndex(current.x, current.y);
+    //             for (int i = possible.size() - 1; i >= 0; i--) { // iterating backwards so we can remove in the loop
+    //                 MapSymmetry symmetry = possible.get(i);
+    //                 MapLocation symm = new MapLocation(symmetricX(x, symmetry), symmetricY(y, symmetry));
+    //                 int symIdx = locationToIndex(symm.x, symm.y);
 
-                    if (wallArray[curIdx] != wallArray[symIdx]) {
-                        possible.remove(symmetry);
-                    } else if (dirtArray[curIdx] != dirtArray[symIdx]) {
-                        possible.remove(symmetry);
-                    } else if (cheeseMineArray[curIdx] != cheeseMineArray[symIdx]) {
-                        possible.remove(symmetry);
-                    } else if (cheeseArray[curIdx] != cheeseArray[symIdx]) {
-                        possible.remove(symmetry);
-                    }
-                }
-            }
-        }
-        return possible;
-    }
+    //                 if (wallArray[curIdx] != wallArray[symIdx]) {
+    //                     possible.remove(symmetry);
+    //                 } else if (dirtArray[curIdx] != dirtArray[symIdx]) {
+    //                     possible.remove(symmetry);
+    //                 } else if (cheeseMineArray[curIdx] != cheeseMineArray[symIdx]) {
+    //                     possible.remove(symmetry);
+    //                 } else if (cheeseArray[curIdx] != cheeseArray[symIdx]) {
+    //                     possible.remove(symmetry);
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return possible;
+    // }
 
-    private boolean symmetricTeams(Team a, Team b) {
-        return a != b;
-    }
+    // private boolean symmetricTeams(Team a, Team b) {
+    //     return a != b;
+    // }
 }

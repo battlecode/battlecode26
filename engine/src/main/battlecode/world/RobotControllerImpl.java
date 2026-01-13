@@ -3,15 +3,10 @@ package battlecode.world;
 import battlecode.common.*;
 
 import static battlecode.common.GameActionExceptionType.*;
-import battlecode.schema.Action;
-import battlecode.schema.RobotType;
-import battlecode.util.FlatHelpers;
 import battlecode.instrumenter.RobotDeathException;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.NotImplementedException;
 
 /**
  * The actual implementation of RobotController. Its methods *must* be called
@@ -72,9 +67,9 @@ public final class RobotControllerImpl implements RobotController {
         return this.gameWorld.getObjectInfo().getRobotByID(id);
     }
 
-    private int locationToInt(MapLocation loc) {
-        return this.gameWorld.locationToIndex(loc);
-    }
+    // private int locationToInt(MapLocation loc) {
+    //     return this.gameWorld.locationToIndex(loc);
+    // }
 
     private MapInfo getMapInfo(MapLocation loc) throws GameActionException {
         GameWorld gw = this.gameWorld;
@@ -224,15 +219,15 @@ public final class RobotControllerImpl implements RobotController {
                     "Target location not within action range");
     }
 
-    private void assertCanActOffCenterLocation(MapLocation loc, int maxRadiusSquared) throws GameActionException {
-        assertNotNull(loc);
-        if (getLocation().bottomLeftDistanceSquaredTo(loc) > maxRadiusSquared)
-            throw new GameActionException(OUT_OF_RANGE,
-                    "Target location not within action range");
-        if (!this.gameWorld.getGameMap().onTheMap(loc))
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target location is not on the map");
-    }
+    // private void assertCanActOffCenterLocation(MapLocation loc, int maxRadiusSquared) throws GameActionException {
+    //     assertNotNull(loc);
+    //     if (getLocation().bottomLeftDistanceSquaredTo(loc) > maxRadiusSquared)
+    //         throw new GameActionException(OUT_OF_RANGE,
+    //                 "Target location not within action range");
+    //     if (!this.gameWorld.getGameMap().onTheMap(loc))
+    //         throw new GameActionException(CANT_SENSE_THAT,
+    //                 "Target location is not on the map");
+    // }
 
     private void assertCanPlaceDirt(MapLocation loc) throws GameActionException {
         assertIsActionReady();
@@ -425,13 +420,17 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     private void assertCanPickUpCheese(MapLocation loc) throws GameActionException {
-        assertIsRobotType(this.robot.getType());
+        UnitType myType = this.robot.getType();
+        assertIsRobotType(myType);
         assertCanActLocation(loc, GameConstants.CHEESE_PICK_UP_RADIUS_SQUARED);
 
-        if (this.gameWorld.getCheeseAmount(loc) <= 0)
+        if (this.gameWorld.getCheeseAmount(loc) <= 0) {
             throw new GameActionException(CANT_DO_THAT, "No cheese at this location!");
-        if (this.robot.getType() != UnitType.BABY_RAT && this.robot.getType() != UnitType.RAT_KING)
+        }
+
+        if (myType != UnitType.BABY_RAT && myType != UnitType.RAT_KING) {
             throw new GameActionException(CANT_DO_THAT, "Only rats can pick up cheese");
+        }
     }
 
     @Override
@@ -533,17 +532,7 @@ public final class RobotControllerImpl implements RobotController {
         assertRadiusNonNegative(radiusSquared);
         int actualRadiusSquared = radiusSquared == -1 ? this.robot.getVisionRadiusSquared()
                 : Math.min(radiusSquared, this.robot.getVisionRadiusSquared());
-        actualRadiusSquared = (int) ((Math.sqrt(actualRadiusSquared) + 2) * (Math.sqrt(actualRadiusSquared) + 2)); // expand
-                                                                                                                   // slightly
-                                                                                                                   // to
-                                                                                                                   // account
-                                                                                                                   // for
-                                                                                                                   // cat
-                                                                                                                   // center
-                                                                                                                   // being
-                                                                                                                   // bottom
-                                                                                                                   // left
-                                                                                                                   // corner
+
         InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, actualRadiusSquared, team, this.robot.getChirality());
         List<RobotInfo> validSensedRobots = new ArrayList<>();
         HashSet<Integer> uniqueRobotIds = new HashSet<>();
@@ -553,9 +542,15 @@ public final class RobotControllerImpl implements RobotController {
             // check if this robot
             if (sensedRobot.equals(this.robot))
                 continue;
-            // check if can sense
-            if (!canSenseLocation(sensedRobot.getLocation()))
+            // check if can sense in vision cone (restricted radius)
+            boolean canSensePartOfRobot = false;
+            for (MapLocation robotpart : sensedRobot.getAllPartLocations()){
+                canSensePartOfRobot = canSensePartOfRobot || (canSenseLocation(robotpart) && center.isWithinDistanceSquared(robotpart, actualRadiusSquared));
+            }
+
+            if (!canSensePartOfRobot)
                 continue;
+            
             // check if right team
             if (team != null && sensedRobot.getTeam() != team)
                 continue;
@@ -606,7 +601,7 @@ public final class RobotControllerImpl implements RobotController {
         int actualRadiusSquared = radiusSquared == -1 ? this.getType().visionConeRadiusSquared
                 : Math.min(radiusSquared, this.getType().visionConeRadiusSquared);
         MapLocation[] allSensedLocs = gameWorld.getAllLocationsWithinRadiusSquared(center,
-                (int) ((Math.sqrt(actualRadiusSquared) + 2) * (Math.sqrt(actualRadiusSquared) + 2)), this.robot.getChirality()); // expand slightly
+                actualRadiusSquared, this.robot.getChirality()); // expand slightly
                                                                                                       // to allow
                                                                                                       // off-center
                                                                                                       // sensing
@@ -752,15 +747,13 @@ public final class RobotControllerImpl implements RobotController {
             }
 
             InternalRobot occupyingRobot = this.gameWorld.getRobot(loc);
-            if ((occupyingRobot != null) && (occupyingRobot.getID() != this.robot.getID())) {
 
-                if (occupyingRobot.getType().isBabyRatType() && this.getType().isCatType()) {
-                } else {
-                    MapLocation[] partLocs = this.robot.getAllPartLocations();
-                    throw new GameActionException(CANT_MOVE_THERE,
-                            "Cannot move to an occupied location; " + loc + " is occupied by a different robot.");
-                }
+            if ((occupyingRobot != null) && (occupyingRobot.getID() != this.robot.getID())
+                && !(occupyingRobot.getType().isBabyRatType() && this.getType().isCatType())) {
+                throw new GameActionException(CANT_MOVE_THERE,
+                    "Cannot move to an occupied location; " + loc + " is occupied by a different robot.");
             }
+
             if (!this.gameWorld.isPassable(loc)) {
                 throw new GameActionException(CANT_MOVE_THERE,
                         "Cannot move to an impassable location; " + loc + " is impassable.");
@@ -967,10 +960,13 @@ public final class RobotControllerImpl implements RobotController {
 
     private void assertCanAttackRat(MapLocation loc, int cheeseConsumed) throws GameActionException {
         assertIsActionReady();
+        UnitType myType = this.getType();
         // Attack is limited to vision radius
-        assertCanActLocation(loc, this.getType().getVisionRadiusSquared());
+        assertCanActLocation(loc, myType.getVisionRadiusSquared());
 
-        if (!this.getLocation().isAdjacentTo(loc)) {
+        MapLocation myLoc = this.getLocation();
+
+        if (!myLoc.isAdjacentTo(loc) && !(myType.isRatKingType() && myLoc.distanceSquaredTo(loc) <= GameConstants.RAT_KING_ATTACK_DISTANCE_SQUARED)) {
             throw new GameActionException(CANT_DO_THAT, "Rats can only attack adjacent squares!");
         }
 
@@ -978,7 +974,7 @@ public final class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Rats cannot attack squares with walls or dirt on them!");
         }
         
-        if (this.gameWorld.getTeamInfo().getCheese(this.getTeam()) + this.getAllCheese() < cheeseConsumed) {
+        if (this.getAllCheese() < cheeseConsumed) {
             throw new GameActionException(CANT_DO_THAT, "Not enough cheese to bite!");
         }
 
@@ -990,8 +986,14 @@ public final class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Cheese consumed must be non-negative!");
         }
 
-        if (this.gameWorld.getRobot(loc) == null) {
+        InternalRobot enemyRobot = this.gameWorld.getRobot(loc);
+
+        if (enemyRobot == null) {
             throw new GameActionException(CANT_DO_THAT, "No robot to attack at the specified location!");
+        }
+
+        if (enemyRobot.getTeam() == this.robot.getTeam()) {
+            throw new GameActionException(CANT_DO_THAT, "Cannot attack ally robots!");
         }
     }
 
@@ -1002,11 +1004,15 @@ public final class RobotControllerImpl implements RobotController {
         if (!this.gameWorld.isPassable(loc)) {
             throw new GameActionException(CANT_DO_THAT, "Cats cannot attack squares with walls or dirt on them!");
         }
-        if (this.gameWorld.getRobot(loc) == null) {
+
+        InternalRobot enemyRobot = this.gameWorld.getRobot(loc);
+
+        if (enemyRobot == null) {
             throw new GameActionException(CANT_DO_THAT, "No robot to attack at the specified location!");
         }
-        if (this.gameWorld.getRobot(loc) != null && this.gameWorld.getRobot(loc).getID() == this.robot.getID()) {
-            throw new GameActionException(CANT_DO_THAT, "Cannot attack self");
+        
+        if (enemyRobot != null && enemyRobot.getTeam() == this.robot.getTeam()) {
+            throw new GameActionException(CANT_DO_THAT, "Cannot attack another cat!");
         }
     }
 
@@ -1137,16 +1143,32 @@ public final class RobotControllerImpl implements RobotController {
                 this.gameWorld.getTeamInfo().addCheese(this.getTeam(), currentRobot.getCheese());
                 currentRobot.addCheese(-currentRobot.getCheese());
 
+                if (currentRobot.isCarryingRobot()) {
+                    // you steal the cheese of the robot they are carrying if it's an enemy,
+                    // or just add it to your global cheese if it's an ally
+                    InternalRobot robotBeingCarried = currentRobot.getRobotBeingCarried();
+                    this.gameWorld.getTeamInfo().addCheese(this.getTeam(), robotBeingCarried.getCheese());
+                    robotBeingCarried.addCheese(-robotBeingCarried.getCheese());
+                    robotBeingCarried.addHealth(-robotBeingCarried.getHealth());
+                }
+
                 // all robots in the 3x3 including enemies die
                 currentRobot.addHealth(-currentRobot.getHealth());
             }
             this.gameWorld.addRobot(this.adjacentLocation(d), this.robot);
         }
 
+        if (this.robot.isCarryingRobot()) {
+            InternalRobot robotBeingCarried = this.robot.getRobotBeingCarried();
+            robotBeingCarried.addHealth(-robotBeingCarried.getHealth());
+        }
+
         this.gameWorld.getTeamInfo().addCheese(this.getTeam(), -GameConstants.RAT_KING_UPGRADE_CHEESE_COST);
         health = Math.min(health, UnitType.RAT_KING.health);
 
-        robot.becomeRatKing(health);
+        this.gameWorld.getTeamInfo().addCheese(this.getTeam(), robot.getCheese());
+        this.robot.addCheese(-this.robot.getCheese());
+        this.robot.becomeRatKing(health);
 
 
         for (Direction d : Direction.allDirections()) {
@@ -1318,6 +1340,7 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public void throwRat() throws GameActionException {
         assertCanThrowRat(this.robot.getDirection());
+        this.robot.addActionCooldownTurns(GameConstants.THROW_RAT_COOLDOWN);
         this.robot.throwRobot();
     }
 

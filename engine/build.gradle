@@ -58,6 +58,8 @@ dependencies {
     // There are no valid released versions on Maven Central or Sonatype.
     // If you need JSI, download jsi-1.0.jar manually and use:
     [group: 'net.sf.trove4j', name: 'trove4j', version: '2.1.0'],
+    
+    [group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.2'],
   )
   // implementation files('lib/jsi-1.0.jar')
 

@@ -1,6 +1,5 @@
 package battlecode.world;
 
-import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
 import battlecode.common.Team;
 import battlecode.common.TrapType;

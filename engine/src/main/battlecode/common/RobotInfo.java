@@ -1,7 +1,5 @@
 package battlecode.common;
 
-import battlecode.world.TeamInfo;
-
 /**
  * RobotInfo stores basic information that was 'sensed' of another Robot. This
  * info is ephemeral and there is no guarantee any of it will remain the same
@@ -49,14 +47,22 @@ public class RobotInfo {
      */
     public final int cheeseAmount;
   
-
     /**
      * The current robot being carried by this robot, or null if not carrying any robots.
      */
     public final RobotInfo carryingRobot;
 
     public RobotInfo(int ID, Team team, UnitType type, int health, MapLocation location, Direction direction, int chirality, int cheeseAmount, RobotInfo carryingRobot) {
-        super();
+        if (team == null) {
+            throw new IllegalArgumentException("Team in RobotInfo constructor cannot be null");
+        } else if (type == null) {
+            throw new IllegalArgumentException("UnitType in RobotInfo constructor cannot be null");
+        } else if (location == null) {
+            throw new IllegalArgumentException("MapLocation in RobotInfo constructor cannot be null");
+        } else if (direction == null) {
+            throw new IllegalArgumentException("Direction in RobotInfo constructor cannot be null");
+        }
+
         this.ID = ID;
         this.team = team;
         this.type = type;

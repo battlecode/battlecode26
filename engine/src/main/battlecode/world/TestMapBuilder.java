@@ -1,9 +1,5 @@
 package battlecode.world;
 
-import battlecode.common.*;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Lets maps be built easily, for testing purposes.
  */

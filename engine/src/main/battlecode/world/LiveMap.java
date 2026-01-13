@@ -1,13 +1,8 @@
 package battlecode.world;
 
 import battlecode.common.*;
-import battlecode.util.FlatHelpers;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.function.*;
-
-import javax.management.RuntimeErrorException;
 
 /**
  * The class represents the map in the game world on which
@@ -515,21 +510,21 @@ public class LiveMap {
         }
     }
 
-    private boolean isTeamNumber(int team) {
-        return team == 1 || team == 2;
-    }
+    // private boolean isTeamNumber(int team) {
+    //     return team == 1 || team == 2;
+    // }
 
-    private int getOpposingTeamNumber(int team) {
-        switch (team) {
-            case 1:
-                return 2;
-            case 2:
-                return 1;
-            default:
-                throw new RuntimeException(
-                        "Argument of LiveMap.getOpposingTeamNumber must be a valid team number, was " + team + ".");
-        }
-    }
+    // private int getOpposingTeamNumber(int team) {
+    //     switch (team) {
+    //         case 1:
+    //             return 2;
+    //         case 2:
+    //             return 1;
+    //         default:
+    //             throw new RuntimeException(
+    //                     "Argument of LiveMap.getOpposingTeamNumber must be a valid team number, was " + team + ".");
+    //     }
+    // }
 
     /**
      * Performs a flood fill algorithm to check if a predicate is true for any
@@ -547,48 +542,51 @@ public class LiveMap {
      *                       (WARNING: this array gets updated by floodFillMap)
      * @return if checkForBad returns true for any reachable squares
      */
-    private boolean floodFillMap(MapLocation startLoc, Predicate<MapLocation> checkForBad,
-            Predicate<MapLocation> checkForWall, boolean[] alreadyChecked) {
-        Queue<MapLocation> queue = new LinkedList<MapLocation>(); // stores map locations by index
+    // // --------------------------------------------
+    // // UNCOMMENT IF FLOOD FILL NEEDED IN THE FUTURE
+    // // --------------------------------------------
+    // private boolean floodFillMap(MapLocation startLoc, Predicate<MapLocation> checkForBad,
+    //         Predicate<MapLocation> checkForWall, boolean[] alreadyChecked) {
+    //     Queue<MapLocation> queue = new LinkedList<MapLocation>(); // stores map locations by index
 
-        if (!onTheMap(startLoc)) {
-            throw new RuntimeException("Cannot call floodFillMap with startLocation off the map.");
-        }
+    //     if (!onTheMap(startLoc)) {
+    //         throw new RuntimeException("Cannot call floodFillMap with startLocation off the map.");
+    //     }
 
-        queue.add(startLoc);
+    //     queue.add(startLoc);
 
-        while (!queue.isEmpty()) {
-            MapLocation loc = queue.remove();
-            int idx = locationToIndex(loc);
+    //     while (!queue.isEmpty()) {
+    //         MapLocation loc = queue.remove();
+    //         int idx = locationToIndex(loc);
 
-            if (alreadyChecked[idx]) {
-                continue;
-            }
+    //         if (alreadyChecked[idx]) {
+    //             continue;
+    //         }
 
-            alreadyChecked[idx] = true;
+    //         alreadyChecked[idx] = true;
 
-            if (!checkForWall.test(loc)) {
-                if (checkForBad.test(loc)) {
-                    return true;
-                }
+    //         if (!checkForWall.test(loc)) {
+    //             if (checkForBad.test(loc)) {
+    //                 return true;
+    //             }
 
-                for (Direction dir : Direction.allDirections()) {
-                    if (dir != Direction.CENTER) {
-                        MapLocation newLoc = loc.add(dir);
+    //             for (Direction dir : Direction.allDirections()) {
+    //                 if (dir != Direction.CENTER) {
+    //                     MapLocation newLoc = loc.add(dir);
 
-                        if (onTheMap(newLoc)) {
-                            int newIdx = locationToIndex(newLoc);
+    //                     if (onTheMap(newLoc)) {
+    //                         int newIdx = locationToIndex(newLoc);
 
-                            if (!(alreadyChecked[newIdx] || checkForWall.test(newLoc))) {
-                                queue.add(newLoc);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
+    //                         if (!(alreadyChecked[newIdx] || checkForWall.test(newLoc))) {
+    //                             queue.add(newLoc);
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return false;
+    // }
 
     @Override
     public String toString() {

@@ -1,27 +1,15 @@
 package battlecode.server;
 
-import battlecode.world.maps.*;
-
-import battlecode.common.Direction;
-import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
-import battlecode.common.RobotInfo;
 import battlecode.common.Team;
 import battlecode.world.*;
 import battlecode.world.control.*;
+import battlecode.crossplay.CrossPlay;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import javax.management.RuntimeErrorException;
 
 /**
  * Runs matches. Specifically, this class forms a pipeline connecting match and
@@ -32,7 +20,7 @@ public class Server implements Runnable {
     /**
      * The GameInfo that signals the server to terminate when it is encountered on the game queue.
      */
-    private static final GameInfo POISON = new GameInfo(null, null, null, null, null, null, null, null, false) {};
+    private static final GameInfo POISON = new GameInfo(null, null, null, null, null, null, null, null, null, null, false) {};
 
     /**
      * The queue of games to run.
@@ -164,62 +152,68 @@ public class Server implements Runnable {
 
             debug("Running: "+currentGame);
 
-            // Set up our control provider
-            final boolean profilingEnabled = options.getBoolean("bc.engine.enable-profiler");
-            final RobotControlProvider prov = createControlProvider(currentGame, gameMaker, profilingEnabled);
+            CrossPlay crossPlayServer = new CrossPlay();
 
-            final boolean checkMapGuarantees = options.getBoolean("bc.server.validate-maps");
-            final boolean alternateOrder = options.getBoolean("bc.server.alternate-order");
+            try {
+                // Set up our control provider
+                final boolean profilingEnabled = options.getBoolean("bc.engine.enable-profiler");
+                final RobotControlProvider prov = createControlProvider(currentGame, gameMaker, profilingEnabled, crossPlayServer);
 
-            // Count wins
-            int aWins = 0, bWins = 0;
+                final boolean checkMapGuarantees = options.getBoolean("bc.server.validate-maps");
+                final boolean alternateOrder = options.getBoolean("bc.server.alternate-order");
 
-            // Loop through the maps in the current game
-            boolean teamsReversed = false;
-            for (int matchIndex = 0; matchIndex < currentGame.getMaps().length; matchIndex++) {
-                Team winner;
+                // Count wins
+                int aWins = 0, bWins = 0;
 
-                try {
-                    winner = runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees, teamsReversed);
-                    if (alternateOrder) {teamsReversed = !teamsReversed;}
-                } catch (Exception e) {
-                    ErrorReporter.report(e);
-                    this.state = ServerState.ERROR;
-                    return;
-                }
+                // Loop through the maps in the current game
+                boolean teamsReversed = false;
+                for (int matchIndex = 0; matchIndex < currentGame.getMaps().length; matchIndex++) {
+                    Team winner;
 
-                switch (winner) {
-                    case A:
-                        aWins++;
-                        break;
-                    case B:
-                        bWins++;
-                        break;
-                    default:
-                        warn("Team "+winner+" won???");
-                }
+                    try {
+                        winner = runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees, teamsReversed);
+                        if (alternateOrder) {teamsReversed = !teamsReversed;}
+                    } catch (Exception e) {
+                        ErrorReporter.report(e);
+                        this.state = ServerState.ERROR;
+                        return;
+                    }
 
-                currentWorld = null;
+                    switch (winner) {
+                        case A:
+                            aWins++;
+                            break;
+                        case B:
+                            bWins++;
+                            break;
+                        default:
+                            warn("Team "+winner+" won???");
+                    }
 
-                if (currentGame.isBestOfThree()) {
-                    if (aWins == 2 || bWins == 2) {
-                        break;
+                    currentWorld = null;
+
+                    if (currentGame.isBestOfThree()) {
+                        if (aWins == 2 || bWins == 2) {
+                            break;
+                        }
                     }
                 }
+                Team winner = aWins >= bWins ? Team.A : Team.B;
+                gameMaker.makeGameFooter(winner);
+                gameMaker.writeGame(currentGame.getSaveFile());
+            } finally {
+                crossPlayServer.cleanup();
             }
-            Team winner = aWins >= bWins ? Team.A : Team.B;
-            gameMaker.makeGameFooter(winner);
-            gameMaker.writeGame(currentGame.getSaveFile());
         }
     }
 
-    private int locationToIndex(LiveMap liveMap, int x, int y) {
-        return x + y * liveMap.getWidth();
-    }
+    // private int locationToIndex(LiveMap liveMap, int x, int y) {
+    //     return x + y * liveMap.getWidth();
+    // }
 
-    private int locationToIndex(LiveMap liveMap, MapLocation loc) {
-        return loc.x + loc.y * liveMap.getWidth();
-    }
+    // private int locationToIndex(LiveMap liveMap, MapLocation loc) {
+    //     return loc.x + loc.y * liveMap.getWidth();
+    // }
 
     public boolean onTheMap(LiveMap liveMap, MapLocation loc) {
         return loc.x >= 0 && loc.y >= 0 && loc.x < liveMap.getWidth() && loc.y < liveMap.getHeight();
@@ -229,12 +223,10 @@ public class Server implements Runnable {
         return new MapLocation(idx % liveMap.getWidth(),
                                idx / liveMap.getWidth());
     }
-
-
     
-    private Team runMatch(GameInfo currentGame, int matchIndex, RobotControlProvider prov, GameMaker gameMaker, boolean checkMapGuarantees) throws Exception {
-        return runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees, false);
-    }
+    // private Team runMatch(GameInfo currentGame, int matchIndex, RobotControlProvider prov, GameMaker gameMaker, boolean checkMapGuarantees) throws Exception {
+    //     return runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees, false);
+    // }
 
     /**
      * @return the winner of the match
@@ -303,6 +295,9 @@ public class Server implements Runnable {
                 case PAUSED:
                     Thread.sleep(250);
                     break;
+
+                default:
+                    break;
             }
         }
 
@@ -311,6 +306,7 @@ public class Server implements Runnable {
 
         double timeDiff = (System.currentTimeMillis() - startTime) / 1000.0;
         debug(String.format("match completed in %.4g seconds", timeDiff));
+
         return currentWorld.getWinner();
     }
 
@@ -328,7 +324,8 @@ public class Server implements Runnable {
      */
     private RobotControlProvider createControlProvider(GameInfo game,
                                                        GameMaker gameMaker,
-                                                       boolean profilingEnabled) {
+                                                       boolean profilingEnabled,
+                                                       CrossPlay crossPlayServer) {
         // Strictly speaking, this should probably be somewhere in battlecode.world
         // Whatever
 
@@ -339,6 +336,8 @@ public class Server implements Runnable {
                 new PlayerControlProvider(
                     Team.A,
                     game.getTeamAPackage(),
+                    game.getTeamALanguage(),
+                    crossPlayServer,
                     game.getTeamAURL(),
                     gameMaker.getMatchMaker().getOut(),
                     profilingEnabled
@@ -349,6 +348,8 @@ public class Server implements Runnable {
                 new PlayerControlProvider(
                     Team.B,
                     game.getTeamBPackage(),
+                    game.getTeamBLanguage(),
+                    crossPlayServer,
                     game.getTeamBURL(),
                     gameMaker.getMatchMaker().getOut(),
                     profilingEnabled
