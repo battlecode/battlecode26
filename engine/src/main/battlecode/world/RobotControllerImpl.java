@@ -654,9 +654,8 @@ public final class RobotControllerImpl implements RobotController {
         assertRadiusNonNegative(radiusSquared);
         int actualRadiusSquared = radiusSquared == -1 ? this.robot.getVisionRadiusSquared()
                 : Math.min(radiusSquared, this.robot.getVisionRadiusSquared());
-        MapLocation[] possibleLocs = this.gameWorld.getAllLocationsWithinConeRadiusSquared(center,
-                this.robot.getDirection(), this.robot.getVisionConeAngle(), actualRadiusSquared,
-                this.robot.getChirality());
+        MapLocation[] possibleLocs = gameWorld.getAllLocationsWithinRadiusSquared(center,
+                actualRadiusSquared, this.robot.getChirality());
         List<MapLocation> visibleLocs = Arrays.asList(possibleLocs).stream().filter(x -> canSenseLocation(x))
                 .collect(Collectors.toList());
         return visibleLocs.toArray(new MapLocation[visibleLocs.size()]);
