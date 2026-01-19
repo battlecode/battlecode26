@@ -602,7 +602,7 @@ public class GameWorld {
 
         robot.setMovementCooldownTurns(type.stunTime);
         if (type == TrapType.CAT_TRAP && robot.getType().isCatType()) {
-            this.teamInfo.addDamageToCats(trap.getTeam(), type.damage);
+            this.teamInfo.addDamageToCats(trap.getTeam(), Math.min(type.damage, robot.getHealth()));
         }
 
         if (trap.getType() != TrapType.CAT_TRAP) {

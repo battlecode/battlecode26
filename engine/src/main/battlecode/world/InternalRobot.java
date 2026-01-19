@@ -614,10 +614,11 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
                 this.gameWorld.getMatchMaker().addBiteAction(targetRobot.ID);
 
-                targetRobot.addHealth(-damage);
                 if (targetRobot.getType() == UnitType.CAT) {
-                    this.gameWorld.getTeamInfo().addDamageToCats(team, damage);
+                    this.gameWorld.getTeamInfo().addDamageToCats(team, Math.min(damage, targetRobot.getHealth()));
                 }
+
+                targetRobot.addHealth(-damage);
 
                 if (targetRobot.getType() != UnitType.CAT) {
                     this.gameWorld.isCooperation = false;
