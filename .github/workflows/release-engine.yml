@@ -14,7 +14,7 @@ env:
   RELEASE_ARTIFACT_ID: battlecode26
 
   # IS_PUBLIC is whether to release deployments publicly. Set to exactly the text "YES" to do so.
-  IS_PUBLIC: YES
+  IS_PUBLIC: NO
 
 jobs:
   release-java:
