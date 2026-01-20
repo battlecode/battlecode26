@@ -4,9 +4,9 @@ from subprocess import Popen
 import sys
 import traceback
 
-from battlecode26.classes import GameActionException
-from battlecode26.runner import RobotRunner
-from battlecode26.crossplay import (
+from .classes import GameActionException
+from .runner import RobotRunner
+from .crossplay import (
     BYTECODE_LIMIT,
     CrossPlayException,
     receive,
@@ -17,7 +17,7 @@ from battlecode26.crossplay import (
     CrossPlayMethod,
     _destroy_queue,
 )
-from battlecode26.wrappers import _GAME_METHODS, Team
+from .wrappers import _GAME_METHODS, Team
 
 DETACHED_PROCESS = 0x00000008
 TEAM_NAMES = {Team.A: "A", Team.B: "B", Team.NEUTRAL: "N"}
@@ -261,7 +261,8 @@ def main(args=None):
     if parsed_args.new_process:
         new_args = [
             sys.executable,
-            __file__,
+            "-m",
+            "battlecode26",
             "--teamA",
             team_a,
             "--teamB",
@@ -279,14 +280,20 @@ def main(args=None):
         get_code(team_a, dir_a)
         get_code(team_b, dir_b)
 
+        kwargs = {
+            "shell": False,
+            "stdin": None,
+            "stdout": None,
+            "stderr": None,
+            "close_fds": True,
+        }
+
+        if os.name == "nt":
+            kwargs["creationflags"] = DETACHED_PROCESS
+
         Popen(
             new_args,
-            shell=False,
-            stdin=None,
-            stdout=None,
-            stderr=None,
-            close_fds=True,
-            creationflags=DETACHED_PROCESS,
+            **kwargs
         )
     else:
         play(team_a=parsed_args.teamA, team_b=parsed_args.teamB,

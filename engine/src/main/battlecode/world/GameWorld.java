@@ -33,7 +33,7 @@ public class GameWorld {
 
     private int[] cheeseAmounts;
     private InternalRobot[][] robots;
-    private Trap[] trapLocations;
+    private Trap[][] trapLocations;
     private ArrayList<Trap>[] trapTriggers;
     private HashMap<TrapType, int[]> trapCounts; // maps trap type to counts for each team
     private final LiveMap gameMap;
@@ -47,7 +47,7 @@ public class GameWorld {
     private Map<Team, ProfilerCollection> profilerCollections;
 
     private final RobotControlProvider controlProvider;
-    private Random rand;
+    Random rand;
     private final GameMaker.MatchMaker matchMaker;
 
     // Whether there is a ruin on each tile, indexed by location
@@ -138,7 +138,7 @@ public class GameWorld {
         this.walls = gm.getWallArray();
         this.dirt = gm.getDirtArray();
         this.cheeseAmounts = gm.getCheeseArray();
-        this.trapLocations = new Trap[numSquares]; // We guarantee that no maps will contain traps at t = 0
+        this.trapLocations = new Trap[2][numSquares]; // We guarantee that no maps will contain traps at t = 0
         this.robots = new InternalRobot[width][height]; // if represented in cartesian, should be height-width, but this
                                                         // should allow us to index x-y
         this.hasRunCheeseMinesThisRound = false;
@@ -220,6 +220,7 @@ public class GameWorld {
         // bfs form target to all possible sources, set source direction to target
 
         Direction[][] bfs_map;
+        
         if (chirality == 0)
             bfs_map = this.bfs_map_0;
         else
@@ -234,7 +235,7 @@ public class GameWorld {
             MapLocation nextLoc = queue.poll();
             
             // check neighbors
-            for (Direction d : Direction.allDirections()){
+            for (Direction d : new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.NORTHEAST, Direction.SOUTHEAST, Direction.SOUTHWEST, Direction.NORTHWEST}){
                 if (d == Direction.CENTER)
                     continue;
 
@@ -257,21 +258,25 @@ public class GameWorld {
                 boolean validPath = true;
                 
                 Direction[] dirsFromCenterLoc;
-                if (chirality == 0){
+
+                if (chirality == 0) {
                     dirsFromCenterLoc = new Direction[]{Direction.CENTER, Direction.NORTH, Direction.NORTHEAST, Direction.EAST};
-                }
-                else{
+                } else {
                     dirsFromCenterLoc = new Direction[]{flipDirBySymmetry(Direction.CENTER), flipDirBySymmetry(Direction.NORTH), flipDirBySymmetry(Direction.NORTHEAST), flipDirBySymmetry(Direction.EAST)};
                 }
+
                 for (Direction dirFromCenter : dirsFromCenterLoc){
                     MapLocation neighborCorner = neighbor.add(dirFromCenter);
-                    if (!this.gameMap.onTheMap(neighborCorner) || this.getWall(neighborCorner)){
+                    boolean onTheMap = this.gameMap.onTheMap(neighborCorner);
+
+                    if (!onTheMap || this.getWall(neighborCorner)){
                         // location not on map or has walls
                         validPath = false;
                         break;
                     }
                 }
-                if (validPath){
+
+                if (validPath) {
                     Direction reverseDirection = useDir.opposite();
                     bfs_map[locationToIndex(neighbor)][locationToIndex(target)] = reverseDirection;
                     queue.add(neighbor);
@@ -529,21 +534,21 @@ public class GameWorld {
     // ****** TRAP METHODS **************
     // ***********************************
 
-    public Trap getTrap(MapLocation loc) {
-        return this.trapLocations[locationToIndex(loc)];
+    public Trap getTrap(MapLocation loc, Team team) {
+        return this.trapLocations[team.ordinal()][locationToIndex(loc)];
     }
 
-    public boolean hasTrap(MapLocation loc) {
-        return (this.trapLocations[locationToIndex(loc)] != null);
+    public boolean hasTrap(MapLocation loc, Team team) {
+        return (this.trapLocations[team.ordinal()][locationToIndex(loc)] != null);
     }
 
-    public boolean hasRatTrap(MapLocation loc) {
-        Trap trap = this.trapLocations[locationToIndex(loc)];
+    public boolean hasRatTrap(MapLocation loc, Team team) {
+        Trap trap = this.trapLocations[team.ordinal()][locationToIndex(loc)];
         return (trap != null && trap.getType() == TrapType.RAT_TRAP);
     }
 
-    public boolean hasCatTrap(MapLocation loc) {
-        Trap trap = this.trapLocations[locationToIndex(loc)];
+    public boolean hasCatTrap(MapLocation loc, Team team) {
+        Trap trap = this.trapLocations[team.ordinal()][locationToIndex(loc)];
         return (trap != null && trap.getType() == TrapType.CAT_TRAP);
     }
 
@@ -552,12 +557,11 @@ public class GameWorld {
     }
 
     public void placeTrap(MapLocation loc, Trap trap) {
-
         TrapType type = trap.getType();
         Team team = trap.getTeam();
 
         int idx = locationToIndex(loc);
-        this.trapLocations[idx] = trap;
+        this.trapLocations[team.ordinal()][idx] = trap;
 
         for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, type.triggerRadiusSquared, 0)) {// set chirality to 0, only rats will be placing traps
             this.trapTriggers[locationToIndex(adjLoc)].add(trap);
@@ -568,17 +572,18 @@ public class GameWorld {
         this.trapCounts.put(type, trapTypeCounts);
     }
 
-    public void removeTrap(MapLocation loc) {
-        Trap trap = this.trapLocations[locationToIndex(loc)];
+    public void removeTrap(MapLocation loc, Team team) {
+        Trap trap = this.trapLocations[team.ordinal()][locationToIndex(loc)];
+
         if (trap == null) {
             return;
         }
+
         TrapType type = trap.getType();
-        Team team = trap.getTeam();
         int[] trapTypeCounts = this.trapCounts.get(type);
         trapTypeCounts[team.ordinal()] -= 1;
         this.trapCounts.put(type, trapTypeCounts);
-        this.trapLocations[locationToIndex(loc)] = null;
+        this.trapLocations[team.ordinal()][locationToIndex(loc)] = null;
 
         for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, type.triggerRadiusSquared, 0)) { // set chirality to 0, only rats will be removing traps
             this.trapTriggers[locationToIndex(adjLoc)].remove(trap);
@@ -597,7 +602,7 @@ public class GameWorld {
 
         robot.setMovementCooldownTurns(type.stunTime);
         if (type == TrapType.CAT_TRAP && robot.getType().isCatType()) {
-            this.teamInfo.addDamageToCats(trap.getTeam(), type.damage);
+            this.teamInfo.addDamageToCats(trap.getTeam(), Math.min(type.damage, robot.getHealth()));
         }
 
         if (trap.getType() != TrapType.CAT_TRAP) {
@@ -607,7 +612,7 @@ public class GameWorld {
 
         matchMaker.addTrapTriggerAction(trap.getId(), loc, triggeringTeam, type);
 
-        removeTrap(loc);
+        removeTrap(loc, trap.getTeam());
         robot.addHealth(-type.damage);
         // matchMaker.addAction(robot.getID(),
         // FlatHelpers.getTrapActionFromTrapType(type),
@@ -961,7 +966,9 @@ public class GameWorld {
 
         Team[] teams = {Team.A, Team.B};
         for (Team t : teams){
-            this.matchMaker.addTeamInfo(t, this.teamInfo.getCheeseTransferred(t), this.teamInfo.getDamageToCats(t), this.teamInfo.getNumRatKings(t), this.teamInfo.getNumBabyRats(t), this.teamInfo.getDirt(t), this.getTrapCount(TrapType.RAT_TRAP, t), this.getTrapCount(TrapType.CAT_TRAP, t));
+            // combine total cheese into the rat kings stat
+            int combined_stat = this.teamInfo.getNumRatKings(t) + 10*this.teamInfo.getCheese(t);
+            this.matchMaker.addTeamInfo(t, this.teamInfo.getCheeseTransferred(t), this.teamInfo.getDamageToCats(t), combined_stat, this.teamInfo.getNumBabyRats(t), this.teamInfo.getDirt(t), this.getTrapCount(TrapType.RAT_TRAP, t), this.getTrapCount(TrapType.CAT_TRAP, t));
         }
         this.teamInfo.processEndOfRound();
         hasTraveledIDs.clear();
@@ -1024,11 +1031,13 @@ public class GameWorld {
         MapLocation robotLoc = robot.getLocation();
         MapLocation[] locations = getAllLocationsWithinRadiusSquared(robotLoc, GameConstants.SQUEAK_RADIUS_SQUARED, 0); // chirality doesn't matter here
 
+        HashSet<Integer> squeakedIDs = new HashSet<>();
         for (MapLocation loc : locations) {
             InternalRobot otherRobot = getRobot(loc);
-
-            if (otherRobot != null && (otherRobot.getType().isCatType() || otherRobot.getTeam() == robot.getTeam())) {
+            
+            if (otherRobot != null && (otherRobot.getID() != robot.getID()) && (!squeakedIDs.contains(otherRobot.getID())) && (otherRobot.getType().isCatType() || otherRobot.getTeam() == robot.getTeam())) {
                 otherRobot.addMessage(message.copy());
+                squeakedIDs.add(otherRobot.getID());
             }
         }
 

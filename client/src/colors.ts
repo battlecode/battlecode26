@@ -154,6 +154,35 @@ export const Presets: ColorPreset[] = [
                 TEAM_TWO: '#c91c7e'
             }
         }
+    },
+    {
+        displayName: 'Battlecode 2025',
+        data: {
+            version: 0,
+            colors: {
+                GAMEAREA_BACKGROUND: '#2e2323',
+                SIDEBAR_BACKGROUND: '#3f3131',
+                RED: '#ff9194',
+                PINK: '#ffb4c1',
+                GREEN: '#00a28e',
+                CYAN: '#02a7b9',
+                CYAN_DARK: '#1899a7',
+                BLUE: '#04a2d9',
+                BLUE_LIGHT: '#26abd9',
+                BLUE_DARK: '#00679e',
+                DARK: '#1f2937',
+                DARK_HIGHLIGHT: '#140f0f',
+                BLACK: '#140f0f',
+                WHITE: '#fcdede',
+                LIGHT: '#aaaaaa22',
+                LIGHT_HIGHLIGHT: '#ffffff33',
+                LIGHT_CARD: '#f7f7f722',
+                WALLS_COLOR: '#547f31',
+                TILES_COLOR: '#4c301e',
+                TEAM_ONE: '#cdcdcc',
+                TEAM_TWO: '#fee493'
+            }
+        }
     }
 ]
 

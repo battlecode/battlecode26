@@ -112,6 +112,11 @@ class RobotController:
     
     @staticmethod
     def can_turn(dir: Direction = ...) -> bool:
+        """
+        Possible parameter combinations:
+        - can_turn()
+        - can_turn(dir=[value])
+        """
         if dir is ...:
             return _wait(_m.RC_CAN_TURN, [])
         else:
@@ -283,6 +288,14 @@ class RobotController:
     
     @staticmethod
     def sense_nearby_map_infos(center: MapLocation = ..., radius_squared: int = ...) -> list[MapInfo]:
+        """
+        Possible parameter combinations:
+        - sense_nearby_map_infos()
+        - sense_nearby_map_infos(center=[value])
+        - sense_nearby_map_infos(radius_squared=[value])
+        - sense_nearby_map_infos(center=[value], radius_squared=[value])
+        """
+
         if center is ... and radius_squared is ...:
             return _wait(_m.RC_SENSE_NEARBY_MAP_INFOS, [])
         elif radius_squared is ...:

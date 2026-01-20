@@ -19,6 +19,7 @@ export class TeamRoundStat {
     ratKingCount: number = 0
     ratKingPercent: number = 0
     dirtAmount: number = 0
+    globalCheeseAmount: number = 0
     babyRatCount: number = 0
     ratTrapAmount: number = 0
     catTrapAmount: number = 0
@@ -75,10 +76,13 @@ export default class RoundStat {
             let totalCheese = 0
             let totalCatDamage = 0
             let totalRatKings = 0
+
+
             for (let i = 0; i < delta.teamIdsLength(); i++) {
+                const combinedStat = delta.teamAliveRatKings(i)!
                 totalCheese += delta.teamCheeseTransferred(i)!
                 totalCatDamage += delta.teamCatDamage(i)!
-                totalRatKings += delta.teamAliveRatKings(i)!
+                totalRatKings += (combinedStat%10) //lmao
             }
 
             for (let i = 0; i < delta.teamIdsLength(); i++) {
@@ -87,10 +91,14 @@ export default class RoundStat {
                 const teamStat = this.teams.get(team) ?? assert.fail(`team ${i} not found in team stats in round`)
 
                 teamStat.cheeseAmount = delta.teamCheeseTransferred(i) ?? assert.fail('missing cheese amount')
+                teamStat.globalCheeseAmount = Math.floor(delta.teamAliveRatKings(i)! / 10)
                 teamStat.cheesePercent = totalCheese ? teamStat.cheeseAmount / totalCheese : 0
                 teamStat.catDamageAmount = delta.teamCatDamage(i) ?? assert.fail('missing cat damage amount')
                 teamStat.catDamagePercent = totalCatDamage ? teamStat.catDamageAmount / totalCatDamage : 0
+
                 teamStat.ratKingCount = delta.teamAliveRatKings(i) ?? assert.fail('missing rat king count')
+                teamStat.ratKingCount %= 10
+                
                 teamStat.ratKingPercent = totalRatKings ? teamStat.ratKingCount / totalRatKings : 0
                 teamStat.dirtAmount = delta.teamDirtAmounts(i) ?? assert.fail('missing dirt amount')
                 teamStat.ratTrapAmount = delta.teamRatTrapCount(i) ?? assert.fail('missing rat trap amount')

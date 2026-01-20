@@ -145,8 +145,14 @@ export const GamePage: React.FC<Props> = React.memo((props) => {
                             them so that they don't render any data (since we're likely hiding stats to prevent lag) */}
                         <ResourceGraph
                             active={showStats}
+                            property="globalCheeseAmount"
+                            propertyDisplayName="Global Cheese "
+                        />
+                        <br />
+                        <ResourceGraph
+                            active={showStats}
                             property="cheeseAmount"
-                            propertyDisplayName="Cheese Amount "
+                            propertyDisplayName="Cheese Transferred "
                         />
                         <br />
                         <ResourceGraph
