@@ -23,7 +23,9 @@ public class GameWorld {
      * Whether we're running.
      */
     protected boolean running = true;
-    protected boolean isCooperation = true;
+    private boolean isCooperation = true;
+    private int backstabRound = -1;
+    private Team backstabber = null;
 
     protected final IDGenerator idGenerator;
     protected final GameStats gameStats;
@@ -401,6 +403,25 @@ public class GameWorld {
         return this.isCooperation;
     }
 
+    public int getRoundsSinceBackstab() {
+        if (this.isCooperation) {
+            return 0;
+        } else {
+            return this.currentRound - this.backstabRound;
+        }
+    }
+
+    public boolean catTrapsAllowed(Team team) {
+        return this.isCooperation || (this.getRoundsSinceBackstab() <=
+            GameConstants.CAT_TRAP_ROUNDS_AFTER_BACKSTAB && this.backstabber != team);
+    }
+
+    public void backstab(Team backstabber) {
+        this.isCooperation = false;
+        this.backstabRound = this.currentRound;
+        this.backstabber = backstabber;
+    }
+
     public boolean getWall(MapLocation loc) {
         return this.walls[locationToIndex(loc)];
     }
@@ -601,13 +622,14 @@ public class GameWorld {
         TrapType type = trap.getType();
 
         robot.setMovementCooldownTurns(type.stunTime);
+
         if (type == TrapType.CAT_TRAP && robot.getType().isCatType()) {
             this.teamInfo.addDamageToCats(trap.getTeam(), Math.min(type.damage, robot.getHealth()));
         }
 
         if (trap.getType() != TrapType.CAT_TRAP) {
             // initiate backstab
-            this.isCooperation = false;
+            backstab(robot.getTeam().opponent());
         }
 
         matchMaker.addTrapTriggerAction(trap.getId(), loc, triggeringTeam, type);
@@ -807,7 +829,7 @@ public class GameWorld {
      * @return whether all cats dead
      */
     public boolean setWinnerifAllCatsDead() {
-        if (this.getNumCats() == 0 && this.isCooperation) { // only end game if no more cats in cooperation mode
+        if (this.getNumCats() == 0 && this.isCooperation()) { // only end game if no more cats in cooperation mode
             // find out which team won via points
             if (setWinnerIfMorePoints())
                 return true;
@@ -1134,7 +1156,7 @@ public class GameWorld {
         // check win
         if (robot.getType() == UnitType.RAT_KING && this.getTeamInfo().getNumRatKings(robot.getTeam()) == 0) {
             checkWin(robotTeam);
-        } else if (this.isCooperation && robot.getType() == UnitType.CAT && this.getNumCats() == 0) {
+        } else if (this.isCooperation() && robot.getType() == UnitType.CAT && this.getNumCats() == 0) {
             checkWin(robotTeam);
         }
     }

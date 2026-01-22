@@ -1,5 +1,5 @@
 # Battlecode 2026 Python Documentation
-v1.1.5
+v1.2.1
 
 ## Getting Started
 
@@ -228,7 +228,11 @@ class RobotController:
     def on_the_map(loc: MapLocation) -> bool:
         pass
 
-    def pick_up_cheese(loc: MapLocation) -> None:
+    def pick_up_cheese(loc: MapLocation, amount: int = ...) -> None:
+        """
+        Calling this function with only the first argument makes the rat
+        pick up the maximum amount of cheese possible.
+        """
         pass
 
     def place_cat_trap(loc: MapLocation) -> None:
@@ -294,6 +298,9 @@ class RobotController:
         pass
 
     def set_indicator_string(text: str) -> None:
+        pass
+
+    def set_indicator_line(startLoc: MapLocation, endLoc: MapLocation, r: int, g: int, b: int) -> None:
         pass
 
     def set_timeline_marker(text: str, r: int, g: int, b: int) -> None:
@@ -467,7 +474,7 @@ class TrapType(Enum):
     """
     RAT_TRAP = (30, 50, 20, 15, 25, 2)
     CAT_TRAP = (10, 100, 20, 10, 10, 2)
-    NONE = (0, 0, 0, 0, 0, 0, 0)
+    NONE = (0, 0, 0, 0, 0, 0)
 
     def ordinal(self) -> int:
         """

@@ -792,6 +792,18 @@ public interface RobotController {
      */
     void pickUpCheese(MapLocation loc) throws GameActionException;
 
+    /**
+     * Picks up the (non-negative) specified amount of cheese
+     * from the given location.
+     * 
+     * @param loc the location to pick up cheese from
+     * @param pickUpAmount the amount of cheese to pick up
+     * @throws GameActionException
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    void pickUpCheese(MapLocation loc, int pickUpAmount) throws GameActionException;
+
     // ****************************
     // ***** ATTACK / HEAL ********
     // ****************************

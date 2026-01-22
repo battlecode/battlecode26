@@ -621,7 +621,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 targetRobot.addHealth(-damage);
 
                 if (targetRobot.getType() != UnitType.CAT) {
-                    this.gameWorld.isCooperation = false;
+                    this.gameWorld.backstab(this.team);
                 }
             }
         }
@@ -646,7 +646,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.gameWorld.getMatchMaker().addRatNapAction(this.robotBeingCarried.getID());
 
         if (this.robotBeingCarried.getTeam() != this.getTeam()) {
-            this.gameWorld.isCooperation = false;
+            this.gameWorld.backstab(this.getTeam());
         }
     }
 
@@ -702,13 +702,13 @@ public class InternalRobot implements Comparable<InternalRobot> {
     public void throwRobot() {
         this.gameWorld.getMatchMaker().endTurn(this.ID, this.health, this.cheeseAmount, this.movementCooldownTurns,
                 this.actionCooldownTurns, this.turningCooldownTurns, this.bytecodesUsed, this.location, this.dir,
-                this.gameWorld.isCooperation);
+                this.gameWorld.isCooperation());
         this.robotBeingCarried.getThrown(this.dir);
         this.gameWorld.getMatchMaker().endTurn(this.robotBeingCarried.ID, this.robotBeingCarried.health,
                 this.robotBeingCarried.cheeseAmount, this.robotBeingCarried.movementCooldownTurns,
                 this.robotBeingCarried.actionCooldownTurns, this.robotBeingCarried.turningCooldownTurns,
                 this.robotBeingCarried.bytecodesUsed, this.robotBeingCarried.location, this.robotBeingCarried.dir,
-                this.gameWorld.isCooperation);
+                this.gameWorld.isCooperation());
         this.gameWorld.addHasTraveledRobot(this.robotBeingCarried.getID());
         this.gameWorld.getMatchMaker().addThrowAction(this.robotBeingCarried.getID(),
                 this.getLocation().add(this.dir));
@@ -1401,13 +1401,13 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
         this.gameWorld.getMatchMaker().endTurn(this.ID, this.health, this.cheeseAmount, this.movementCooldownTurns,
                 this.actionCooldownTurns, this.turningCooldownTurns, this.bytecodesUsed, this.location, this.dir,
-                this.gameWorld.isCooperation);
+                this.gameWorld.isCooperation());
         if (this.isCarryingRobot() && this.robotBeingCarried.getHealth() > 0)
             this.gameWorld.getMatchMaker().endTurn(this.robotBeingCarried.ID, this.robotBeingCarried.health,
                     this.robotBeingCarried.cheeseAmount, this.robotBeingCarried.movementCooldownTurns,
                     this.robotBeingCarried.actionCooldownTurns, this.robotBeingCarried.turningCooldownTurns,
                     this.robotBeingCarried.bytecodesUsed, this.location, this.robotBeingCarried.dir,
-                    this.gameWorld.isCooperation);
+                    this.gameWorld.isCooperation());
         this.roundsAlive++;
     }
 

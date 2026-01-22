@@ -76,6 +76,7 @@ public enum CrossPlayMethod {
     RC_REMOVE_CAT_TRAP,
     RC_CAN_PICK_UP_CHEESE,
     RC_PICK_UP_CHEESE,
+    RC_PICK_UP_CHEESE__LOC_INT,
     RC_CAN_ATTACK,
     RC_CAN_ATTACK__LOC_INT,
     RC_ATTACK,

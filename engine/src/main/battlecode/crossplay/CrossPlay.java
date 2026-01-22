@@ -510,6 +510,14 @@ public class CrossPlay {
                 return nodeFactory.nullNode();
             }
 
+            case RC_PICK_UP_CHEESE__LOC_INT: {
+                checkParams(message, 2);
+                MapLocation loc = parseLocNode(message.params().get(0));
+                int cheeseAmount = message.params().get(1).asInt();
+                this.processingRobot.pickUpCheese(loc, cheeseAmount);
+                return nodeFactory.nullNode();
+            }
+
             case RC_PLACE_CAT_TRAP: {
                 checkParams(message, 1);
                 MapLocation loc = parseLocNode(message.params().get(0));

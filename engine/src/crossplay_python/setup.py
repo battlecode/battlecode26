@@ -26,5 +26,5 @@ setup(name='battlecode26',
       ],
       python_requires='>=3.12, <3.13',
       zip_safe=False,
-      version='1.1.5',
+      version='1.2.1',
 )
