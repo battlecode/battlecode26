@@ -1195,6 +1195,11 @@ public class InternalRobot implements Comparable<InternalRobot> {
         } else if (this.type == UnitType.CAT) {
             Direction[] nonCenterDirections = {Direction.WEST, Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST, Direction.EAST, Direction.SOUTHEAST, Direction.SOUTH, Direction.SOUTHWEST};
 
+            // direction should never be center or null, but use this as a safeguard
+            if (dir == null || dir == Direction.CENTER){
+                dir = nonCenterDirections[rand.nextInt(nonCenterDirections.length)];
+            }
+
             switch (this.catState) {
                 case EXPLORE:
                     if (this.catTurnsStuck >= 4) {
@@ -1230,7 +1235,10 @@ public class InternalRobot implements Comparable<InternalRobot> {
                                 this.chirality);
 
                         if (dir == null || dir == Direction.CENTER) {
-                            dir = this.location.directionTo(this.catTargetLoc);
+                            dir = this.getCatCornerByChirality().directionTo(this.catTargetLoc);
+                            if (dir == null || dir == Direction.CENTER){
+                                dir = nonCenterDirections[rand.nextInt(nonCenterDirections.length)];
+                            }
                         }
                     }
 
@@ -1360,7 +1368,10 @@ public class InternalRobot implements Comparable<InternalRobot> {
                                 dir = this.gameWorld.getBfsDir(getCatCornerByChirality(), this.catTargetLoc,
                                         this.chirality);
                                 if (dir == null || dir == Direction.CENTER) {
-                                    dir = this.location.directionTo(this.catTargetLoc);
+                                    dir = this.getCatCornerByChirality().directionTo(this.catTargetLoc);
+                                    if (dir == null || dir == Direction.CENTER){
+                                        dir = nonCenterDirections[rand.nextInt(nonCenterDirections.length)];
+                                    }
                                 }
                                 if (this.controller.canMove(this.dir)) {
                                     try {
