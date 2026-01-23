@@ -44,7 +44,7 @@ task installPythonPackage(type: Exec) {
   if (project.findProperty('forceInstallPythonPackage') ?: false) {
     commandLine 'python', '-m', 'pip', 'install', '-e', 'engine/src/crossplay_python'
   } else {
-    commandLine 'python', '-c', "import importlib.util,subprocess,sys; pkg='battlecode26'; importlib.util.find_spec(pkg) or subprocess.check_call([sys.executable,'-m','pip','install','-e',pkg])"
+    commandLine 'python', '-c', "import importlib.util,subprocess,sys; assert sys.version_info[0] == 3 and sys.version_info[1] == 12, 'Error: Must use Python 3.12!'; pkg='battlecode26'; importlib.util.find_spec(pkg) or subprocess.check_call([sys.executable,'-m','pip','install','-e','engine/src/crossplay_python'])"
   }
 }
 

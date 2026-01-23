@@ -510,6 +510,14 @@ public class CrossPlay {
                 return nodeFactory.nullNode();
             }
 
+            case RC_PICK_UP_CHEESE__LOC_INT: {
+                checkParams(message, 2);
+                MapLocation loc = parseLocNode(message.params().get(0));
+                int cheeseAmount = message.params().get(1).asInt();
+                this.processingRobot.pickUpCheese(loc, cheeseAmount);
+                return nodeFactory.nullNode();
+            }
+
             case RC_PLACE_CAT_TRAP: {
                 checkParams(message, 1);
                 MapLocation loc = parseLocNode(message.params().get(0));
@@ -726,6 +734,22 @@ public class CrossPlay {
                 int value = message.params().get(1).asInt();
                 this.processingRobot.writeSharedArray(index, value);
                 return nodeFactory.nullNode();
+            }
+
+            case RC_GET_BACKSTABBING_TEAM: {
+                checkParams(message, 0);
+                Team backstabTeam = this.processingRobot.getBackstabbingTeam();
+                return makeTeamNode(nodeFactory, backstabTeam);
+            }
+
+            case RC_GET_NUMBER_RAT_TRAPS: {
+                checkParams(message, 0);
+                return nodeFactory.numberNode(this.processingRobot.getNumberRatTraps());
+            }
+
+            case RC_GET_NUMBER_CAT_TRAPS: {
+                checkParams(message, 0);
+                return nodeFactory.numberNode(this.processingRobot.getNumberCatTraps());
             }
 
             case ML_BOTTOM_LEFT_DISTANCE_SQUARED_TO: {

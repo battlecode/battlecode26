@@ -20,6 +20,7 @@ export class TeamRoundStat {
     ratKingPercent: number = 0
     dirtAmount: number = 0
     globalCheeseAmount: number = 0
+    globalRawCheeseAmount: number = 0
     babyRatCount: number = 0
     ratTrapAmount: number = 0
     catTrapAmount: number = 0
@@ -132,7 +133,10 @@ export default class RoundStat {
             // Count number of alive robots
             if (body.dead) continue
 
-            if (body.robotType == schema.RobotType.RAT) teamStat.babyRatCount++
+            if (body.robotType == schema.RobotType.RAT) {
+                teamStat.babyRatCount++
+                teamStat.globalRawCheeseAmount += body.cheese
+            }
         }
 
         const timems = Date.now() - time

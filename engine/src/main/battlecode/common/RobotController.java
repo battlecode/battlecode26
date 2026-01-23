@@ -53,6 +53,33 @@ public interface RobotController {
      */
     boolean isCooperation();
 
+    /**
+     * Returns the backstabbing team, or null if still in cooperation mode. 
+     *
+     * @return the team that performed the backstab, or null if still in cooperation mode.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    Team getBackstabbingTeam();
+
+    /**
+     * Returns the number of active cat traps for the team.
+     *
+     * @return the number of active cat traps this team has.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getNumberCatTraps();
+
+    /**
+     * Returns the number of active rat traps for the team.
+     *
+     * @return the number of active rat traps this team has.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getNumberRatTraps();
+
     // *********************************
     // ****** UNIT QUERY METHODS *******
     // *********************************
@@ -433,15 +460,16 @@ public interface RobotController {
     MapLocation adjacentLocation(Direction dir);
 
     /**
-     * Returns a list of all locations within the given vision cone of a location.
+     * Returns a list of all locations within a distance of a custom center location. 
+     * This will only return locations that are sense-able in the calling robot's vision cone.
      * If radiusSquared is larger than the robot's vision radius, uses the robot's
-     * vision radius instead.
+     * vision radius instead. 
      *
-     * Checks that radiusSquared is non-negative.
+     * Checks that radiusSquared is non-negative. 
      *
-     * @param center        the given location
-     * @param radiusSquared return locations within this distance away from center
-     * @return list of locations on the map and within radiusSquared of center
+     * @param center  the given location
+     * @param radiusSquared square root of the distance distance away from center location
+     * @return list of locations on the map and within radiusSquared squared distance of center
      * @throws GameActionException if the radius is negative (and not -1)
      *
      * @battlecode.doc.costlymethod
@@ -790,6 +818,18 @@ public interface RobotController {
      * @battlecode.doc.costlymethod
      */
     void pickUpCheese(MapLocation loc) throws GameActionException;
+
+    /**
+     * Picks up the (non-negative) specified amount of cheese
+     * from the given location.
+     * 
+     * @param loc the location to pick up cheese from
+     * @param pickUpAmount the amount of cheese to pick up
+     * @throws GameActionException
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    void pickUpCheese(MapLocation loc, int pickUpAmount) throws GameActionException;
 
     // ****************************
     // ***** ATTACK / HEAL ********

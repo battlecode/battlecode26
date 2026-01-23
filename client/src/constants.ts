@@ -25,9 +25,47 @@ export const ENGINE_BUILTIN_MAP_NAMES: string[] = [
     // Default
     'DefaultSmall',
     'DefaultMedium',
-    'DefaultLarge'
+    'DefaultLarge',
     // Sprint 1
+    'sittingducks',
+    'starvation',
+    'thunderdome',
+    'popthecork',
+    'cheesefarm',
+    'rift',
+    'ZeroDay',
+    'pipes',
+    'Nofreecheese',
+    'wallsofparadis',
+    'dirtpassageway',
+    'trapped',
+    'arrows',
+    'Meow',
+    'dirtfulcat',
+    'keepout',
     // Sprint 2
+    '5t4rv4t10n_1337',
+    'cheesebottles',
+    'hatefullattice',
+    'knifefight',
+    'mercifullattice',
+    'peaceinourtime',
+    'jail',
+    'safelycontained',
+    'minimaze',
+    'averyfineline',
+    'averystrangespace',
+    'canyoudig',
+    'streetsofnewyork',
+    'TheHeist',
+    'closeup',
+    'corridorofdoomanddespair',
+    'EscapeTheNight',
+    'tiny',
+    'toomuchcheese',
+    'uneruesansfin',
+    'whatsthecatdoin',
+    'whereisthecheese'
     // HS
     // Quals
 ]

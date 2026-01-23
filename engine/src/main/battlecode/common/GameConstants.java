@@ -61,8 +61,25 @@ public class GameConstants {
     /** The amount of cheese each team starts with. */
     public static final int INITIAL_TEAM_CHEESE = 2500;
 
+    /** The number of rounds after a backstab after which cat traps are disabled. */
+    public static final int CAT_TRAP_ROUNDS_AFTER_BACKSTAB = 100;
+
     /** The maximum number of rat kings that a team can have. */
     public static final int MAX_NUMBER_OF_RAT_KINGS = 5;
+
+    /**
+     * The maximum number of rat kings that a team can have after the cutoff round.
+     * Rat kings created before the cutoff round are never destroyed,
+     * even if the team exceeds the new maximum.
+     */
+    public static final int MAX_NUMBER_OF_RAT_KINGS_AFTER_CUTOFF = 2;
+
+    /**
+     * The round after which the maximum number of rat kings is reduced.
+     * Rat kings created before this round are never destroyed,
+     * even if the team exceeds the new maximum.
+     */
+    public static final int RAT_KING_CUTOFF_ROUND = 1200;
 
     /**
      * The maximum execution time that can be spent on a team in one match. If the
@@ -109,11 +126,19 @@ public class GameConstants {
     /** The maximum distance for transferring cheese to an allied rat king */
     public static final int CHEESE_TRANSFER_RADIUS_SQUARED = 9;
 
-    /** The maximum distance for picking up cheese on the map */
+    /**
+     * The maximum distance for picking up cheese on the map.
+     * This also applies to rat kings, so rat kings can only pick up cheese
+     * which is under one of their tiles.
+     */
     public static final int CHEESE_PICK_UP_RADIUS_SQUARED = 2;
 
-    /** The maximum distance from a rat king for building robots */
-    public static final int BUILD_ROBOT_RADIUS_SQUARED = 4;
+    /**
+     * The maximum distance from a rat king for building robots
+     * from the king's center. Effectively only adjacent squares,
+     * since the rat king is 3x3.
+     */
+    public static final int BUILD_ROBOT_RADIUS_SQUARED = 8;
 
     /** The base cheese cost for spawning a rat */
     public static final int BUILD_ROBOT_BASE_COST = 10;
@@ -132,6 +157,19 @@ public class GameConstants {
 
     /** The maximum distance from a robot for building traps or dirt */
     public static final int BUILD_DISTANCE_SQUARED = 2;
+
+    /** The maximum distance from a cat for building traps or dirt, measured from cat center*/
+    public static final float CAT_BUILD_DISTANCE_SQUARED = 4.5f;
+
+    /**
+     * The maximum distance squared a rat king can build traps or dirt,
+     * measured from the king's center. All rats (including rat kings)
+     * can only build on adjacent squares, and the rat king is 3x3, so this is 8.
+     */
+    public static final int RAT_KING_BUILD_DISTANCE_SQUARED = 8;
+
+    /** The maximum distance squared a robot can attack */
+    public static final int ATTACK_DISTANCE_SQUARED = 2;
 
     /**
      * The maximum distance squared a rat king can attack, measured from the king's center.
@@ -167,7 +205,7 @@ public class GameConstants {
     public static final int CAT_SCRATCH_DAMAGE = 20;
 
     /** The distance squared a cat can pounce to */
-    public static final int CAT_POUNCE_MAX_DISTANCE_SQUARED = 9;
+    public static final int CAT_POUNCE_MAX_DISTANCE_SQUARED = 13;
 
     public static final int CAT_DIG_ADDITIONAL_COOLDOWN = 5;
 
@@ -181,10 +219,10 @@ public class GameConstants {
     public static final int RAT_KING_UPGRADE_CHEESE_COST = 50;
 
     /** The cheese cost to dig up a tile of dirt */
-    public static final int DIG_DIRT_CHEESE_COST = 10;
+    public static final int DIG_DIRT_CHEESE_COST = 5;
 
     /** The cheese cost to place a tile of dirt */
-    public static final int PLACE_DIRT_CHEESE_COST = 10;
+    public static final int PLACE_DIRT_CHEESE_COST = 0;
 
 
     // *********************************
@@ -240,6 +278,13 @@ public class GameConstants {
 
     /** The maximum number of turns of robots a rat can carry another rat */
     public static final int MAX_CARRY_DURATION = 10;
+
+    /**
+     * The minimum number of turns after a robot hits the ground or is dropped before it
+     * can be grabbed again by its most recent grabber. Turns are counted so that the
+     * turn on which it is thrown or dropped is turn 0.
+     */
+    public static final int SAME_ROBOT_CARRY_COOLDOWN_TURNS = 2;
 
     /**
      * The total number turns a rat can travel for while thrown (rats are stunned while thrown)
