@@ -556,8 +556,7 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public boolean canSenseRobot(int id) {
         InternalRobot sensedRobot = getRobotByID(id);
-        Boolean isFlying = sensedRobot.isBeingThrown();
-        return sensedRobot != null && isFlying && canSenseLocation(sensedRobot.getLocation());
+        return sensedRobot != null && !sensedRobot.isBeingThrown() && canSenseLocation(sensedRobot.getLocation());
     }
 
     @Override
