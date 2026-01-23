@@ -736,6 +736,22 @@ public class CrossPlay {
                 return nodeFactory.nullNode();
             }
 
+            case RC_GET_BACKSTABBING_TEAM: {
+                checkParams(message, 0);
+                Team backstabTeam = this.processingRobot.getBackstabbingTeam();
+                return makeTeamNode(nodeFactory, backstabTeam);
+            }
+
+            case RC_GET_NUMBER_RAT_TRAPS: {
+                checkParams(message, 0);
+                return nodeFactory.numberNode(this.processingRobot.getNumberRatTraps());
+            }
+
+            case RC_GET_NUMBER_CAT_TRAPS: {
+                checkParams(message, 0);
+                return nodeFactory.numberNode(this.processingRobot.getNumberCatTraps());
+            }
+
             case ML_BOTTOM_LEFT_DISTANCE_SQUARED_TO: {
                 checkParams(message, 2);
                 MapLocation loc1 = parseLocNode(message.params().get(0));

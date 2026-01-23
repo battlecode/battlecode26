@@ -176,6 +176,7 @@ public class CrossPlayHelpers {
         mapNode.put("type", MAP_INFO.ordinal());
         mapNode.set("loc", makeLocNode(nodeFactory, mapInfo.getMapLocation()));
         mapNode.put("pass", mapInfo.isPassable());
+        mapNode.set("fly", makeRobotInfoNode(nodeFactory, mapInfo.flyingRobot()));
         mapNode.put("wall", mapInfo.isWall());
         mapNode.put("dirt", mapInfo.isDirt());
         mapNode.set("trap", makeTrapTypeNode(nodeFactory, mapInfo.getTrap()));
@@ -191,12 +192,13 @@ public class CrossPlayHelpers {
 
         MapLocation loc = parseLocNode(node.get("loc"));
         boolean passable = node.get("pass").asBoolean();
+        RobotInfo flyingRobot = parseRobotInfoNode(node.get("fly"));
         boolean wall = node.get("wall").asBoolean();
         boolean dirt = node.get("dirt").asBoolean();
         TrapType trap = trapTypes[node.get("trap").asInt()];
         boolean hasCheeseMine = node.get("cm").asBoolean();
         int cheeseAmount = node.get("ch").asInt();
-        return new MapInfo(loc, passable, wall, dirt, cheeseAmount, trap, hasCheeseMine);
+        return new MapInfo(loc, passable, flyingRobot, wall, dirt, cheeseAmount, trap, hasCheeseMine);
     }
 
     public static JsonNode makeMessageNode(JsonNodeFactory nodeFactory, Message message) {

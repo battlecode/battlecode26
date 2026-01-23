@@ -149,7 +149,11 @@ class RobotController:
     @staticmethod
     def get_all_part_locations() -> list[MapLocation]:
         return _wait(_m.RC_GET_ALL_PART_LOCATIONS)
-    
+
+    @staticmethod
+    def get_backstabbing_team() -> Team:
+        return _wait(_m.RC_GET_BACKSTABBING_TEAM)
+
     @staticmethod
     def get_carrying() -> RobotInfo:
         return _wait(_m.RC_GET_CARRYING)
@@ -185,7 +189,15 @@ class RobotController:
     @staticmethod
     def get_movement_cooldown_turns() -> int:
         return _wait(_m.RC_GET_MOVEMENT_COOLDOWN_TURNS)
-    
+
+    @staticmethod
+    def get_number_rat_traps() -> int:
+        return _wait(_m.RC_GET_NUMBER_RAT_TRAPS)
+
+    @staticmethod
+    def get_number_cat_traps() -> int:
+        return _wait(_m.RC_GET_NUMBER_CAT_TRAPS)
+
     @staticmethod
     def get_raw_cheese() -> int:
         return _wait(_m.RC_GET_RAW_CHEESE)

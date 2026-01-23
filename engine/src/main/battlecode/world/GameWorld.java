@@ -35,6 +35,7 @@ public class GameWorld {
 
     private int[] cheeseAmounts;
     private InternalRobot[][] robots;
+    private InternalRobot[][] flyingRobots;
     private Trap[][] trapLocations;
     private ArrayList<Trap>[] trapTriggers;
     private HashMap<TrapType, int[]> trapCounts; // maps trap type to counts for each team
@@ -143,6 +144,7 @@ public class GameWorld {
         this.trapLocations = new Trap[2][numSquares]; // We guarantee that no maps will contain traps at t = 0
         this.robots = new InternalRobot[width][height]; // if represented in cartesian, should be height-width, but this
                                                         // should allow us to index x-y
+        this.flyingRobots = new InternalRobot[width][height];
         this.hasRunCheeseMinesThisRound = false;
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
@@ -403,6 +405,10 @@ public class GameWorld {
         return this.isCooperation;
     }
 
+    public Team getBackStabbingTeam(){
+        return this.backstabber;
+    }
+
     public int getRoundsSinceBackstab() {
         if (this.isCooperation) {
             return 0;
@@ -417,9 +423,11 @@ public class GameWorld {
     }
 
     public void backstab(Team backstabber) {
-        this.isCooperation = false;
-        this.backstabRound = this.currentRound;
-        this.backstabber = backstabber;
+        if (this.isCooperation){
+            this.isCooperation = false;
+            this.backstabRound = this.currentRound;
+            this.backstabber = backstabber;
+        }
     }
 
     public boolean getWall(MapLocation loc) {
@@ -469,7 +477,8 @@ public class GameWorld {
 
     public boolean isPassable(MapLocation loc) {
         return !(this.walls[locationToIndex(loc)]
-                || this.dirt[locationToIndex(loc)]);
+                || this.dirt[locationToIndex(loc)]
+                || (this.getFlyingRobot(loc) != null));
     }
 
     /**
@@ -623,7 +632,7 @@ public class GameWorld {
 
         robot.setMovementCooldownTurns(type.stunTime);
 
-        if (type == TrapType.CAT_TRAP && robot.getType().isCatType()) {
+        if (type == TrapType.CAT_TRAP && robot.getType().isCatType() && robot.getHealth() > 0) {
             this.teamInfo.addDamageToCats(trap.getTeam(), Math.min(type.damage, robot.getHealth()));
         }
 
@@ -649,6 +658,10 @@ public class GameWorld {
         return this.robots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y];
     }
 
+    public InternalRobot getFlyingRobot(MapLocation loc) {
+        return this.flyingRobots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y];
+    }
+
     public void moveRobot(MapLocation start, MapLocation end) {
         addRobot(end, getRobot(start));
         removeRobot(start);
@@ -658,8 +671,16 @@ public class GameWorld {
         this.robots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y] = robot;
     }
 
+    public void addFlyingRobot(MapLocation loc, InternalRobot robot) {
+        this.flyingRobots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y] = robot;
+    }
+
     public void removeRobot(MapLocation loc) {
         this.robots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y] = null;
+    }
+
+    public void removeFlyingRobot(MapLocation loc) {
+        this.flyingRobots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y] = null;
     }
 
     public InternalRobot[] getAllRobotsWithinRadiusSquared(MapLocation center, int radiusSquared, int chirality) {
@@ -1118,6 +1139,7 @@ public class GameWorld {
 
             for (MapLocation robotLoc : robot.getAllPartLocations()) {
                 removeRobot(robotLoc);
+                removeFlyingRobot(robotLoc);
             }
 
             if (robot.isCarryingRobot()) {

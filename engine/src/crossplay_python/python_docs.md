@@ -1,5 +1,5 @@
 # Battlecode 2026 Python Documentation
-v1.2.1
+v1.2.2
 
 ## Getting Started
 
@@ -159,6 +159,9 @@ class RobotController:
     def get_all_part_locations() -> list[MapLocation]:
         pass
 
+    def get_backstabbing_team() -> Team:
+        pass
+
     def get_carrying() -> RobotInfo:
         pass
 
@@ -184,6 +187,12 @@ class RobotController:
         pass
 
     def get_movement_cooldown_turns() -> int:
+        pass
+
+    def get_number_rat_traps() -> int:
+        pass
+
+    def get_number_cat_traps() -> int:
         pass
 
     def get_raw_cheese() -> int:
@@ -488,6 +497,7 @@ class MapInfo:
     Fields:
     - location: MapLocation
     - is_passable: bool
+    - flying_robot: RobotInfo
     - is_wall: bool
     - is_dirt: bool
     - cheese_amount: int

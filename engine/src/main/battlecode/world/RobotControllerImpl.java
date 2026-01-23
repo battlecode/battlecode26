@@ -76,7 +76,8 @@ public final class RobotControllerImpl implements RobotController {
         GameWorld gw = this.gameWorld;
         Trap trap = gw.getTrap(loc, team);
         TrapType trapType = (trap != null) ? trap.getType() : TrapType.NONE;
-        MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc), gw.getDirt(loc),
+        RobotInfo flyingRobot = gw.getFlyingRobot(loc)!=null ? gw.getFlyingRobot(loc).getRobotInfo() : null;
+        MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), flyingRobot, gw.getWall(loc), gw.getDirt(loc),
                 gw.getCheeseAmount(loc), trapType,
                 gw.hasCheeseMine(loc));
         return currentLocInfo;
@@ -104,6 +105,11 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public boolean isCooperation() {
         return this.gameWorld.isCooperation();
+    }
+
+    @Override
+    public Team getBackstabbingTeam() {
+        return this.gameWorld.getBackStabbingTeam();
     }
 
     // *********************************
@@ -158,6 +164,16 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public int getDirt() {
         return this.gameWorld.getTeamInfo().getDirt(getTeam());
+    }
+
+    @Override 
+    public int getNumberCatTraps(){
+        return this.gameWorld.getTrapCount(TrapType.CAT_TRAP, this.getTeam());
+    }
+
+    @Override 
+    public int getNumberRatTraps(){
+        return this.gameWorld.getTrapCount(TrapType.RAT_TRAP, this.getTeam());
     }
 
     @Override
@@ -454,6 +470,10 @@ public final class RobotControllerImpl implements RobotController {
         if (myType != UnitType.BABY_RAT && myType != UnitType.RAT_KING) {
             throw new GameActionException(CANT_DO_THAT, "Only rats can pick up cheese");
         }
+
+        if (this.robot.isBeingThrown()){
+            throw new GameActionException(CANT_DO_THAT, "Flying rats cannot pick up cheese");
+        }
     }
 
     @Override
@@ -536,7 +556,8 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public boolean canSenseRobot(int id) {
         InternalRobot sensedRobot = getRobotByID(id);
-        return sensedRobot != null && canSenseLocation(sensedRobot.getLocation());
+        Boolean isFlying = sensedRobot.isBeingThrown();
+        return sensedRobot != null && isFlying && canSenseLocation(sensedRobot.getLocation());
     }
 
     @Override

@@ -724,8 +724,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
         this.setInternalLocationOnly(this.getLocation());
 
-        this.travelFlying(true);
         this.travelFlying(false);
+        this.travelFlying(true);
     }
 
     public void getDropped(MapLocation loc) {
@@ -761,6 +761,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
         this.gameWorld.getMatchMaker().addDamageAction(this.ID, damage);
         this.gameWorld.getMatchMaker().addRatNapAction(this.getID());
+        this.gameWorld.removeFlyingRobot(this.location);
 
         if (this.health > 0) {
             this.gameWorld.addRobot(this.location, this);
@@ -785,10 +786,16 @@ public class InternalRobot implements Comparable<InternalRobot> {
             InternalRobot robot = this.gameWorld.getRobot(this.getLocation().add(this.thrownDir));
             robot.addHealth(-damage);
         }
+        else if (this.gameWorld.getFlyingRobot(this.getLocation().add(this.thrownDir)) != null){
+            InternalRobot robot = this.gameWorld.getFlyingRobot(this.getLocation().add(this.thrownDir));
+            robot.remainingThrowDuration = 1; // force other robot to drop to ground as well on next turn
+        }
         this.thrownDir = null;
         this.remainingThrowDuration = 0;
 
         this.addHealth(-damage);
+        
+        this.gameWorld.removeFlyingRobot(this.location);
         if (this.health > 0) {
             this.gameWorld.addRobot(this.location, this);
             this.controller.processTrapsAtLocation(this.location);
@@ -818,6 +825,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         } else if (this.gameWorld.getRobot(newLoc) != null
                 && this.gameWorld.getRobot(newLoc).getType() == UnitType.CAT) {
             // cat feeding!
+            this.gameWorld.removeFlyingRobot(this.location);
             this.addHealth(-this.getHealth()); // rat dies :(
             // put cat to sleep
             this.gameWorld.getRobot(newLoc).sleepTimeRemaining = GameConstants.CAT_SLEEP_TIME;
@@ -825,6 +833,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
         } else if (this.gameWorld.getRobot(newLoc) != null || !this.gameWorld.isPassable(newLoc)) {
             this.hitTarget(isSecondMove);
             return;
+        } else{
+            this.gameWorld.removeFlyingRobot(this.location);
+            this.gameWorld.addFlyingRobot(newLoc, this);
         }
 
         this.setInternalLocationOnly(newLoc);
@@ -1182,14 +1193,15 @@ public class InternalRobot implements Comparable<InternalRobot> {
             this.gameWorld.getMatchMaker().addCatFeedAction(this.getID());
             this.sleepTimeRemaining -= 1;
         } else if (this.type == UnitType.CAT) {
+            Direction[] nonCenterDirections = {Direction.WEST, Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST, Direction.EAST, Direction.SOUTHEAST, Direction.SOUTH, Direction.SOUTHWEST};
 
             switch (this.catState) {
                 case EXPLORE:
                     if (this.catTurnsStuck >= 4) {
                         // cat has been unable to move or dig or attack for 4+ turns
                         // start turning and then trying to dig or attack again
-                        Direction[] directions = Direction.values();
-                        Direction random = directions[rand.nextInt(directions.length)];
+                                            
+                        Direction random = nonCenterDirections[rand.nextInt(nonCenterDirections.length)];
 
                         if (this.controller.canTurn()) {
                             try {
@@ -1291,7 +1303,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                     clearAllMessages();
                     RobotInfo[] nearbyRobots = this.controller.senseNearbyRobots();
 
-                    if (squeak != null) {
+                    if (squeak != null && this.getLocation().directionTo(squeak.getSource()) != Direction.CENTER) {
                         // get distracted and turn towards squeak
                         this.dir = this.getLocation().directionTo(squeak.getSource());
                     }
