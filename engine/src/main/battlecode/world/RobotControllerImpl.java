@@ -513,6 +513,10 @@ public final class RobotControllerImpl implements RobotController {
         this.gameWorld.addCheese(loc, -pickUpAmount);
         this.robot.addCheese(pickUpAmount);
         this.gameWorld.getMatchMaker().addCheesePickUpAction(loc);
+        
+        if (this.gameWorld.getCheeseAmount(loc) > 0)
+            this.gameWorld.getMatchMaker().addCheeseSpawnAction(loc, this.gameWorld.getCheeseAmount(loc));
+        
         this.gameWorld.getTeamInfo().addCheeseCollected(getTeam(), pickUpAmount);
 
         if (getType() == UnitType.RAT_KING) {
