@@ -69,9 +69,25 @@ public class MapBuilder {
     //     return loc.x + loc.y * width;
     // }
 
-    // public void setWall(int x, int y, boolean value) {
-    //     this.wallArray[locationToIndex(x, y)] = value;
-    // }
+    public void setWall(int x, int y, boolean value) {
+        this.wallArray[locationToIndex(x, y)] = value;
+    }
+
+    public void setDirt(int x, int y, boolean value) {
+        this.dirtArray[locationToIndex(x, y)] = value;
+    }
+
+    public void setCheeseMine(int x, int y, boolean value) {
+        this.cheeseMineArray[locationToIndex(x, y)] = value;
+    }
+
+    public void setCheese(int x, int y, int value) {
+        this.cheeseArray[locationToIndex(x, y)] = value;
+    }
+
+    public void addBody(RobotInfo body) {
+        this.bodies.add(body);
+    }
 
     // public void setCloud(int x, int y, boolean value) {
     //     this.cloudArray[locationToIndex(x, y)] = value;
