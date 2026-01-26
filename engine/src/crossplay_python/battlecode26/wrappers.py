@@ -149,7 +149,11 @@ class RobotController:
     @staticmethod
     def get_all_part_locations() -> list[MapLocation]:
         return _wait(_m.RC_GET_ALL_PART_LOCATIONS)
-    
+
+    @staticmethod
+    def get_backstabbing_team() -> Team:
+        return _wait(_m.RC_GET_BACKSTABBING_TEAM)
+
     @staticmethod
     def get_carrying() -> RobotInfo:
         return _wait(_m.RC_GET_CARRYING)
@@ -185,7 +189,15 @@ class RobotController:
     @staticmethod
     def get_movement_cooldown_turns() -> int:
         return _wait(_m.RC_GET_MOVEMENT_COOLDOWN_TURNS)
-    
+
+    @staticmethod
+    def get_number_rat_traps() -> int:
+        return _wait(_m.RC_GET_NUMBER_RAT_TRAPS)
+
+    @staticmethod
+    def get_number_cat_traps() -> int:
+        return _wait(_m.RC_GET_NUMBER_CAT_TRAPS)
+
     @staticmethod
     def get_raw_cheese() -> int:
         return _wait(_m.RC_GET_RAW_CHEESE)
@@ -243,8 +255,11 @@ class RobotController:
         return _wait(_m.RC_ON_THE_MAP, [loc])
     
     @staticmethod
-    def pick_up_cheese(loc: MapLocation) -> None:
-        _wait(_m.RC_PICK_UP_CHEESE, [loc])
+    def pick_up_cheese(loc: MapLocation, amount: int = ...) -> None:
+        if amount is ...:
+            _wait(_m.RC_PICK_UP_CHEESE, [loc])
+        else:
+            _wait(_m.RC_PICK_UP_CHEESE__LOC_INT, [loc, amount])
 
     @staticmethod
     def place_cat_trap(loc: MapLocation) -> None:
@@ -341,11 +356,15 @@ class RobotController:
     @staticmethod
     def set_indicator_dot(loc: MapLocation, r: int, g: int, b: int) -> None:
         _wait(_m.RC_SET_INDICATOR_DOT, [loc, r, g, b])
-    
+
     @staticmethod
     def set_indicator_string(text: str) -> None:
         _wait(_m.RC_SET_INDICATOR_STRING, [text])
-    
+
+    @staticmethod
+    def set_indicator_line(startLoc: MapLocation, endLoc: MapLocation, r: int, g: int, b: int) -> None:
+        _wait(_m.RC_SET_INDICATOR_LINE, [startLoc, endLoc, r, g, b])
+
     @staticmethod
     def set_timeline_marker(text: str, r: int, g: int, b: int) -> None:
         _wait(_m.RC_SET_TIMELINE_MARKER, [text, r, g, b])

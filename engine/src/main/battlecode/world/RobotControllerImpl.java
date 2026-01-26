@@ -76,7 +76,8 @@ public final class RobotControllerImpl implements RobotController {
         GameWorld gw = this.gameWorld;
         Trap trap = gw.getTrap(loc, team);
         TrapType trapType = (trap != null) ? trap.getType() : TrapType.NONE;
-        MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc), gw.getDirt(loc),
+        RobotInfo flyingRobot = gw.getFlyingRobot(loc)!=null ? gw.getFlyingRobot(loc).getRobotInfo() : null;
+        MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), flyingRobot, gw.getWall(loc), gw.getDirt(loc),
                 gw.getCheeseAmount(loc), trapType,
                 gw.hasCheeseMine(loc));
         return currentLocInfo;
@@ -103,7 +104,12 @@ public final class RobotControllerImpl implements RobotController {
 
     @Override
     public boolean isCooperation() {
-        return this.gameWorld.isCooperation;
+        return this.gameWorld.isCooperation();
+    }
+
+    @Override
+    public Team getBackstabbingTeam() {
+        return this.gameWorld.getBackStabbingTeam();
     }
 
     // *********************************
@@ -158,6 +164,16 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public int getDirt() {
         return this.gameWorld.getTeamInfo().getDirt(getTeam());
+    }
+
+    @Override 
+    public int getNumberCatTraps(){
+        return this.gameWorld.getTrapCount(TrapType.CAT_TRAP, this.getTeam());
+    }
+
+    @Override 
+    public int getNumberRatTraps(){
+        return this.gameWorld.getTrapCount(TrapType.RAT_TRAP, this.getTeam());
     }
 
     @Override
@@ -329,8 +345,8 @@ public final class RobotControllerImpl implements RobotController {
                 ? GameConstants.RAT_KING_BUILD_DISTANCE_SQUARED
                 : GameConstants.BUILD_DISTANCE_SQUARED);
 
-        if (trapType == TrapType.CAT_TRAP && !this.gameWorld.isCooperation)
-            throw new GameActionException(CANT_DO_THAT, "Can't place new cat traps in backstabbing mode!");
+        if (trapType == TrapType.CAT_TRAP && !this.gameWorld.catTrapsAllowed(this.getTeam()))
+            throw new GameActionException(CANT_DO_THAT, "Can't place new cat traps in backstabbing mode unless you were backstabbed and within " + GameConstants.CAT_TRAP_ROUNDS_AFTER_BACKSTAB + " rounds!");
         if (!this.gameWorld.isPassable(loc))
             throw new GameActionException(CANT_DO_THAT, "Can't place trap on a wall or dirt!");
         if (this.gameWorld.getRobot(loc) != null)
@@ -454,6 +470,10 @@ public final class RobotControllerImpl implements RobotController {
         if (myType != UnitType.BABY_RAT && myType != UnitType.RAT_KING) {
             throw new GameActionException(CANT_DO_THAT, "Only rats can pick up cheese");
         }
+
+        if (this.robot.isBeingThrown()){
+            throw new GameActionException(CANT_DO_THAT, "Flying rats cannot pick up cheese");
+        }
     }
 
     @Override
@@ -473,7 +493,36 @@ public final class RobotControllerImpl implements RobotController {
         this.gameWorld.addCheese(loc, -amountCheeseAvail);
         this.robot.addCheese(amountCheeseAvail);
         this.gameWorld.getMatchMaker().addCheesePickUpAction(loc);
-        this.gameWorld.getTeamInfo().addCheeseCollected(this.getTeam(), amountCheeseAvail);
+        this.gameWorld.getTeamInfo().addCheeseCollected(getTeam(), amountCheeseAvail);
+
+        if (getType() == UnitType.RAT_KING) {
+            this.gameWorld.getMatchMaker().addCheeseTransferAction(robot.getID(), amountCheeseAvail);
+            this.gameWorld.getTeamInfo().addCheeseTransferred(getTeam(), amountCheeseAvail);
+        }
+    }
+
+    @Override
+    public void pickUpCheese(MapLocation loc, int pickUpAmount) throws GameActionException {
+        assertCanPickUpCheese(loc);
+        int amountCheeseAvail = this.gameWorld.getCheeseAmount(loc);
+
+        // bound pickup amount above by the amount of cheese available and below by 0
+        // (can't pick up negative amounts of cheese)
+        pickUpAmount = Math.max(Math.min(pickUpAmount, amountCheeseAvail), 0);
+
+        this.gameWorld.addCheese(loc, -pickUpAmount);
+        this.robot.addCheese(pickUpAmount);
+        this.gameWorld.getMatchMaker().addCheesePickUpAction(loc);
+        
+        if (this.gameWorld.getCheeseAmount(loc) > 0)
+            this.gameWorld.getMatchMaker().addCheeseSpawnAction(loc, this.gameWorld.getCheeseAmount(loc));
+        
+        this.gameWorld.getTeamInfo().addCheeseCollected(getTeam(), pickUpAmount);
+
+        if (getType() == UnitType.RAT_KING) {
+            this.gameWorld.getMatchMaker().addCheeseTransferAction(robot.getID(), pickUpAmount);
+            this.gameWorld.getTeamInfo().addCheeseTransferred(getTeam(), pickUpAmount);
+        }
     }
 
     @Override
@@ -511,7 +560,7 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public boolean canSenseRobot(int id) {
         InternalRobot sensedRobot = getRobotByID(id);
-        return sensedRobot != null && canSenseLocation(sensedRobot.getLocation());
+        return sensedRobot != null && !sensedRobot.isBeingThrown() && canSenseLocation(sensedRobot.getLocation());
     }
 
     @Override
@@ -1178,11 +1227,14 @@ public final class RobotControllerImpl implements RobotController {
     public void becomeRatKing() throws GameActionException {
         assertCanBecomeRatKing();
         int health = 0;
+
         for (Direction d : Direction.allDirections()) {
             InternalRobot currentRobot = this.gameWorld.getRobot(this.adjacentLocation(d));
+
             if (currentRobot != null && robot.getTeam() == currentRobot.getTeam()) {
                 health += currentRobot.getHealth();
             }
+
             if (currentRobot != null && d != Direction.CENTER) {
                 // all their raw cheese is taken
                 this.gameWorld.getTeamInfo().addCheese(this.getTeam(), currentRobot.getCheese());

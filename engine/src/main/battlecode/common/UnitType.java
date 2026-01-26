@@ -3,7 +3,7 @@ package battlecode.common;
 public enum UnitType {
     // health, size, visionConeRadiusSquared, visionConeAngle, actionCooldown, movementCooldown, bytecodeLimit
     BABY_RAT(100, 1, 20, 90, 10, 10, 17500),
-    RAT_KING(500, 3, 25, 360, 10, 40, 20000),
+    RAT_KING(600, 3, 25, 360, 10, 40, 20000),
     CAT(4000, 2, 17, 180, 30, 20, 17500);
 
     // amount of health robot initially starts with

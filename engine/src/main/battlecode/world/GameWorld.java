@@ -23,7 +23,9 @@ public class GameWorld {
      * Whether we're running.
      */
     protected boolean running = true;
-    protected boolean isCooperation = true;
+    private boolean isCooperation = true;
+    private int backstabRound = -1;
+    private Team backstabber = null;
 
     protected final IDGenerator idGenerator;
     protected final GameStats gameStats;
@@ -33,6 +35,7 @@ public class GameWorld {
 
     private int[] cheeseAmounts;
     private InternalRobot[][] robots;
+    private InternalRobot[][] flyingRobots;
     private Trap[][] trapLocations;
     private ArrayList<Trap>[] trapTriggers;
     private HashMap<TrapType, int[]> trapCounts; // maps trap type to counts for each team
@@ -141,6 +144,7 @@ public class GameWorld {
         this.trapLocations = new Trap[2][numSquares]; // We guarantee that no maps will contain traps at t = 0
         this.robots = new InternalRobot[width][height]; // if represented in cartesian, should be height-width, but this
                                                         // should allow us to index x-y
+        this.flyingRobots = new InternalRobot[width][height];
         this.hasRunCheeseMinesThisRound = false;
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
@@ -401,6 +405,31 @@ public class GameWorld {
         return this.isCooperation;
     }
 
+    public Team getBackStabbingTeam(){
+        return this.backstabber;
+    }
+
+    public int getRoundsSinceBackstab() {
+        if (this.isCooperation) {
+            return 0;
+        } else {
+            return this.currentRound - this.backstabRound;
+        }
+    }
+
+    public boolean catTrapsAllowed(Team team) {
+        return this.isCooperation || (this.getRoundsSinceBackstab() <=
+            GameConstants.CAT_TRAP_ROUNDS_AFTER_BACKSTAB && this.backstabber != team);
+    }
+
+    public void backstab(Team backstabber) {
+        if (this.isCooperation){
+            this.isCooperation = false;
+            this.backstabRound = this.currentRound;
+            this.backstabber = backstabber;
+        }
+    }
+
     public boolean getWall(MapLocation loc) {
         return this.walls[locationToIndex(loc)];
     }
@@ -448,7 +477,8 @@ public class GameWorld {
 
     public boolean isPassable(MapLocation loc) {
         return !(this.walls[locationToIndex(loc)]
-                || this.dirt[locationToIndex(loc)]);
+                || this.dirt[locationToIndex(loc)]
+                || (this.getFlyingRobot(loc) != null));
     }
 
     /**
@@ -601,13 +631,14 @@ public class GameWorld {
         TrapType type = trap.getType();
 
         robot.setMovementCooldownTurns(type.stunTime);
-        if (type == TrapType.CAT_TRAP && robot.getType().isCatType()) {
+
+        if (type == TrapType.CAT_TRAP && robot.getType().isCatType() && robot.getHealth() > 0) {
             this.teamInfo.addDamageToCats(trap.getTeam(), Math.min(type.damage, robot.getHealth()));
         }
 
         if (trap.getType() != TrapType.CAT_TRAP) {
             // initiate backstab
-            this.isCooperation = false;
+            backstab(robot.getTeam().opponent());
         }
 
         matchMaker.addTrapTriggerAction(trap.getId(), loc, triggeringTeam, type);
@@ -627,6 +658,10 @@ public class GameWorld {
         return this.robots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y];
     }
 
+    public InternalRobot getFlyingRobot(MapLocation loc) {
+        return this.flyingRobots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y];
+    }
+
     public void moveRobot(MapLocation start, MapLocation end) {
         addRobot(end, getRobot(start));
         removeRobot(start);
@@ -636,8 +671,16 @@ public class GameWorld {
         this.robots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y] = robot;
     }
 
+    public void addFlyingRobot(MapLocation loc, InternalRobot robot) {
+        this.flyingRobots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y] = robot;
+    }
+
     public void removeRobot(MapLocation loc) {
         this.robots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y] = null;
+    }
+
+    public void removeFlyingRobot(MapLocation loc) {
+        this.flyingRobots[loc.x - this.gameMap.getOrigin().x][loc.y - this.gameMap.getOrigin().y] = null;
     }
 
     public InternalRobot[] getAllRobotsWithinRadiusSquared(MapLocation center, int radiusSquared, int chirality) {
@@ -807,7 +850,7 @@ public class GameWorld {
      * @return whether all cats dead
      */
     public boolean setWinnerifAllCatsDead() {
-        if (this.getNumCats() == 0 && this.isCooperation) { // only end game if no more cats in cooperation mode
+        if (this.getNumCats() == 0 && this.isCooperation()) { // only end game if no more cats in cooperation mode
             // find out which team won via points
             if (setWinnerIfMorePoints())
                 return true;
@@ -1096,6 +1139,7 @@ public class GameWorld {
 
             for (MapLocation robotLoc : robot.getAllPartLocations()) {
                 removeRobot(robotLoc);
+                removeFlyingRobot(robotLoc);
             }
 
             if (robot.isCarryingRobot()) {
@@ -1134,7 +1178,7 @@ public class GameWorld {
         // check win
         if (robot.getType() == UnitType.RAT_KING && this.getTeamInfo().getNumRatKings(robot.getTeam()) == 0) {
             checkWin(robotTeam);
-        } else if (this.isCooperation && robot.getType() == UnitType.CAT && this.getNumCats() == 0) {
+        } else if (this.isCooperation() && robot.getType() == UnitType.CAT && this.getNumCats() == 0) {
             checkWin(robotTeam);
         }
     }

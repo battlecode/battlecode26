@@ -61,6 +61,9 @@ public class GameConstants {
     /** The amount of cheese each team starts with. */
     public static final int INITIAL_TEAM_CHEESE = 2500;
 
+    /** The number of rounds after a backstab after which cat traps are disabled. */
+    public static final int CAT_TRAP_ROUNDS_AFTER_BACKSTAB = 100;
+
     /** The maximum number of rat kings that a team can have. */
     public static final int MAX_NUMBER_OF_RAT_KINGS = 5;
 
@@ -219,7 +222,7 @@ public class GameConstants {
     public static final int DIG_DIRT_CHEESE_COST = 5;
 
     /** The cheese cost to place a tile of dirt */
-    public static final int PLACE_DIRT_CHEESE_COST = 3;
+    public static final int PLACE_DIRT_CHEESE_COST = 0;
 
 
     // *********************************

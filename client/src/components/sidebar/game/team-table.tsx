@@ -5,7 +5,7 @@ import { schema } from 'battlecode-schema'
 import { TeamRoundStat } from '../../../playback/RoundStat'
 import { DoubleChevronUpIcon } from '../../../icons/chevron'
 import { CurrentMap } from '../../../playback/Map'
-import { useRound } from '../../../playback/GameRunner'
+import { useRound, useTurnNumber } from '../../../playback/GameRunner'
 
 interface UnitsIconProps {
     teamIdx: 0 | 1
@@ -34,6 +34,8 @@ interface TeamTableProps {
 
 export const TeamTable: React.FC<TeamTableProps> = (props: TeamTableProps) => {
     const round = useRound()
+    // force react to re-render when using turn playback
+    const _turn = useTurnNumber()
     const teamStat = round?.stat?.getTeamStat(round?.match.game.teams[props.teamIdx])
     const map = round?.map
 
@@ -63,6 +65,7 @@ export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, tea
     let ratKingCount = 0
     let ratKingPercent = 0
     let globalCheese = 0
+    let rawCheese = 0
 
     if (map && teamStat) {
         cheeseAmount = teamStat.cheeseAmount
@@ -72,6 +75,7 @@ export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, tea
         ratKingCount = teamStat.ratKingCount
         ratKingPercent = teamStat.ratKingPercent
         globalCheese = teamStat.globalCheeseAmount
+        rawCheese = teamStat.globalRawCheeseAmount
     }
 
     const formatPercent = (val: number) => (val * 100).toFixed(1).toString() + '%'
@@ -133,7 +137,11 @@ export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, tea
                     </div>
                 </div>
             </div>
-            <div className="flex items-center w-full mt-2 mb-1 text-xs font-bold justify-around">Global Cheese Amount: {globalCheese}</div>
+            <div className="flex items-center w-full mt-2 mb-1 text-xs font-bold justify-around">
+                <div>Global Cheese: {globalCheese}</div>
+                <div>Raw Cheese: {rawCheese}</div>
+                </div>
+
         </div>
     )
 }

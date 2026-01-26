@@ -145,6 +145,7 @@ export const MapEditorPage: React.FC<Props> = (props) => {
 
     const applyBrush = (point: { x: number; y: number }) => {
         if (!openBrush) return
+        if (point === null) return
 
         const undoFunc = openBrush.apply(point.x, point.y, openBrush.fields, true)
         strokeUndoStack.current.push(undoFunc)

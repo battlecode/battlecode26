@@ -216,18 +216,6 @@ _trap_order = list(TrapType)
 _trap_to_index = {trap: index for index, trap in enumerate(_trap_order)}
 
 
-class MapInfo:
-    def __init__(self, location: MapLocation, is_passable: bool, is_wall: bool, is_dirt: bool,
-                 cheese_amount: int, trap: TrapType, has_cheese_mine: bool):
-        self.location = location
-        self.is_passable = is_passable
-        self.is_wall = is_wall
-        self.is_dirt = is_dirt
-        self.cheese_amount = cheese_amount
-        self.trap = trap
-        self.has_cheese_mine = has_cheese_mine
-
-
 class RobotInfo:
     def __init__(self, id: int, team: Team, unit_type: UnitType, health: int,
                  location: MapLocation, direction: Direction,
@@ -241,6 +229,19 @@ class RobotInfo:
         self.chirality = chirality
         self.cheese_amount = cheese_amount
         self.carrying_robot = carrying_robot
+
+
+class MapInfo:
+    def __init__(self, location: MapLocation, is_passable: bool, flying_robot: RobotInfo, is_wall: bool,
+                 is_dirt: bool, cheese_amount: int, trap: TrapType, has_cheese_mine: bool):
+        self.location = location
+        self.is_passable = is_passable
+        self.flying_robot = flying_robot
+        self.is_wall = is_wall
+        self.is_dirt = is_dirt
+        self.cheese_amount = cheese_amount
+        self.trap = trap
+        self.has_cheese_mine = has_cheese_mine
 
 
 class Message:

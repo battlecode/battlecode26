@@ -6,6 +6,8 @@ public class MapInfo {
 
     private boolean isPassable;
 
+    private RobotInfo flyingRobot;
+
     private boolean isWall;
 
     private boolean isDirt;
@@ -17,7 +19,7 @@ public class MapInfo {
 
     private boolean hasCheeseMine;
 
-    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, boolean isDirt, int cheeseAmount, TrapType trap, boolean hasCheeseMine) {
+    public MapInfo(MapLocation loc, boolean isPassable, RobotInfo flyingRobot, boolean isWall, boolean isDirt, int cheeseAmount, TrapType trap, boolean hasCheeseMine) {
         if (loc == null) {
             throw new IllegalArgumentException("MapLocation in MapInfo constructor cannot be null");
         } else if (trap == null) {
@@ -26,6 +28,7 @@ public class MapInfo {
 
         this.loc = loc;
         this.isPassable = isPassable;
+        this.flyingRobot = flyingRobot;
         this.isWall = isWall;
         this.isDirt = isDirt;
         this.cheeseAmount = cheeseAmount;
@@ -42,6 +45,17 @@ public class MapInfo {
      */
     public boolean isPassable() {
         return isPassable;
+    }
+
+    /**
+     * Returns info of a flying robot at this location
+     * 
+     * @return RobotInfo for the flying robot at this location (or null if no flying robot is present)
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public RobotInfo flyingRobot() {
+        return flyingRobot;
     }
 
     /**
