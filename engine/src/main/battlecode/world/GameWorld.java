@@ -507,16 +507,16 @@ public class GameWorld {
         boolean spawn = rand.nextFloat() < mine.generationProbability(currentRound);
 
         if (spawn) {
-            int dx = rand.nextInt(-GameConstants.SQ_CHEESE_SPAWN_RADIUS, GameConstants.SQ_CHEESE_SPAWN_RADIUS);
-            int dy = rand.nextInt(-GameConstants.SQ_CHEESE_SPAWN_RADIUS, GameConstants.SQ_CHEESE_SPAWN_RADIUS);
+            int dx = rand.nextInt(-GameConstants.SQ_CHEESE_SPAWN_RADIUS, GameConstants.SQ_CHEESE_SPAWN_RADIUS+1);
+            int dy = rand.nextInt(-GameConstants.SQ_CHEESE_SPAWN_RADIUS, GameConstants.SQ_CHEESE_SPAWN_RADIUS+1);
 
             MapLocation ogSpawnLoc = mine.getLocation();
             MapLocation pairedSpawnLoc = mine.getPair().getLocation();
             CheeseMine pairedMine = mine.getPair();
 
             for (int invalidSpawns = 0; invalidSpawns < 5; invalidSpawns++) {
-                int pair_dx = gameMap.getSymmetry() == MapSymmetry.VERTICAL ? dx : -dx;
-                int pair_dy = gameMap.getSymmetry() == MapSymmetry.HORIZONTAL ? dy : -dy;
+                int pair_dx = gameMap.getSymmetry() == MapSymmetry.HORIZONTAL ? dx : -dx;
+                int pair_dy = gameMap.getSymmetry() == MapSymmetry.VERTICAL ? dy : -dy;
 
                 int cheeseX = mine.getLocation().x + dx;
                 int cheeseY = mine.getLocation().y + dy;
