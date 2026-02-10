@@ -432,6 +432,9 @@ public class LiveMap {
             throw new RuntimeException("MAP HEIGHT BENEATH GameConstants.MAP_MIN_HEIGHT");
         }
 
+        // Validate map symmetry
+        assertSymmetryValid();
+
         int initialBodyCountTeamA = 0;
         int initialBodyCountTeamB = 0;
 
@@ -508,6 +511,138 @@ public class LiveMap {
                 }
             }
         }
+    }
+
+    /**
+     * Validates that the map's terrain and initial bodies match the declared symmetry.
+     * Throws on the first error found.
+     */
+    private void assertSymmetryValid() {
+        MapSymmetry sym = this.symmetry;
+        
+        // Check terrain arrays
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                MapLocation loc = new MapLocation(x, y);
+                int curIdx = locationToIndex(loc);
+                
+                int symX = symmetricX(x, sym);
+                int symY = symmetricY(y, sym);
+                MapLocation symLoc = new MapLocation(symX, symY);
+                int symIdx = locationToIndex(symLoc);
+                
+                if (wallArray[curIdx] != wallArray[symIdx]) {
+                    throw new RuntimeException("Wall mismatch for " + sym + " symmetry at (" + x + "," + y + ") vs (" + symX + "," + symY + ")");
+                }
+                if (dirtArray[curIdx] != dirtArray[symIdx]) {
+                    throw new RuntimeException("Dirt mismatch for " + sym + " symmetry at (" + x + "," + y + ") vs (" + symX + "," + symY + ")");
+                }
+                if (cheeseMineArray[curIdx] != cheeseMineArray[symIdx]) {
+                    throw new RuntimeException("Cheese mine mismatch for " + sym + " symmetry at (" + x + "," + y + ") vs (" + symX + "," + symY + ")");
+                }
+                if (cheeseArray[curIdx] != cheeseArray[symIdx]) {
+                    throw new RuntimeException("Cheese mismatch for " + sym + " symmetry at (" + x + "," + y + "): " + cheeseArray[curIdx] + " vs " + cheeseArray[symIdx]);
+                }
+            }
+        }
+        
+        // Check initial bodies (rat kings and cats)
+        Map<MapLocation, RobotInfo> robotsByLoc = new HashMap<>();
+        for (RobotInfo r : initialBodies) {
+            robotsByLoc.put(r.location, r);
+        }
+        
+        for (RobotInfo robot : initialBodies) {
+            // Account for unit size when computing symmetric location
+            int unitSize = robot.type.getSize();
+            MapLocation symLoc = new MapLocation(
+                symmetricX(robot.location.x, sym, unitSize),
+                symmetricY(robot.location.y, sym, unitSize)
+            );
+            RobotInfo symRobot = robotsByLoc.get(symLoc);
+            
+            if (symRobot == null) {
+                throw new RuntimeException("No robot at symmetric location " + symLoc + " for " + robot.type + " at " + robot.location);
+            }
+            if (robot.type != symRobot.type) {
+                throw new RuntimeException("Robot type mismatch: " + robot.type + " at " + robot.location + " vs " + symRobot.type + " at " + symLoc);
+            }
+            if (!areSymmetricTeams(robot.team, symRobot.team)) {
+                throw new RuntimeException("Robot team mismatch: " + robot.team + " at " + robot.location + " vs " + symRobot.team + " at " + symLoc);
+            }
+        }
+    }
+
+    /**
+     * Helper method to compute symmetric x coordinate for a given symmetry type.
+     * For terrain tiles (size 1).
+     */
+    private int symmetricX(int x, MapSymmetry symmetry) {
+        return symmetricX(x, symmetry, 1);
+    }
+
+    /**
+     * Helper method to compute symmetric y coordinate for a given symmetry type.
+     * For terrain tiles (size 1).
+     */
+    private int symmetricY(int y, MapSymmetry symmetry) {
+        return symmetricY(y, symmetry, 1);
+    }
+
+    /**
+     * Helper method to compute symmetric x coordinate for a given symmetry type,
+     * accounting for unit size.
+     * - Odd-sized units (RAT_KING=3): location is center, use standard formula
+     * - Even-sized units (CAT=2): location is bottom-left corner, offset by (size-1)
+     */
+    private int symmetricX(int x, MapSymmetry symmetry, int unitSize) {
+        switch (symmetry) {
+            case HORIZONTAL:
+                return x;
+            case VERTICAL:
+            case ROTATIONAL:
+                if (unitSize % 2 == 0) {
+                    // Even size: location is bottom-left corner, need offset
+                    return width - unitSize - x;
+                } else {
+                    // Odd size: location is center, standard formula
+                    return width - 1 - x;
+                }
+            default:
+                throw new IllegalArgumentException("Unknown symmetry type: " + symmetry);
+        }
+    }
+
+    /**
+     * Helper method to compute symmetric y coordinate for a given symmetry type,
+     * accounting for unit size.
+     */
+    private int symmetricY(int y, MapSymmetry symmetry, int unitSize) {
+        switch (symmetry) {
+            case VERTICAL:
+                return y;
+            case HORIZONTAL:
+            case ROTATIONAL:
+                if (unitSize % 2 == 0) {
+                    // Even size: location is bottom-left corner, need offset
+                    return height - unitSize - y;
+                } else {
+                    // Odd size: location is center, standard formula
+                    return height - 1 - y;
+                }
+            default:
+                throw new IllegalArgumentException("Unknown symmetry type: " + symmetry);
+        }
+    }
+
+    /**
+     * Helper method to check if two teams are symmetric to each other.
+     * Rat kings: A <-> B, Cats: NEUTRAL <-> NEUTRAL
+     */
+    private boolean areSymmetricTeams(Team a, Team b) {
+        if (a == Team.A) return b == Team.B;
+        if (a == Team.B) return b == Team.A;
+        return a == Team.NEUTRAL && b == Team.NEUTRAL;
     }
 
     // private boolean isTeamNumber(int team) {
