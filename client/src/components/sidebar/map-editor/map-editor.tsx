@@ -140,7 +140,7 @@ export const MapEditorPage: React.FC<Props> = (props) => {
     const openBrush = brushes.find((b) => b.open)
 
     const setOpenBrush = (brush: MapEditorBrush | null) => {
-        setBrushes(brushes.map((b) => b.opened(b === brush)))
+        setBrushes((prev) => prev.map((b) => b.opened(b === brush)))
     }
 
     const applyBrush = (point: { x: number; y: number }) => {
@@ -155,35 +155,41 @@ export const MapEditorPage: React.FC<Props> = (props) => {
 
     const changeWidth = (newWidth: number) => {
         newWidth = Math.max(MAP_SIZE_RANGE.min, Math.min(MAP_SIZE_RANGE.max, newWidth))
-        setMapParams({ ...mapParams, width: newWidth, imported: null })
+        setMapParams((prev) => ({ ...prev, width: newWidth, imported: null }))
         clearUndoStack()
     }
     const changeHeight = (newHeight: number) => {
         newHeight = Math.max(MAP_SIZE_RANGE.min, Math.min(MAP_SIZE_RANGE.max, newHeight))
-        setMapParams({ ...mapParams, height: newHeight, imported: null })
+        setMapParams((prev) => ({ ...prev, height: newHeight, imported: null }))
         clearUndoStack()
     }
     const changeSymmetry = (symmetry: string) => {
         const symmetryInt = parseInt(symmetry)
         if (symmetryInt < 0 || symmetryInt > 2) throw new Error('invalid symmetry value')
-        setMapParams({ ...mapParams, symmetry: symmetryInt, imported: null })
+        setMapParams((prev) => ({ ...prev, symmetry: symmetryInt, imported: null }))
         clearUndoStack()
     }
 
     const fileUploaded = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length == 0) return
         const file = e.target.files[0]
-        loadFileAsMap(file).then((game) => {
-            const map = game.currentMatch!.currentRound!.map
-            setMapParams({ width: map.width, height: map.height, symmetry: map.staticMap.symmetry, imported: game })
-            clearUndoStack()
-        })
+        setMapError('')
+        loadFileAsMap(file)
+            .then((game) => {
+                const map = game.currentMatch!.currentRound!.map
+                setMapParams({ width: map.width, height: map.height, symmetry: map.staticMap.symmetry, imported: game })
+                clearUndoStack()
+            })
+            .catch((err) => {
+                const msg = err instanceof Error ? err.message : String(err)
+                setMapError(msg || 'Failed to import map')
+            })
     }
 
     const clearMap = () => {
         setClearConfirmOpen(false)
         setCleared(true)
-        setMapParams({ ...mapParams, imported: null })
+        setMapParams((prev) => ({ ...prev, imported: null }))
         clearUndoStack()
     }
 
@@ -224,9 +230,11 @@ export const MapEditorPage: React.FC<Props> = (props) => {
                 editGame.current = game
             }
 
-            // A little sus but we need to reset this so the game isn't overridden
-            // multiple times
-            mapParams.imported = undefined
+            // Clear the one-shot imported game without mutating state in-place.
+            // Guard ensures this doesn't loop forever.
+            if (mapParams.imported !== undefined) {
+                setMapParams((prev) => ({ ...prev, imported: undefined }))
+            }
 
             GameRunner.setMatch(editGame.current.currentMatch)
 
@@ -254,7 +262,7 @@ export const MapEditorPage: React.FC<Props> = (props) => {
                 }}
             />
         ))
-    }, [brushes])
+    }, [brushes, openBrush])
 
     if (!props.open) return null
 

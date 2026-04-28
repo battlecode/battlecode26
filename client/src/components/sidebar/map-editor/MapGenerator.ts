@@ -12,13 +12,19 @@ import { RobotType } from 'battlecode-schema/js/battlecode/schema'
 export function loadFileAsMap(file: File): Promise<Game> {
     return new Promise((resolve, reject) => {
         const reader = new FileReader()
+        reader.onerror = () => reject(reader.error ?? new Error('Failed to read file'))
+        reader.onabort = () => reject(new Error('File read aborted'))
         reader.readAsArrayBuffer(file)
         reader.onload = () => {
-            const data = new Uint8Array(reader.result as ArrayBuffer)
-            const schemaMap = schema.GameMap.getRootAsGameMap(new flatbuffers.ByteBuffer(data))
-            const game = new Game()
-            game.currentMatch = Match.fromMap(schemaMap, game)
-            resolve(game)
+            try {
+                const data = new Uint8Array(reader.result as ArrayBuffer)
+                const schemaMap = schema.GameMap.getRootAsGameMap(new flatbuffers.ByteBuffer(data))
+                const game = new Game()
+                game.currentMatch = Match.fromMap(schemaMap, game)
+                resolve(game)
+            } catch (e) {
+                reject(e instanceof Error ? e : new Error(String(e)))
+            }
         }
     })
 }

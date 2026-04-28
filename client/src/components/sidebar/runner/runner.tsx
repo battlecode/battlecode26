@@ -508,14 +508,20 @@ export const Console: React.FC<Props> = ({ lines }) => {
 
     const goToNextMatch = () => {
         if (!matches.length) return
-        setActiveMatch((prev) => (prev + 1) % matches.length)
-        listRef.current?.scrollToItem(matches[activeMatch], 'center')
+        setActiveMatch((prev) => {
+            const next = (prev + 1) % matches.length
+            listRef.current?.scrollToItem(matches[next], 'center')
+            return next
+        })
     }
 
     const goToPrevMatch = () => {
         if (!matches.length) return
-        setActiveMatch((prev) => (prev - 1 + matches.length) % matches.length)
-        listRef.current?.scrollToItem(matches[activeMatch], 'center')
+        setActiveMatch((prev) => {
+            const next = (prev - 1 + matches.length) % matches.length
+            listRef.current?.scrollToItem(matches[next], 'center')
+            return next
+        })
     }
 
     const getLineClass = (line: ConsoleLine) => {

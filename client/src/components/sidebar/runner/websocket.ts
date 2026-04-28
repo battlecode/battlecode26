@@ -43,7 +43,15 @@ export default class WebSocketListener {
             console.log(`Connected to ${this.url}`)
         }
         ws.onmessage = (event) => {
-            this.handleEvent(<ArrayBuffer>event.data)
+            try {
+                this.handleEvent(event.data as ArrayBuffer)
+            } catch (e) {
+                console.error('Websocket event handling failed:', e)
+                this.reset()
+                try {
+                    ws.close()
+                } catch {}
+            }
         }
         ws.onerror = (event) => {
             this.reset()
@@ -77,7 +85,12 @@ export default class WebSocketListener {
         const eventType = event.eType()
 
         if (this.activeGame === null) {
-            assert(eventType === schema.Event.GameHeader, 'First event must be GameHeader')
+            if (eventType !== schema.Event.GameHeader) {
+                // Don't throw from an event handler; just ignore/reset so the UI stays responsive.
+                console.warn('First websocket event was not GameHeader; resetting stream.')
+                this.reset()
+                return
+            }
 
             const fakeGameWrapper: FakeGameWrapper = {
                 events: () => event,

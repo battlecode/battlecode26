@@ -103,7 +103,11 @@ public final class GameMapIO {
      * @throws IOException if the read fails somehow
      */
     public static LiveMap loadMap(InputStream stream, boolean teamsReversed) throws IOException {
-        return Serial.deserialize(IOUtils.toByteArray(stream), teamsReversed);
+        try {
+            return Serial.deserialize(IOUtils.toByteArray(stream), teamsReversed);
+        } finally {
+            stream.close();
+        }
     }
 
     /**
@@ -115,8 +119,9 @@ public final class GameMapIO {
      */
     public static void writeMap(LiveMap map, File mapDir) throws IOException {
         final File target = new File(mapDir, map.getMapName() + MAP_EXTENSION);
-
-        IOUtils.write(Serial.serialize(map), new FileOutputStream(target));
+        try (FileOutputStream out = new FileOutputStream(target)) {
+            IOUtils.write(Serial.serialize(map), out);
+        }
     }
 
     /**
@@ -238,7 +243,7 @@ public final class GameMapIO {
             for (int i = 0; i < wallArray.length; i++) {
                 wallArray[i] = raw.walls(i);
                 dirtArray[i] = raw.dirt(i);
-                cheeseArray[i] = raw.cheese(i); // raw.cheese(i);
+                cheeseArray[i] = Byte.toUnsignedInt(raw.cheese(i));
             }
 
             VecTable cheeseMinesTable = raw.cheeseMines();
@@ -337,7 +342,11 @@ public final class GameMapIO {
                     cheeseMineXs.add(x);
                     cheeseMineYs.add(y);
                 }
-                cheeseArrayList.add((byte)cheeseArray[i]);
+                int cheese = cheeseArray[i];
+                if (cheese < 0 || cheese > 255) {
+                    throw new IllegalArgumentException("Map cheese value out of range at index " + i + ": " + cheese);
+                }
+                cheeseArrayList.add((byte) (cheese & 0xFF));
             }
 
             int[] catWaypointTableOffsets = new int[gameMap.getNumCats()];

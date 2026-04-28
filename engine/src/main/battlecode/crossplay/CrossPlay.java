@@ -663,7 +663,7 @@ public class CrossPlay {
             }
 
             case RC_SET_INDICATOR_DOT: {
-                checkParams(message, 3);
+                checkParams(message, 4);
                 MapLocation loc = parseLocNode(message.params().get(0));
                 int r = message.params().get(1).asInt();
                 int g = message.params().get(2).asInt();

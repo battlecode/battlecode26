@@ -66,7 +66,6 @@ public class GameWorld {
     private int numCats;
 
     private int[][] sharedArray;
-    private int[][] persistentArray;
 
     public int symmetricY(int y) {
         return symmetricY(y, gameMap.getSymmetry());
@@ -955,7 +954,7 @@ public class GameWorld {
      * Sets a winner arbitrarily. Hopefully this is actually random.
      */
     public void setWinnerArbitrary() {
-        setWinner(Math.random() < 0.5 ? Team.A : Team.B, DominationFactor.WON_BY_DUBIOUS_REASONS);
+        setWinner(rand.nextBoolean() ? Team.A : Team.B, DominationFactor.WON_BY_DUBIOUS_REASONS);
     }
 
     public boolean timeLimitReached() {
@@ -1093,14 +1092,6 @@ public class GameWorld {
 
     public int readSharedArray(int index, Team team) {
         return this.sharedArray[team.ordinal()][index];
-    }
-
-    public void writePersistentArray(int index, int value, Team team) {
-        this.persistentArray[team.ordinal()][index] = value;
-    }
-
-    public int readPersistentArray(int index, Team team) {
-        return this.persistentArray[team.ordinal()][index];
     }
 
     // *********************************

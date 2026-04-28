@@ -24,11 +24,11 @@ export const TournamentGameElement: React.FC<Props> = ({ lines, game }) => {
         if (loadingGame || !playable) return
 
         setLoadingGame(true)
-        fetch(game.gameFile).then((response) => {
-            response.arrayBuffer().then((buffer) => {
+        fetch(game.gameFile)
+            .then((response) => response.arrayBuffer())
+            .then((buffer) => {
                 if (buffer.byteLength === 0) {
                     alert('Error: Game file is empty.')
-                    setLoadingGame(false)
                     return
                 }
                 const loadedGame = Game.loadFullGameRaw(buffer)
@@ -41,9 +41,12 @@ export const TournamentGameElement: React.FC<Props> = ({ lines, game }) => {
                 }))
                 game.viewed = true
                 setPage(PageType.GAME)
-                setLoadingGame(false)
             })
-        })
+            .catch((e) => {
+                console.error('Failed to load tournament game:', e)
+                alert('Failed to load game. Check the console for details.')
+            })
+            .finally(() => setLoadingGame(false))
     }
 
     return (
@@ -75,12 +78,13 @@ export const TournamentGameElement: React.FC<Props> = ({ lines, game }) => {
 const GameTeam: React.FC<{ game: TournamentGame; teamIdx: number }> = ({ game, teamIdx }) => {
     const dependsOn = game.dependsOn[teamIdx]
     const otherDependsOn = game.dependsOn[1 - teamIdx]
-    if (dependsOn && dependsOn.teams[dependsOn.winnerIndex] !== game.teams[teamIdx])
-        throw new Error(
-            `dependsOn winner does not match game teams at game ${game.id}, ${
-                dependsOn.teams[dependsOn.winnerIndex]
-            } !== ${game.teams[teamIdx]}`
+    if (dependsOn && dependsOn.teams[dependsOn.winnerIndex] !== game.teams[teamIdx]) {
+        // Don't crash the entire UI for a bracket-data mismatch.
+        console.warn(
+            `dependsOn winner does not match game teams at game ${game.id}: ` +
+                `${dependsOn.teams[dependsOn.winnerIndex]} !== ${game.teams[teamIdx]}`
         )
+    }
 
     const gameBelowViewed =
         (!dependsOn && (!otherDependsOn || otherDependsOn.viewed)) || (dependsOn && dependsOn.viewed)

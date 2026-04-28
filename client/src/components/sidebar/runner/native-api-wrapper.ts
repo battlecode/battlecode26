@@ -30,40 +30,51 @@ let nativeAPI: NativeAPI | undefined = undefined
 
 // Initialize native API
 async function initNativeAPI() {
-    // attempt to connect to electron
-    // @ts-ignore
-    if (window.electronAPI) {
+    try {
+        // attempt to connect to electron
         // @ts-ignore
-        nativeAPI = window.electronAPI as NativeAPI
-    }
-    // attempt to connect to tauri
-    // @ts-ignore
-    else if (window.tauriAPIReady) {
-        // @ts-ignore
-        await window.tauriAPIReady
-        // @ts-ignore
-        nativeAPI = window.tauriAPI as NativeAPI
-    }
-    // @ts-ignore
-    else if (window.tauriAPI) {
-        // @ts-ignore
-        nativeAPI = window.tauriAPI as NativeAPI
-    }
-
-    // verify that native api is setup if available
-    if (nativeAPI) {
-        Object.keys(nativeAPI).forEach(function (key) {
+        if (window.electronAPI) {
             // @ts-ignore
-            if (!nativeAPI[key]) {
-                throw new Error(`Native API missing property: ${key}`)
-            }
-        })
+            nativeAPI = window.electronAPI as NativeAPI
+        }
+        // attempt to connect to tauri
+        // @ts-ignore
+        else if (window.tauriAPIReady) {
+            // @ts-ignore
+            await window.tauriAPIReady
+            // @ts-ignore
+            nativeAPI = window.tauriAPI as NativeAPI
+        }
+        // @ts-ignore
+        else if (window.tauriAPI) {
+            // @ts-ignore
+            nativeAPI = window.tauriAPI as NativeAPI
+        }
 
-        console.log('Native API available and verified')
+        // verify that native api is setup if available
+        if (nativeAPI) {
+            const missing: string[] = []
+            Object.keys(nativeAPI).forEach(function (key) {
+                // @ts-ignore
+                if (!nativeAPI[key]) missing.push(key)
+            })
+
+            if (missing.length) {
+                console.error(`Native API present but missing properties: ${missing.join(', ')}`)
+                nativeAPI = undefined
+                return
+            }
+
+            console.log('Native API available and verified')
+        }
+    } catch (e) {
+        console.error('Native API initialization failed:', e)
+        nativeAPI = undefined
     }
 }
 
 // Start initialization
-initNativeAPI()
+// Avoid unhandled rejections during app startup.
+void initNativeAPI()
 
 export { nativeAPI }

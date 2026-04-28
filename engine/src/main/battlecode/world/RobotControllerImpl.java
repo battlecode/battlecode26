@@ -1321,21 +1321,6 @@ public final class RobotControllerImpl implements RobotController {
         return this.gameWorld.readSharedArray(index, this.getTeam());
     }
 
-    public void writePersistentArray(int index, int value) throws GameActionException {
-        if (!this.getType().isRatKingType()) {
-            throw new GameActionException(CANT_DO_THAT, "Only rat kings can write to the persistent array!");
-        } else if (value < 0 || value > GameConstants.COMM_ARRAY_MAX_VALUE) {
-            throw new GameActionException(CANT_DO_THAT,
-                    "Value " + value + " is out of bounds for the persistent array!");
-        }
-
-        this.gameWorld.writePersistentArray(index, value, this.getTeam());
-    }
-
-    public int readPersistentArray(int index) throws GameActionException {
-        return this.gameWorld.readPersistentArray(index, this.getTeam());
-    }
-
     // ***********************************
     // ****** OTHER ACTION METHODS *******
     // ***********************************

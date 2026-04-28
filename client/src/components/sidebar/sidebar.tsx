@@ -60,6 +60,14 @@ export const Sidebar: React.FC = () => {
                     }))
                 }
             })
+            .catch((e) => {
+                console.error('Failed to fetch tournament data:', e)
+                context.setState((prevState) => ({
+                    ...prevState,
+                    loadingRemoteContent: ''
+                }))
+                alert('Failed to load tournament data. Check the console for details.')
+            })
     }
     React.useEffect(() => {
         if (tournamentSource) {
@@ -107,6 +115,14 @@ export const Sidebar: React.FC = () => {
                 }))
 
                 setPage(PageType.GAME)
+            })
+            .catch((e) => {
+                console.error('Failed to fetch remote game:', e)
+                context.setState((prevState) => ({
+                    ...prevState,
+                    loadingRemoteContent: ''
+                }))
+                alert('Failed to load remote game. Check the console for details.')
             })
     }
     React.useEffect(() => {

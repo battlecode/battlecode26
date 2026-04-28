@@ -90,20 +90,31 @@ const makeEditorActionData = (
     const mapWidth = map.width
     const mapHeight = map.height
 
+    const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v))
+    const inBounds = (x: number, y: number) => x >= 0 && x < mapWidth && y >= 0 && y < mapHeight
+
+    // Ensure we always pick a valid in-bounds target location.
+    // This function is editor-only, so correctness > "randomness".
     let targetX = tx
     let targetY = ty
-    let validLocFound = false
-    // find the first offset that yields a valid square inside the map
-    let nx: number = targetX
-    let ny: number = targetY
-    while (!validLocFound) {
-        if (nx >= 0 && nx < mapWidth && ny >= 0 && ny < mapHeight) {
-            targetX = nx
-            targetY = ny
-            break
+    if (!inBounds(targetX, targetY)) {
+        // Try a few nearby random offsets first (so visuals aren't always pinned to an edge),
+        // then fall back to clamping.
+        let found = false
+        for (let tries = 0; tries < 16; tries++) {
+            const nx = Math.round(tx + (Math.random() * 3 - 1))
+            const ny = Math.round(ty + (Math.random() * 3 - 1))
+            if (inBounds(nx, ny)) {
+                targetX = nx
+                targetY = ny
+                found = true
+                break
+            }
         }
-        nx = tx + Math.random() * 3 - 1
-        ny = ty + Math.random() * 3 - 1
+        if (!found) {
+            targetX = clamp(targetX, 0, mapWidth - 1)
+            targetY = clamp(targetY, 0, mapHeight - 1)
+        }
     }
 
     const loc = map.locationToIndex(targetX, targetY)
@@ -115,7 +126,11 @@ const makeEditorActionData = (
         case schema.Action.CatFeed:
             return { loc: () => loc }
         case schema.Action.CatPounce:
-            return { startLoc: () => loc, endLoc: () => map.locationToIndex(targetX + 1, targetY + 2) }
+            return {
+                startLoc: () => loc,
+                endLoc: () =>
+                    map.locationToIndex(clamp(targetX + 1, 0, mapWidth - 1), clamp(targetY + 2, 0, mapHeight - 1))
+            }
         case schema.Action.RatSqueak:
             return { id: () => targetId }
         case schema.Action.CatScratch:
@@ -143,7 +158,10 @@ const makeEditorActionData = (
         case schema.Action.TriggerTrap:
             return { loc: () => loc, team: () => 0 }
         case schema.Action.ThrowRat:
-            return { id: () => targetId, loc: () => map.locationToIndex(targetX, targetY + 2) }
+            return {
+                id: () => targetId,
+                loc: () => map.locationToIndex(targetX, clamp(targetY + 2, 0, mapHeight - 1))
+            }
         case schema.Action.UpgradeToRatKing:
             return { phantom: () => targetId }
         default:

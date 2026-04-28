@@ -14,6 +14,9 @@ interface ErrorState {
 
 // Error Boundary is hard to do with functional components, so we use a class component
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorState> {
+    private errorHandler?: (event: ErrorEvent) => void
+    private unhandledRejectionHandler?: (event: PromiseRejectionEvent) => void
+
     constructor(props: ErrorBoundaryProps) {
         super(props)
         this.state = {
@@ -38,7 +41,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorState> {
 
     componentDidMount() {
         // Catch normal JS errors
-        const errorHandler = (event: ErrorEvent) => {
+        this.errorHandler = (event: ErrorEvent) => {
             const error = new Error(event.message)
 
             // Use setTimeout to delay state update until after render
@@ -56,8 +59,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorState> {
         }
 
         // Catch unhandled promise rejections
-        const unhandledRejectionHandler = (event: PromiseRejectionEvent) => {
-            const error = new Error(event.reason)
+        this.unhandledRejectionHandler = (event: PromiseRejectionEvent) => {
+            const reason = event.reason instanceof Error ? event.reason : new Error(String(event.reason))
+            const error = reason instanceof Error ? reason : new Error(String(reason))
 
             // Use setTimeout to delay state update until after render
             setTimeout(() => {
@@ -73,14 +77,14 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorState> {
             }, 0)
         }
 
-        window.addEventListener('error', errorHandler)
-        window.addEventListener('unhandledrejection', unhandledRejectionHandler)
+        window.addEventListener('error', this.errorHandler)
+        window.addEventListener('unhandledrejection', this.unhandledRejectionHandler)
+    }
 
-        // Cleanup on unmount
-        return () => {
-            window.removeEventListener('error', errorHandler)
-            window.removeEventListener('unhandledrejection', unhandledRejectionHandler)
-        }
+    componentWillUnmount(): void {
+        if (this.errorHandler) window.removeEventListener('error', this.errorHandler)
+        if (this.unhandledRejectionHandler)
+            window.removeEventListener('unhandledrejection', this.unhandledRejectionHandler)
     }
 
     dismissError = (index: number) => {

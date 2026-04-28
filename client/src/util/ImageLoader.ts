@@ -35,8 +35,10 @@ export const loadImage = (path: string): Promise<HTMLImageElement> => {
         }
         img.onerror = reject
     })
+    // Never throw from an image-loading promise; a single missing asset should not crash the app.
+    // The renderer will keep showing a placeholder for this image.
     loading.catch((e) => {
-        throw new Error(`Failed to load image ${path}: ${e}`)
+        console.error(`Failed to load image ${path}`, e)
     })
 
     imgCache.set(path, loading)
