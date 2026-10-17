@@ -27,11 +27,19 @@ id():number {
 }
 
 x():number {
-  return this.bb!.readUint16(this.bb_pos + 2);
+  return this.bb!.readUint8(this.bb_pos + 2);
 }
 
 y():number {
-  return this.bb!.readUint16(this.bb_pos + 4);
+  return this.bb!.readUint8(this.bb_pos + 3);
+}
+
+dir():number {
+  return this.bb!.readUint8(this.bb_pos + 4);
+}
+
+chirality():number {
+  return this.bb!.readUint8(this.bb_pos + 5);
 }
 
 team():number {
@@ -46,12 +54,14 @@ static sizeOf():number {
   return 8;
 }
 
-static createSpawnAction(builder:flatbuffers.Builder, id: number, x: number, y: number, team: number, robotType: RobotType):flatbuffers.Offset {
+static createSpawnAction(builder:flatbuffers.Builder, id: number, x: number, y: number, dir: number, chirality: number, team: number, robotType: RobotType):flatbuffers.Offset {
   builder.prep(2, 8);
   builder.writeInt8(robotType);
   builder.writeInt8(team);
-  builder.writeInt16(y);
-  builder.writeInt16(x);
+  builder.writeInt8(chirality);
+  builder.writeInt8(dir);
+  builder.writeInt8(y);
+  builder.writeInt8(x);
   builder.writeInt16(id);
   return builder.offset();
 }

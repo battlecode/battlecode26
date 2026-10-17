@@ -48,10 +48,27 @@ public final class GameMap extends Table {
   public BooleanVector dirtVector(BooleanVector obj) { int o = __offset(16); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
   public ByteBuffer dirtAsByteBuffer() { return __vector_as_bytebuffer(16, 1); }
   public ByteBuffer dirtInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 16, 1); }
+  public byte cheese(int j) { int o = __offset(18); return o != 0 ? bb.get(__vector(o) + j * 1) : 0; }
+  public int cheeseLength() { int o = __offset(18); return o != 0 ? __vector_len(o) : 0; }
+  public ByteVector cheeseVector() { return cheeseVector(new ByteVector()); }
+  public ByteVector cheeseVector(ByteVector obj) { int o = __offset(18); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
+  public ByteBuffer cheeseAsByteBuffer() { return __vector_as_bytebuffer(18, 1); }
+  public ByteBuffer cheeseInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 18, 1); }
   public battlecode.schema.VecTable cheeseMines() { return cheeseMines(new battlecode.schema.VecTable()); }
-  public battlecode.schema.VecTable cheeseMines(battlecode.schema.VecTable obj) { int o = __offset(18); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
+  public battlecode.schema.VecTable cheeseMines(battlecode.schema.VecTable obj) { int o = __offset(20); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
+  public int catWaypointIds(int j) { int o = __offset(22); return o != 0 ? bb.getShort(__vector(o) + j * 2) & 0xFFFF : 0; }
+  public int catWaypointIdsLength() { int o = __offset(22); return o != 0 ? __vector_len(o) : 0; }
+  public ShortVector catWaypointIdsVector() { return catWaypointIdsVector(new ShortVector()); }
+  public ShortVector catWaypointIdsVector(ShortVector obj) { int o = __offset(22); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
+  public ByteBuffer catWaypointIdsAsByteBuffer() { return __vector_as_bytebuffer(22, 2); }
+  public ByteBuffer catWaypointIdsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 22, 2); }
+  public battlecode.schema.VecTable catWaypointVecs(int j) { return catWaypointVecs(new battlecode.schema.VecTable(), j); }
+  public battlecode.schema.VecTable catWaypointVecs(battlecode.schema.VecTable obj, int j) { int o = __offset(24); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
+  public int catWaypointVecsLength() { int o = __offset(24); return o != 0 ? __vector_len(o) : 0; }
+  public battlecode.schema.VecTable.Vector catWaypointVecsVector() { return catWaypointVecsVector(new battlecode.schema.VecTable.Vector()); }
+  public battlecode.schema.VecTable.Vector catWaypointVecsVector(battlecode.schema.VecTable.Vector obj) { int o = __offset(24); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
 
-  public static void startGameMap(FlatBufferBuilder builder) { builder.startTable(8); }
+  public static void startGameMap(FlatBufferBuilder builder) { builder.startTable(11); }
   public static void addName(FlatBufferBuilder builder, int nameOffset) { builder.addOffset(0, nameOffset, 0); }
   public static void addSize(FlatBufferBuilder builder, int sizeOffset) { builder.addStruct(1, sizeOffset, 0); }
   public static void addSymmetry(FlatBufferBuilder builder, int symmetry) { builder.addInt(2, symmetry, 0); }
@@ -63,7 +80,17 @@ public final class GameMap extends Table {
   public static void addDirt(FlatBufferBuilder builder, int dirtOffset) { builder.addOffset(6, dirtOffset, 0); }
   public static int createDirtVector(FlatBufferBuilder builder, boolean[] data) { builder.startVector(1, data.length, 1); for (int i = data.length - 1; i >= 0; i--) builder.addBoolean(data[i]); return builder.endVector(); }
   public static void startDirtVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
-  public static void addCheeseMines(FlatBufferBuilder builder, int cheeseMinesOffset) { builder.addOffset(7, cheeseMinesOffset, 0); }
+  public static void addCheese(FlatBufferBuilder builder, int cheeseOffset) { builder.addOffset(7, cheeseOffset, 0); }
+  public static int createCheeseVector(FlatBufferBuilder builder, byte[] data) { return builder.createByteVector(data); }
+  public static int createCheeseVector(FlatBufferBuilder builder, ByteBuffer data) { return builder.createByteVector(data); }
+  public static void startCheeseVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
+  public static void addCheeseMines(FlatBufferBuilder builder, int cheeseMinesOffset) { builder.addOffset(8, cheeseMinesOffset, 0); }
+  public static void addCatWaypointIds(FlatBufferBuilder builder, int catWaypointIdsOffset) { builder.addOffset(9, catWaypointIdsOffset, 0); }
+  public static int createCatWaypointIdsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(2, data.length, 2); for (int i = data.length - 1; i >= 0; i--) builder.addShort((short) data[i]); return builder.endVector(); }
+  public static void startCatWaypointIdsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(2, numElems, 2); }
+  public static void addCatWaypointVecs(FlatBufferBuilder builder, int catWaypointVecsOffset) { builder.addOffset(10, catWaypointVecsOffset, 0); }
+  public static int createCatWaypointVecsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
+  public static void startCatWaypointVecsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static int endGameMap(FlatBufferBuilder builder) {
     int o = builder.endTable();
     return o;

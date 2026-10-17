@@ -20,7 +20,15 @@ export declare class GameMap {
     dirt(index: number): boolean | null;
     dirtLength(): number;
     dirtArray(): Int8Array | null;
+    cheese(index: number): number | null;
+    cheeseLength(): number;
+    cheeseArray(): Int8Array | null;
     cheeseMines(obj?: VecTable): VecTable | null;
+    catWaypointIds(index: number): number | null;
+    catWaypointIdsLength(): number;
+    catWaypointIdsArray(): Uint16Array | null;
+    catWaypointVecs(index: number, obj?: VecTable): VecTable | null;
+    catWaypointVecsLength(): number;
     static startGameMap(builder: flatbuffers.Builder): void;
     static addName(builder: flatbuffers.Builder, nameOffset: flatbuffers.Offset): void;
     static addSize(builder: flatbuffers.Builder, sizeOffset: flatbuffers.Offset): void;
@@ -33,6 +41,23 @@ export declare class GameMap {
     static addDirt(builder: flatbuffers.Builder, dirtOffset: flatbuffers.Offset): void;
     static createDirtVector(builder: flatbuffers.Builder, data: boolean[]): flatbuffers.Offset;
     static startDirtVector(builder: flatbuffers.Builder, numElems: number): void;
+    static addCheese(builder: flatbuffers.Builder, cheeseOffset: flatbuffers.Offset): void;
+    static createCheeseVector(builder: flatbuffers.Builder, data: number[] | Int8Array): flatbuffers.Offset;
+    /**
+     * @deprecated This Uint8Array overload will be removed in the future.
+     */
+    static createCheeseVector(builder: flatbuffers.Builder, data: number[] | Uint8Array): flatbuffers.Offset;
+    static startCheeseVector(builder: flatbuffers.Builder, numElems: number): void;
     static addCheeseMines(builder: flatbuffers.Builder, cheeseMinesOffset: flatbuffers.Offset): void;
+    static addCatWaypointIds(builder: flatbuffers.Builder, catWaypointIdsOffset: flatbuffers.Offset): void;
+    static createCatWaypointIdsVector(builder: flatbuffers.Builder, data: number[] | Uint16Array): flatbuffers.Offset;
+    /**
+     * @deprecated This Uint8Array overload will be removed in the future.
+     */
+    static createCatWaypointIdsVector(builder: flatbuffers.Builder, data: number[] | Uint8Array): flatbuffers.Offset;
+    static startCatWaypointIdsVector(builder: flatbuffers.Builder, numElems: number): void;
+    static addCatWaypointVecs(builder: flatbuffers.Builder, catWaypointVecsOffset: flatbuffers.Offset): void;
+    static createCatWaypointVecsVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset;
+    static startCatWaypointVecsVector(builder: flatbuffers.Builder, numElems: number): void;
     static endGameMap(builder: flatbuffers.Builder): flatbuffers.Offset;
 }

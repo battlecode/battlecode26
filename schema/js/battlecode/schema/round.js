@@ -41,44 +41,134 @@ var Round = /** @class */ (function () {
         return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
     };
     /**
-     * The total amount of cheese this round per team
+     * The total amount of cheese transferred per team
      */
-    Round.prototype.teamCheeseAmounts = function (index) {
+    Round.prototype.teamCheeseTransferred = function (index) {
         var offset = this.bb.__offset(this.bb_pos, 6);
         return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
     };
-    Round.prototype.teamCheeseAmountsLength = function () {
+    Round.prototype.teamCheeseTransferredLength = function () {
         var offset = this.bb.__offset(this.bb_pos, 6);
         return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     };
-    Round.prototype.teamCheeseAmountsArray = function () {
+    Round.prototype.teamCheeseTransferredArray = function () {
         var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+    };
+    /**
+     * The total number of cat damage done by each team
+     */
+    Round.prototype.teamCatDamage = function (index) {
+        var offset = this.bb.__offset(this.bb_pos, 8);
+        return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+    };
+    Round.prototype.teamCatDamageLength = function () {
+        var offset = this.bb.__offset(this.bb_pos, 8);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+    Round.prototype.teamCatDamageArray = function () {
+        var offset = this.bb.__offset(this.bb_pos, 8);
+        return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+    };
+    /**
+     * The total number of alive rat kings per team
+     */
+    Round.prototype.teamAliveRatKings = function (index) {
+        var offset = this.bb.__offset(this.bb_pos, 10);
+        return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+    };
+    Round.prototype.teamAliveRatKingsLength = function () {
+        var offset = this.bb.__offset(this.bb_pos, 10);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+    Round.prototype.teamAliveRatKingsArray = function () {
+        var offset = this.bb.__offset(this.bb_pos, 10);
+        return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+    };
+    /**
+     * The total number of alive baby rats per team
+     */
+    Round.prototype.teamAliveBabyRats = function (index) {
+        var offset = this.bb.__offset(this.bb_pos, 12);
+        return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+    };
+    Round.prototype.teamAliveBabyRatsLength = function () {
+        var offset = this.bb.__offset(this.bb_pos, 12);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+    Round.prototype.teamAliveBabyRatsArray = function () {
+        var offset = this.bb.__offset(this.bb_pos, 12);
+        return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+    };
+    /**
+     * The total number of live rat traps per team
+     */
+    Round.prototype.teamRatTrapCount = function (index) {
+        var offset = this.bb.__offset(this.bb_pos, 14);
+        return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+    };
+    Round.prototype.teamRatTrapCountLength = function () {
+        var offset = this.bb.__offset(this.bb_pos, 14);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+    Round.prototype.teamRatTrapCountArray = function () {
+        var offset = this.bb.__offset(this.bb_pos, 14);
+        return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+    };
+    /**
+     * The total number of live cat traps per team
+     */
+    Round.prototype.teamCatTrapCount = function (index) {
+        var offset = this.bb.__offset(this.bb_pos, 16);
+        return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+    };
+    Round.prototype.teamCatTrapCountLength = function () {
+        var offset = this.bb.__offset(this.bb_pos, 16);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+    Round.prototype.teamCatTrapCountArray = function () {
+        var offset = this.bb.__offset(this.bb_pos, 16);
+        return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+    };
+    /**
+     * The total number of live cat traps per team
+     */
+    Round.prototype.teamDirtAmounts = function (index) {
+        var offset = this.bb.__offset(this.bb_pos, 18);
+        return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+    };
+    Round.prototype.teamDirtAmountsLength = function () {
+        var offset = this.bb.__offset(this.bb_pos, 18);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+    Round.prototype.teamDirtAmountsArray = function () {
+        var offset = this.bb.__offset(this.bb_pos, 18);
         return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
     };
     /**
      * Ordered turn data for each robot during the round
      */
     Round.prototype.turns = function (index, obj) {
-        var offset = this.bb.__offset(this.bb_pos, 8);
+        var offset = this.bb.__offset(this.bb_pos, 20);
         return offset ? (obj || new turn_1.Turn()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
     };
     Round.prototype.turnsLength = function () {
-        var offset = this.bb.__offset(this.bb_pos, 8);
+        var offset = this.bb.__offset(this.bb_pos, 20);
         return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     };
     /**
      * The IDs of bodies that died at the end of the round, with no attributable cause.
      */
     Round.prototype.diedIds = function (index) {
-        var offset = this.bb.__offset(this.bb_pos, 10);
+        var offset = this.bb.__offset(this.bb_pos, 22);
         return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
     };
     Round.prototype.diedIdsLength = function () {
-        var offset = this.bb.__offset(this.bb_pos, 10);
+        var offset = this.bb.__offset(this.bb_pos, 22);
         return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     };
     Round.prototype.diedIdsArray = function () {
-        var offset = this.bb.__offset(this.bb_pos, 10);
+        var offset = this.bb.__offset(this.bb_pos, 22);
         return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
     };
     /**
@@ -87,11 +177,11 @@ var Round = /** @class */ (function () {
      * It should increase by one for each following round.
      */
     Round.prototype.roundId = function () {
-        var offset = this.bb.__offset(this.bb_pos, 12);
+        var offset = this.bb.__offset(this.bb_pos, 24);
         return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
     };
     Round.startRound = function (builder) {
-        builder.startObject(5);
+        builder.startObject(11);
     };
     Round.addTeamIds = function (builder, teamIdsOffset) {
         builder.addFieldOffset(0, teamIdsOffset, 0);
@@ -106,21 +196,99 @@ var Round = /** @class */ (function () {
     Round.startTeamIdsVector = function (builder, numElems) {
         builder.startVector(4, numElems, 4);
     };
-    Round.addTeamCheeseAmounts = function (builder, teamCheeseAmountsOffset) {
-        builder.addFieldOffset(1, teamCheeseAmountsOffset, 0);
+    Round.addTeamCheeseTransferred = function (builder, teamCheeseTransferredOffset) {
+        builder.addFieldOffset(1, teamCheeseTransferredOffset, 0);
     };
-    Round.createTeamCheeseAmountsVector = function (builder, data) {
+    Round.createTeamCheeseTransferredVector = function (builder, data) {
         builder.startVector(4, data.length, 4);
         for (var i = data.length - 1; i >= 0; i--) {
             builder.addInt32(data[i]);
         }
         return builder.endVector();
     };
-    Round.startTeamCheeseAmountsVector = function (builder, numElems) {
+    Round.startTeamCheeseTransferredVector = function (builder, numElems) {
+        builder.startVector(4, numElems, 4);
+    };
+    Round.addTeamCatDamage = function (builder, teamCatDamageOffset) {
+        builder.addFieldOffset(2, teamCatDamageOffset, 0);
+    };
+    Round.createTeamCatDamageVector = function (builder, data) {
+        builder.startVector(4, data.length, 4);
+        for (var i = data.length - 1; i >= 0; i--) {
+            builder.addInt32(data[i]);
+        }
+        return builder.endVector();
+    };
+    Round.startTeamCatDamageVector = function (builder, numElems) {
+        builder.startVector(4, numElems, 4);
+    };
+    Round.addTeamAliveRatKings = function (builder, teamAliveRatKingsOffset) {
+        builder.addFieldOffset(3, teamAliveRatKingsOffset, 0);
+    };
+    Round.createTeamAliveRatKingsVector = function (builder, data) {
+        builder.startVector(4, data.length, 4);
+        for (var i = data.length - 1; i >= 0; i--) {
+            builder.addInt32(data[i]);
+        }
+        return builder.endVector();
+    };
+    Round.startTeamAliveRatKingsVector = function (builder, numElems) {
+        builder.startVector(4, numElems, 4);
+    };
+    Round.addTeamAliveBabyRats = function (builder, teamAliveBabyRatsOffset) {
+        builder.addFieldOffset(4, teamAliveBabyRatsOffset, 0);
+    };
+    Round.createTeamAliveBabyRatsVector = function (builder, data) {
+        builder.startVector(4, data.length, 4);
+        for (var i = data.length - 1; i >= 0; i--) {
+            builder.addInt32(data[i]);
+        }
+        return builder.endVector();
+    };
+    Round.startTeamAliveBabyRatsVector = function (builder, numElems) {
+        builder.startVector(4, numElems, 4);
+    };
+    Round.addTeamRatTrapCount = function (builder, teamRatTrapCountOffset) {
+        builder.addFieldOffset(5, teamRatTrapCountOffset, 0);
+    };
+    Round.createTeamRatTrapCountVector = function (builder, data) {
+        builder.startVector(4, data.length, 4);
+        for (var i = data.length - 1; i >= 0; i--) {
+            builder.addInt32(data[i]);
+        }
+        return builder.endVector();
+    };
+    Round.startTeamRatTrapCountVector = function (builder, numElems) {
+        builder.startVector(4, numElems, 4);
+    };
+    Round.addTeamCatTrapCount = function (builder, teamCatTrapCountOffset) {
+        builder.addFieldOffset(6, teamCatTrapCountOffset, 0);
+    };
+    Round.createTeamCatTrapCountVector = function (builder, data) {
+        builder.startVector(4, data.length, 4);
+        for (var i = data.length - 1; i >= 0; i--) {
+            builder.addInt32(data[i]);
+        }
+        return builder.endVector();
+    };
+    Round.startTeamCatTrapCountVector = function (builder, numElems) {
+        builder.startVector(4, numElems, 4);
+    };
+    Round.addTeamDirtAmounts = function (builder, teamDirtAmountsOffset) {
+        builder.addFieldOffset(7, teamDirtAmountsOffset, 0);
+    };
+    Round.createTeamDirtAmountsVector = function (builder, data) {
+        builder.startVector(4, data.length, 4);
+        for (var i = data.length - 1; i >= 0; i--) {
+            builder.addInt32(data[i]);
+        }
+        return builder.endVector();
+    };
+    Round.startTeamDirtAmountsVector = function (builder, numElems) {
         builder.startVector(4, numElems, 4);
     };
     Round.addTurns = function (builder, turnsOffset) {
-        builder.addFieldOffset(2, turnsOffset, 0);
+        builder.addFieldOffset(8, turnsOffset, 0);
     };
     Round.createTurnsVector = function (builder, data) {
         builder.startVector(4, data.length, 4);
@@ -133,7 +301,7 @@ var Round = /** @class */ (function () {
         builder.startVector(4, numElems, 4);
     };
     Round.addDiedIds = function (builder, diedIdsOffset) {
-        builder.addFieldOffset(3, diedIdsOffset, 0);
+        builder.addFieldOffset(9, diedIdsOffset, 0);
     };
     Round.createDiedIdsVector = function (builder, data) {
         builder.startVector(4, data.length, 4);
@@ -146,16 +314,22 @@ var Round = /** @class */ (function () {
         builder.startVector(4, numElems, 4);
     };
     Round.addRoundId = function (builder, roundId) {
-        builder.addFieldInt32(4, roundId, 0);
+        builder.addFieldInt32(10, roundId, 0);
     };
     Round.endRound = function (builder) {
         var offset = builder.endObject();
         return offset;
     };
-    Round.createRound = function (builder, teamIdsOffset, teamCheeseAmountsOffset, turnsOffset, diedIdsOffset, roundId) {
+    Round.createRound = function (builder, teamIdsOffset, teamCheeseTransferredOffset, teamCatDamageOffset, teamAliveRatKingsOffset, teamAliveBabyRatsOffset, teamRatTrapCountOffset, teamCatTrapCountOffset, teamDirtAmountsOffset, turnsOffset, diedIdsOffset, roundId) {
         Round.startRound(builder);
         Round.addTeamIds(builder, teamIdsOffset);
-        Round.addTeamCheeseAmounts(builder, teamCheeseAmountsOffset);
+        Round.addTeamCheeseTransferred(builder, teamCheeseTransferredOffset);
+        Round.addTeamCatDamage(builder, teamCatDamageOffset);
+        Round.addTeamAliveRatKings(builder, teamAliveRatKingsOffset);
+        Round.addTeamAliveBabyRats(builder, teamAliveBabyRatsOffset);
+        Round.addTeamRatTrapCount(builder, teamRatTrapCountOffset);
+        Round.addTeamCatTrapCount(builder, teamCatTrapCountOffset);
+        Round.addTeamDirtAmounts(builder, teamDirtAmountsOffset);
         Round.addTurns(builder, turnsOffset);
         Round.addDiedIds(builder, diedIdsOffset);
         Round.addRoundId(builder, roundId);

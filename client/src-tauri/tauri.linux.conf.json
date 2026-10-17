@@ -1,9 +1,9 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
-  "tauri": {
-    "bundle": {
-      "appimage": {},
-      "targets": "appimage"
-    }
+  "bundle": {
+    "linux": {
+      "appimage": {}
+    },
+    "targets": "appimage"
   }
 }

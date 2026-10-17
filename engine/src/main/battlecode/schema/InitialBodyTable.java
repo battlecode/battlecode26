@@ -19,9 +19,12 @@ import com.google.flatbuffers.UnionVector;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+/**
+ * A list of initial bodies to be placed on the map.
+ */
 @SuppressWarnings("unused")
 public final class InitialBodyTable extends Table {
-  public static void ValidateVersion() { Constants.FLATBUFFERS_23_5_26(); }
+  public static void ValidateVersion() { Constants.FLATBUFFERS_24_3_25(); }
   public static InitialBodyTable getRootAsInitialBodyTable(ByteBuffer _bb) { return getRootAsInitialBodyTable(_bb, new InitialBodyTable()); }
   public static InitialBodyTable getRootAsInitialBodyTable(ByteBuffer _bb, InitialBodyTable obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
   public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
@@ -55,3 +58,4 @@ public final class InitialBodyTable extends Table {
     public InitialBodyTable get(InitialBodyTable obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
+

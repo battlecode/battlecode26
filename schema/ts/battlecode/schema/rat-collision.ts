@@ -16,22 +16,17 @@ export class RatCollision {
   return this;
 }
 
-id():number {
+loc():number {
   return this.bb!.readUint16(this.bb_pos);
 }
 
-loc():number {
-  return this.bb!.readUint16(this.bb_pos + 2);
-}
-
 static sizeOf():number {
-  return 4;
+  return 2;
 }
 
-static createRatCollision(builder:flatbuffers.Builder, id: number, loc: number):flatbuffers.Offset {
-  builder.prep(2, 4);
+static createRatCollision(builder:flatbuffers.Builder, loc: number):flatbuffers.Offset {
+  builder.prep(2, 2);
   builder.writeInt16(loc);
-  builder.writeInt16(id);
   return builder.offset();
 }
 

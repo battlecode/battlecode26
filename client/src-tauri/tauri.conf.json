@@ -1,53 +1,45 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "productName": "Battlecode Client",
+  "version": "26.0.0",
+  "identifier": "com.battlecode.client.2026",
   "build": {
     "beforeDevCommand": { "script": "npm run watch", "cwd": "../" },
+    "devUrl": "http://localhost:3000",
+    "frontendDist": "../dist"
+  },
+  "app": {
     "withGlobalTauri": true,
-    "devPath": "http://localhost:3000",
-    "distDir": "../dist"
-  },
-  "package": {
-    "productName": "Battlecode Client",
-    "version": "25.0.0"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": false
-    },
-    "bundle": {
-      "active": true,
-      "category": "DeveloperTool",
-      "copyright": "",
-      "deb": {
-        "depends": []
-      },
-      "externalBin": [],
-      "icon": [
-        "../icons/icon.png",
-        "../icons/icon.icns",
-        "../icons/icon.ico"
-      ],
-      "identifier": "com.battlecode.client.2025",
-      "longDescription": "",
-      "resources": [],
-      "shortDescription": "",
-      "targets": "all"
-    },
-    "security": {
-      "csp": null
-    },
-    "updater": {
-      "active": false
-    },
     "windows": [
       {
         "title": "Battlecode Client",
-        "height": 760,
         "width": 1200,
+        "height": 760,
+        "resizable": true,
         "fullscreen": false,
-        "maximized": true,
-        "resizable": true
+        "maximized": true
       }
-    ]
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "category": "DeveloperTool",
+    "copyright": "",
+    "linux": {
+      "deb": {
+        "depends": []
+      }
+    },
+    "externalBin": [],
+    "icon": [
+      "../icons/icon.png",
+      "../icons/icon.icns",
+      "../icons/icon.ico"
+    ],
+    "resources": [],
+    "targets": "all"
   }
 }

@@ -24,7 +24,7 @@ import java.nio.ByteOrder;
  */
 @SuppressWarnings("unused")
 public final class TimelineMarker extends Table {
-  public static void ValidateVersion() { Constants.FLATBUFFERS_23_5_26(); }
+  public static void ValidateVersion() { Constants.FLATBUFFERS_24_3_25(); }
   public static TimelineMarker getRootAsTimelineMarker(ByteBuffer _bb) { return getRootAsTimelineMarker(_bb, new TimelineMarker()); }
   public static TimelineMarker getRootAsTimelineMarker(ByteBuffer _bb, TimelineMarker obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
   public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
@@ -67,3 +67,4 @@ public final class TimelineMarker extends Table {
     public TimelineMarker get(TimelineMarker obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
+

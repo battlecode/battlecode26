@@ -1,7 +1,5 @@
 package battlecode.world.control;
 
-import battlecode.common.RobotController;
-import battlecode.common.RobotInfo;
 import battlecode.world.GameWorld;
 import battlecode.world.InternalRobot;
 

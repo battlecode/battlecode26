@@ -45,7 +45,7 @@ dependencies {
     [group: 'org.ow2.asm', name: 'asm-tree', version: '9.7.1'],
 
     // Flatbuffers
-    [group: 'com.google.flatbuffers', name: 'flatbuffers-java', version: '23.5.26'],
+    [group: 'com.google.flatbuffers', name: 'flatbuffers-java', version: '24.3.25'],
 
     // Websockets
     [group: 'org.java-websocket', name: 'Java-WebSocket', version: '1.3.0'],
@@ -58,6 +58,8 @@ dependencies {
     // There are no valid released versions on Maven Central or Sonatype.
     // If you need JSI, download jsi-1.0.jar manually and use:
     [group: 'net.sf.trove4j', name: 'trove4j', version: '2.1.0'],
+    
+    [group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.2'],
   )
   // implementation files('lib/jsi-1.0.jar')
 
@@ -76,7 +78,7 @@ jar {
 
 javadoc {
   includes = ["**/common/**"]
-  options.windowTitle = "Battlecode 2025"
+  options.windowTitle = "Battlecode 2026"
   options.classpath = sourceSets.main.compileClasspath as List
   options.doclet = "jdk.javadoc.doclet.StandardDoclet"
   options.taglets = ["battlecode.doc.CostlyMethodTaglet"]

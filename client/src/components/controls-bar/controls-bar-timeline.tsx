@@ -79,7 +79,7 @@ export const ControlsBarTimeline: React.FC<Props> = ({ targetUPS, markersTeam })
                 <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[9px] text-xs pointer-events-none">
                     Upload Game File
                 </p>
-                <div className="absolute bg-white/10 left-0 right-0 bottom-0 min-h-[5px] rounded"></div>
+                <div className="absolute bg-white opacity-10 left-0 right-0 bottom-0 min-h-[5px] rounded"></div>
             </div>
         )
 
@@ -178,9 +178,9 @@ export const Timeline: React.FC<{
             <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[10px] text-xs select-none whitespace-nowrap">
                 {children}
             </p>
-            <div className="absolute bg-white/10 left-0 right-0 bottom-0 min-h-[5px] rounded"></div>
+            <div className="absolute bg-white opacity-10 left-0 right-0 bottom-0 min-h-[5px] rounded"></div>
             <div
-                className="absolute bg-white/90 left-0 bottom-0 min-h-[5px] rounded min-w-[5px]"
+                className="absolute bg-white opacity-90 left-0 bottom-0 min-h-[5px] rounded min-w-[5px]"
                 style={{ right: (1 - value / max) * 100 + '%' }}
             ></div>
 

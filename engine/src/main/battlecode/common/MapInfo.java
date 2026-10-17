@@ -6,24 +6,34 @@ public class MapInfo {
 
     private boolean isPassable;
 
+    private RobotInfo flyingRobot;
+
     private boolean isWall;
 
-    private PaintType paint;
+    private boolean isDirt;
+    
+    private int cheeseAmount;
 
-    private PaintType mark;
+    //You can only see traps from your own team
+    private TrapType trap;
 
-    private boolean hasRuin;
+    private boolean hasCheeseMine;
 
-    private boolean isResourcePatternCenter;
+    public MapInfo(MapLocation loc, boolean isPassable, RobotInfo flyingRobot, boolean isWall, boolean isDirt, int cheeseAmount, TrapType trap, boolean hasCheeseMine) {
+        if (loc == null) {
+            throw new IllegalArgumentException("MapLocation in MapInfo constructor cannot be null");
+        } else if (trap == null) {
+            throw new IllegalArgumentException("TrapType in MapInfo constructor cannot be null, use TrapType.NONE instead.");
+        }
 
-    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, PaintType paint, PaintType mark, boolean hasRuin, boolean isResourcePatternCenter){
         this.loc = loc;
         this.isPassable = isPassable;
+        this.flyingRobot = flyingRobot;
         this.isWall = isWall;
-        this.paint = paint;
-        this.mark = mark;
-        this.hasRuin = hasRuin;
-        this.isResourcePatternCenter = isResourcePatternCenter;
+        this.isDirt = isDirt;
+        this.cheeseAmount = cheeseAmount;
+        this.trap = trap;
+        this.hasCheeseMine = hasCheeseMine;
     }
 
     /**
@@ -38,6 +48,17 @@ public class MapInfo {
     }
 
     /**
+     * Returns info of a flying robot at this location
+     * 
+     * @return RobotInfo for the flying robot at this location (or null if no flying robot is present)
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public RobotInfo flyingRobot() {
+        return flyingRobot;
+    }
+
+    /**
      * Returns if this square is a wall.
      * 
      * @return whether this square is a wall
@@ -49,36 +70,47 @@ public class MapInfo {
     }
 
     /**
-     * Returns if this square has a ruin.
+     * Returns if this square is a dirt.
      * 
-     * @return whether this square has a ruin
+     * @return whether this square is dirt
      * 
      * @battlecode.doc.costlymethod
      */
-    public boolean hasRuin() {
-        return hasRuin;
+    public boolean isDirt() {
+        return isDirt;
     }
 
     /**
-     * Returns the paint value of this square
+     * Returns if this square has a cheese mine.
      * 
-     * @return the paint value of this square
+     * @return whether this square has a cheese mine
      * 
      * @battlecode.doc.costlymethod
      */
-    public PaintType getPaint() {
-        return paint;
+    public boolean hasCheeseMine() {
+        return hasCheeseMine;
     }
 
     /**
-     * Returns the mark value of this square
+     * Returns the trap on this square, or TrapType.NONE if there is no trap.
      * 
-     * @return the mark value of this square
+     * @return the trap on this square
      * 
      * @battlecode.doc.costlymethod
      */
-    public PaintType getMark() {
-        return mark;
+    public TrapType getTrap() {
+        return trap;
+    }
+
+    /**
+     * Returns the amount of cheese on this square (guaranteed to be 0 if no rats died here and not near a cheese mine).
+     * 
+     * @return the amount of cheese on this square
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public int getCheeseAmount() {
+        return cheeseAmount;
     }
 
     /**
@@ -92,22 +124,14 @@ public class MapInfo {
         return loc;
     }
 
-    /**
-     * Returns whether this tile is at the center of an ally resource pattern (regardless of whether the pattern is active yet)
-     * 
-     * @return Whether this is a resource pattern center
-     */
-    public boolean isResourcePatternCenter() {
-        return isResourcePatternCenter;
-    }
-
-    public String toString(){
+    public String toString() {
         return "Location{" +
                 "loc=" + loc.toString() +
                 (isWall ? ", wall" : "") +
-                (hasRuin ? ", with ruin" : "") +
-                ", paint=" + paint.toString() +
-                ", mark=" + mark.toString() +
+                (isDirt ? ", dirt" : "") +
+                (hasCheeseMine ? ", with cheese mine" : "") +
+                (isPassable ? ", passable" : ", not passable") +
+                ", trap=" + trap +
                 "}";
     }
 }

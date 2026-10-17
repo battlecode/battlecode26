@@ -30,26 +30,32 @@ module.exports = {
                 centered: '0 0 10px 1px rgba(0,0,0,0.6)'
             },
             colors: {
-                red: '#ff9194',
-                pink: '#ffb4c1',
-                green: '#00a28e',
-                cyan: '#02a7b9',
-                cyanDark: '#1899a7',
-                blue: '#04a2d9',
-                blueLight: '#26abd9',
-                blueDark: '#00679e',
+                errorred: '#ff9194',
+                team0: 'var(--color-team0)',
+                team1: 'var(--color-team1)',
 
-                dark: colors.gray['800'],
-                darkHighlight: '#140f0f',
-                black: '#140f0f',
-                white: '#fcdede',
-                light: '#aaaaaa22',
-                lightHighlight: '#ffffff33',
-                medHighlight: '#d0d0d066',
-                lightCard: '#f7f7f722',
+                walls: 'var(--color-walls)',
+                tile: 'var(--color-tile)',
+                gameareaBackground: 'var(--color-gamearea-background)',
+                sidebarBackground: 'var(--color-sidebar-background)',
 
-                team0: '#cdcdcc',
-                team1: '#fee493'
+                red: 'var(--color-red)',
+                pink: 'var(--color-pink)',
+                green: 'var(--color-green)',
+                cyan: 'var(--color-cyan)',
+                cyanDark: 'var(--color-cyan-dark)',
+                blue: 'var(--color-blue)',
+                blueLight: 'var(--color-blue-light)',
+                blueDark: 'var(--color-blue-dark)',
+
+                dark: 'var(--color-dark)',
+                darkHighlight: 'var(--color-dark-highlight)',
+                black: 'var(--color-black)',
+                white: 'var(--color-white)',
+                light: 'var(--color-light)',
+                lightHighlight: 'var(--color-light-highlight)',
+                medHighlight: 'var(--color-med-highlight)',
+                lightCard: 'var(--color-light-card)'
             }
         }
     },

@@ -1,11 +1,21 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{collections::HashMap, fs, io::Write, path::Path, str::FromStr, sync::{Arc, Mutex}};
-use tauri::{plugin::{Builder as PluginBuilder, TauriPlugin}, Manager, Runtime};
-use tauri::api::dialog::blocking::FileDialogBuilder;
-use tauri::api::process::{Command, CommandEvent, CommandChild};
 use relative_path::RelativePath;
+use std::{
+    collections::HashMap,
+    fs,
+    io::Write,
+    path::Path,
+    sync::{Arc, Mutex},
+};
+use tauri::{
+    plugin::{Builder as PluginBuilder, TauriPlugin},
+    Emitter, Manager, Runtime,
+};
+use tauri_plugin_dialog::DialogExt;
+use tauri_plugin_shell::process::{CommandChild, CommandEvent};
+use tauri_plugin_shell::ShellExt;
 use ureq;
 
 mod tauri_bridge;
@@ -13,23 +23,23 @@ mod tauri_bridge;
 #[derive(Clone, serde::Serialize)]
 struct ChildProcessDataPayload {
     pid: String,
-    data: String
+    data: String,
 }
 
 #[derive(Clone, serde::Serialize)]
 struct ChildProcessExitPayload {
     pid: String,
     code: String,
-    signal: String
+    signal: String,
 }
 
 #[derive(Default, serde::Deserialize)]
 struct ServerApiResponse {
-    release_version_client: String
+    release_version_client: String,
 }
 
 struct AppState {
-    active_processes: Arc<Mutex<HashMap<String, CommandChild>>>
+    active_processes: Arc<Mutex<HashMap<String, CommandChild>>>,
 }
 
 fn get_files(paths: &mut Vec<String>, path: &Path, recursive: bool) -> std::io::Result<()> {
@@ -48,56 +58,57 @@ fn get_files(paths: &mut Vec<String>, path: &Path, recursive: bool) -> std::io::
 
 #[tauri::command]
 async fn tauri_api(
-    window: tauri::Window,
+    window: tauri::WebviewWindow,
+    app: tauri::AppHandle,
     state: tauri::State<'_, AppState>,
     operation: String,
     args: Vec<String>,
-    data: Vec<u8>
+    data: Vec<u8>,
 ) -> Result<Vec<String>, String> {
     //dbg!(&operation);
     match operation.as_str() {
         "openScaffoldDirectory" => {
-            let dialog_result = FileDialogBuilder::new()
+            let dialog_result = app
+                .dialog()
+                .file()
                 .set_title("Please select your battlecode-scaffold directory")
-                .pick_folder();
+                .blocking_pick_folder();
             match dialog_result {
-                Some(d) => Ok(vec!(d.to_str().unwrap().to_string())),
-                None => Ok(vec!())
+                Some(d) => Ok(vec![d.to_string()]),
+                None => Ok(vec![]),
             }
-        },
+        }
         "getRootPath" => {
             let exec_dir = std::env::current_exe();
-            Ok(vec!(exec_dir.unwrap().to_str().unwrap().to_string()))
-        },
+            Ok(vec![exec_dir.unwrap().to_str().unwrap().to_string()])
+        }
         "getJavas" => {
             let mut output = vec![];
             let mut jvms = vec![];
-            for supported in ["21", "23"] { 
-                jvms.append(&mut where_is_it::java::run(where_is_it::java::MatchOptions {
-                    name: None,
-                    arch: None,
-                    version: Some(String::from(supported))
-                }));
+            for supported in ["21", "23"] {
+                jvms.append(&mut where_is_it::java::run(
+                    where_is_it::java::MatchOptions {
+                        name: None,
+                        arch: None,
+                        version: Some(String::from(supported)),
+                    },
+                ));
             }
 
             // Add 'auto' option
             output.push(String::from("Auto"));
             output.push(match jvms.len() {
                 0 => String::new(),
-                _ => jvms[0].path.clone()
+                _ => jvms[0].path.clone(),
             });
 
             for jvm in jvms {
-                output.push(format!(
-                    "{} ({})",
-                    jvm.version,
-                    jvm.architecture
-                ));
+                output.push(format!("{} ({})", jvm.version, jvm.architecture));
                 output.push(jvm.path);
             }
 
             Ok(output)
-        },
+        }
         "getPythons" => {
             let mut output = vec![];
             let pythons = where_is_it::python::run(where_is_it::python::MatchOptions {
@@ -107,7 +118,7 @@ async fn tauri_api(
                 pre: None,
                 dev: None,
                 name: None,
-                architecture: None
+                architecture: None,
             });
 
             for py in pythons {
@@ -116,26 +127,28 @@ async fn tauri_api(
                     "{} ({})",
                     match &py.formatted_name {
                         Some(n) => n.clone(),
-                        None => path.clone()
+                        None => path.clone(),
                     },
                     match py.version {
                         Some(v) => v.clone(),
-                        None => String::from("Unknown".to_string())
+                        None => String::from("Unknown".to_string()),
                     },
                 ));
                 output.push(path);
             }
 
             Ok(output)
-        },
+        }
         "exportMap" => {
-            let dialog_result = FileDialogBuilder::new()
+            let dialog_result = app
+                .dialog()
+                .file()
                 .set_title("Export map")
                 .set_file_name(&args[0])
-                .save_file();
+                .blocking_save_file();
             match dialog_result {
                 Some(d) => {
-                    if let Ok(mut file) = fs::File::create(d) {
+                    if let Ok(mut file) = fs::File::create(d.as_path().unwrap()) {
                         let _ = file.write_all(&data);
                     }
                 }
@@ -143,59 +156,58 @@ async fn tauri_api(
             }
 
             Ok(vec![])
-        },
+        }
         "getServerVersion" => {
             let mut version = String::new();
-            let uri = format!("https://api.battlecode.org/api/episode/e/bc{}java/?format=json", &args[0]);
+            let uri = format!(
+                "https://api.battlecode.org/api/episode/e/bc{}java/?format=json",
+                &args[0]
+            );
             if let Ok(res) = ureq::get(&uri).call() {
                 let res: ServerApiResponse = res.into_json().unwrap_or(Default::default());
                 version = res.release_version_client;
             }
 
             Ok(vec![version])
-        },
+        }
         "path.join" => {
             let mut final_path = std::path::PathBuf::new();
             for ele in args {
                 final_path.push(ele);
             }
-            Ok(vec!(final_path.to_str().unwrap().to_string()))
-        },
+            Ok(vec![final_path.to_str().unwrap().to_string()])
+        }
         "path.relative" => {
             let path_from = RelativePath::new(&args[0]);
             let path_to = RelativePath::new(&args[1]);
             let result = path_from.relative(path_to);
-            Ok(vec!(result.to_string()))
-        },
+            Ok(vec![result.to_string()])
+        }
         "path.dirname" => {
             let path = Path::new(&args[0]).parent().unwrap_or(Path::new(""));
-            Ok(vec!(path.to_str().unwrap().to_string()))
-        },
-        "path.sep" => {
-            Ok(vec!(std::path::MAIN_SEPARATOR_STR.to_string()))
-        },
-        "fs.existsSync" => {
-            Ok(vec!(match std::path::Path::new(&args[0]).exists() {
-                true => "true".to_string(),
-                false => String::new()
-            }))
-        },
+            Ok(vec![path.to_str().unwrap().to_string()])
+        }
+        "path.sep" => Ok(vec![std::path::MAIN_SEPARATOR_STR.to_string()]),
+        "fs.existsSync" => Ok(vec![match std::path::Path::new(&args[0]).exists() {
+            true => "true".to_string(),
+            false => String::new(),
+        }]),
         "fs.mkdirSync" => {
             let _ = std::fs::create_dir(&args[0]);
-            Ok(vec!(String::new()))
-        },
+            Ok(vec![String::new()])
+        }
         "fs.getFiles" => {
             let path = &args[0];
             let recursive = match args.len() {
                 1 => false,
-                _ => args[1] == "true"
+                _ => args[1] == "true",
             };
-            let mut result: Vec<String> = vec!();
+            let mut result: Vec<String> = vec![];
             match get_files(&mut result, Path::new(path), recursive) {
                 Ok(_) => Ok(result),
-                Err(_) => Ok(vec!())
+                Err(_) => Ok(vec![]),
             }
-        },
+        }
         "child_process.spawn" => {
             let scaffold_path = &args[0];
             let lang = &args[1];
@@ -209,32 +221,32 @@ async fn tauri_api(
                     wrapper_path.push(scaffold_path);
                     wrapper_path.push(match cfg!(windows) {
                         true => "gradlew.bat",
-                        false => "gradlew"
+                        false => "gradlew",
                     });
                     if !lang_path.is_empty() {
                         envs.insert(String::from("JAVA_HOME"), lang_path.clone());
                     }
-                },
+                }
                 "Python" => {
                     if lang_path.is_empty() {
                         wrapper_path.push(String::from("python"));
                     } else {
                         wrapper_path.push(lang_path.clone())
                     }
-                },
+                }
                 _ => {}
             }
 
-            let child = Command::new(wrapper_path.to_str().unwrap())
+            let child = app
+                .shell()
+                .command(wrapper_path.to_str().unwrap())
                 .args(&args[3..])
-                .current_dir(scaffold_path.into())
+                .current_dir(scaffold_path)
                 .envs(envs)
                 .spawn();
 
             match child {
-                Ok(child) => {
-                    let mut rx = child.0;
-                    let child = child.1;
+                Ok((mut rx, child)) => {
                     let pid = child.pid();
                     let pid_str = pid.to_string();
                     let active_processes = state.active_processes.clone();
@@ -244,30 +256,47 @@ async fn tauri_api(
                             match rx.blocking_recv() {
                                 Some(msg) => match msg {
                                     CommandEvent::Stdout(data) => {
+                                        let data_str = String::from_utf8_lossy(&data).to_string();
                                         let _ = window.emit(
                                             "child-process-stdout",
-                                            ChildProcessDataPayload { pid: pid.to_string(), data }
+                                            ChildProcessDataPayload {
+                                                pid: pid.to_string(),
+                                                data: data_str,
+                                            },
                                         );
-                                    },
-                                    CommandEvent::Stderr(data) | CommandEvent::Error(data) => {
+                                    }
+                                    CommandEvent::Stderr(data) => {
+                                        let data_str = String::from_utf8_lossy(&data).to_string();
                                         let _ = window.emit(
                                             "child-process-stderr",
-                                            ChildProcessDataPayload { pid: pid.to_string(), data }
+                                            ChildProcessDataPayload {
+                                                pid: pid.to_string(),
+                                                data: data_str,
+                                            },
                                         );
-                                    },
+                                    }
+                                    CommandEvent::Error(error) => {
+                                        let _ = window.emit(
+                                            "child-process-stderr",
+                                            ChildProcessDataPayload {
+                                                pid: pid.to_string(),
+                                                data: error,
+                                            },
+                                        );
+                                    }
                                     CommandEvent::Terminated(term) => {
                                         let _ = window.emit(
                                             "child-process-exit",
                                             ChildProcessExitPayload {
                                                 pid: pid.to_string(),
                                                 code: term.code.unwrap_or(0).to_string(),
-                                                signal: term.signal.unwrap_or(0).to_string()
-                                            }
+                                                signal: term.signal.unwrap_or(0).to_string(),
+                                            },
                                         );
                                     }
                                     _ => {}
                                 },
-                                None => break
+                                None => break,
                             }
                         }
 
@@ -275,48 +304,47 @@ async fn tauri_api(
                         //dbg!("Child process event thread finished");
                     });
 
-                    state.active_processes.lock().unwrap().insert(pid_str.clone(), child);
+                    state
+                        .active_processes
+                        .lock()
+                        .unwrap()
+                        .insert(pid_str.clone(), child);
 
                     Ok(vec![pid_str.clone()])
-                },
-                Err(err) => {
-                    Err(err.to_string())
                 }
+                Err(err) => Err(err.to_string()),
             }
-        },
+        }
         "child_process.kill" => {
             let pid = &args[0];
             match state.active_processes.lock().unwrap().remove(pid) {
                 Some(child) => {
                     let _ = child.kill();
-                },
+                }
                 None => {}
             };
-            Ok(vec!(String::new()))
-        },
-        _ => Err("Invalid native API operation".to_string())
+            Ok(vec![String::new()])
+        }
+        _ => Err("Invalid native API operation".to_string()),
     }
 }
 
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
     PluginBuilder::new("nativeAPI")
-        .setup(|_app| {
-            Ok(())
-        })
+        .setup(|_app, _api| Ok(()))
         .on_event(|_app, event| {
             match event {
                 tauri::RunEvent::Exit => {
                     let state: tauri::State<'_, AppState> = _app.state();
                     let mut active: HashMap<String, CommandChild> = Default::default();
-                    std::mem::swap(
-                        &mut active,
-                        &mut *state.active_processes.lock().unwrap()
-                    );
+                    std::mem::swap(&mut active, &mut *state.active_processes.lock().unwrap());
 
                     // Kill all child processes
-                    active.into_iter().for_each(|p| { let _ = p.1.kill(); });
-                },
-                _ => ()
+                    active.into_iter().for_each(|p| {
+                        let _ = p.1.kill();
+                    });
+                }
+                _ => (),
             }
         })
         .js_init_script(tauri_bridge::SOURCE.to_string())
@@ -325,10 +353,13 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_shell::init())
         .plugin(init())
-        .manage(AppState { active_processes: Default::default() })
+        .manage(AppState {
+            active_processes: Default::default(),
+        })
         .invoke_handler(tauri::generate_handler![tauri_api])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-

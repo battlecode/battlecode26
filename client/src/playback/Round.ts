@@ -120,7 +120,7 @@ export default class Round {
         // round n shows the state of actions at the end of round n-1, until we
         // start progressing
         if (this.turnNumber === 0) {
-            this.actions.tickLifetimes()
+            this.actions.tickLifetimes(this)
             this.bodies.clearDiedBodies()
         }
 

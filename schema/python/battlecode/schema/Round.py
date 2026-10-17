@@ -56,9 +56,9 @@ class Round(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         return o == 0
 
-    # The total amount of cheese this round per team
+    # The total amount of cheese transferred per team
     # Round
-    def TeamCheeseAmounts(self, j: int):
+    def TeamCheeseTransferred(self, j: int):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
             a = self._tab.Vector(o)
@@ -66,28 +66,196 @@ class Round(object):
         return 0
 
     # Round
-    def TeamCheeseAmountsAsNumpy(self):
+    def TeamCheeseTransferredAsNumpy(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
             return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Int32Flags, o)
         return 0
 
     # Round
-    def TeamCheeseAmountsLength(self) -> int:
+    def TeamCheeseTransferredLength(self) -> int:
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # Round
-    def TeamCheeseAmountsIsNone(self) -> bool:
+    def TeamCheeseTransferredIsNone(self) -> bool:
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
+        return o == 0
+
+    # The total number of cat damage done by each team
+    # Round
+    def TeamCatDamage(self, j: int):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        if o != 0:
+            a = self._tab.Vector(o)
+            return self._tab.Get(flatbuffers.number_types.Int32Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
+        return 0
+
+    # Round
+    def TeamCatDamageAsNumpy(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        if o != 0:
+            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Int32Flags, o)
+        return 0
+
+    # Round
+    def TeamCatDamageLength(self) -> int:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        if o != 0:
+            return self._tab.VectorLen(o)
+        return 0
+
+    # Round
+    def TeamCatDamageIsNone(self) -> bool:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        return o == 0
+
+    # The total number of alive rat kings per team
+    # Round
+    def TeamAliveRatKings(self, j: int):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        if o != 0:
+            a = self._tab.Vector(o)
+            return self._tab.Get(flatbuffers.number_types.Int32Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
+        return 0
+
+    # Round
+    def TeamAliveRatKingsAsNumpy(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        if o != 0:
+            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Int32Flags, o)
+        return 0
+
+    # Round
+    def TeamAliveRatKingsLength(self) -> int:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        if o != 0:
+            return self._tab.VectorLen(o)
+        return 0
+
+    # Round
+    def TeamAliveRatKingsIsNone(self) -> bool:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        return o == 0
+
+    # The total number of alive baby rats per team
+    # Round
+    def TeamAliveBabyRats(self, j: int):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
+        if o != 0:
+            a = self._tab.Vector(o)
+            return self._tab.Get(flatbuffers.number_types.Int32Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
+        return 0
+
+    # Round
+    def TeamAliveBabyRatsAsNumpy(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
+        if o != 0:
+            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Int32Flags, o)
+        return 0
+
+    # Round
+    def TeamAliveBabyRatsLength(self) -> int:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
+        if o != 0:
+            return self._tab.VectorLen(o)
+        return 0
+
+    # Round
+    def TeamAliveBabyRatsIsNone(self) -> bool:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
+        return o == 0
+
+    # The total number of live rat traps per team
+    # Round
+    def TeamRatTrapCount(self, j: int):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
+        if o != 0:
+            a = self._tab.Vector(o)
+            return self._tab.Get(flatbuffers.number_types.Int32Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
+        return 0
+
+    # Round
+    def TeamRatTrapCountAsNumpy(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
+        if o != 0:
+            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Int32Flags, o)
+        return 0
+
+    # Round
+    def TeamRatTrapCountLength(self) -> int:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
+        if o != 0:
+            return self._tab.VectorLen(o)
+        return 0
+
+    # Round
+    def TeamRatTrapCountIsNone(self) -> bool:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
+        return o == 0
+
+    # The total number of live cat traps per team
+    # Round
+    def TeamCatTrapCount(self, j: int):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
+        if o != 0:
+            a = self._tab.Vector(o)
+            return self._tab.Get(flatbuffers.number_types.Int32Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
+        return 0
+
+    # Round
+    def TeamCatTrapCountAsNumpy(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
+        if o != 0:
+            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Int32Flags, o)
+        return 0
+
+    # Round
+    def TeamCatTrapCountLength(self) -> int:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
+        if o != 0:
+            return self._tab.VectorLen(o)
+        return 0
+
+    # Round
+    def TeamCatTrapCountIsNone(self) -> bool:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(16))
+        return o == 0
+
+    # The total number of live cat traps per team
+    # Round
+    def TeamDirtAmounts(self, j: int):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
+        if o != 0:
+            a = self._tab.Vector(o)
+            return self._tab.Get(flatbuffers.number_types.Int32Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
+        return 0
+
+    # Round
+    def TeamDirtAmountsAsNumpy(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
+        if o != 0:
+            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Int32Flags, o)
+        return 0
+
+    # Round
+    def TeamDirtAmountsLength(self) -> int:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
+        if o != 0:
+            return self._tab.VectorLen(o)
+        return 0
+
+    # Round
+    def TeamDirtAmountsIsNone(self) -> bool:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(18))
         return o == 0
 
     # Ordered turn data for each robot during the round
     # Round
     def Turns(self, j: int) -> Optional[Turn]:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
         if o != 0:
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
@@ -99,20 +267,20 @@ class Round(object):
 
     # Round
     def TurnsLength(self) -> int:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # Round
     def TurnsIsNone(self) -> bool:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
         return o == 0
 
     # The IDs of bodies that died at the end of the round, with no attributable cause.
     # Round
     def DiedIds(self, j: int):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
         if o != 0:
             a = self._tab.Vector(o)
             return self._tab.Get(flatbuffers.number_types.Int32Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 4))
@@ -120,21 +288,21 @@ class Round(object):
 
     # Round
     def DiedIdsAsNumpy(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
         if o != 0:
             return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Int32Flags, o)
         return 0
 
     # Round
     def DiedIdsLength(self) -> int:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # Round
     def DiedIdsIsNone(self) -> bool:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
         return o == 0
 
     # The first sent Round in a match should have index 1. (The starting state,
@@ -142,13 +310,13 @@ class Round(object):
     # It should increase by one for each following round.
     # Round
     def RoundId(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(24))
         if o != 0:
             return self._tab.Get(flatbuffers.number_types.Int32Flags, o + self._tab.Pos)
         return 0
 
 def RoundStart(builder: flatbuffers.Builder):
-    builder.StartObject(5)
+    builder.StartObject(11)
 
 def Start(builder: flatbuffers.Builder):
     RoundStart(builder)
@@ -165,20 +333,92 @@ def RoundStartTeamIdsVector(builder, numElems: int) -> int:
 def StartTeamIdsVector(builder, numElems: int) -> int:
     return RoundStartTeamIdsVector(builder, numElems)
 
-def RoundAddTeamCheeseAmounts(builder: flatbuffers.Builder, teamCheeseAmounts: int):
-    builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(teamCheeseAmounts), 0)
+def RoundAddTeamCheeseTransferred(builder: flatbuffers.Builder, teamCheeseTransferred: int):
+    builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(teamCheeseTransferred), 0)
 
-def AddTeamCheeseAmounts(builder: flatbuffers.Builder, teamCheeseAmounts: int):
-    RoundAddTeamCheeseAmounts(builder, teamCheeseAmounts)
+def AddTeamCheeseTransferred(builder: flatbuffers.Builder, teamCheeseTransferred: int):
+    RoundAddTeamCheeseTransferred(builder, teamCheeseTransferred)
 
-def RoundStartTeamCheeseAmountsVector(builder, numElems: int) -> int:
+def RoundStartTeamCheeseTransferredVector(builder, numElems: int) -> int:
     return builder.StartVector(4, numElems, 4)
 
-def StartTeamCheeseAmountsVector(builder, numElems: int) -> int:
-    return RoundStartTeamCheeseAmountsVector(builder, numElems)
+def StartTeamCheeseTransferredVector(builder, numElems: int) -> int:
+    return RoundStartTeamCheeseTransferredVector(builder, numElems)
+
+def RoundAddTeamCatDamage(builder: flatbuffers.Builder, teamCatDamage: int):
+    builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(teamCatDamage), 0)
+
+def AddTeamCatDamage(builder: flatbuffers.Builder, teamCatDamage: int):
+    RoundAddTeamCatDamage(builder, teamCatDamage)
+
+def RoundStartTeamCatDamageVector(builder, numElems: int) -> int:
+    return builder.StartVector(4, numElems, 4)
+
+def StartTeamCatDamageVector(builder, numElems: int) -> int:
+    return RoundStartTeamCatDamageVector(builder, numElems)
+
+def RoundAddTeamAliveRatKings(builder: flatbuffers.Builder, teamAliveRatKings: int):
+    builder.PrependUOffsetTRelativeSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(teamAliveRatKings), 0)
+
+def AddTeamAliveRatKings(builder: flatbuffers.Builder, teamAliveRatKings: int):
+    RoundAddTeamAliveRatKings(builder, teamAliveRatKings)
+
+def RoundStartTeamAliveRatKingsVector(builder, numElems: int) -> int:
+    return builder.StartVector(4, numElems, 4)
+
+def StartTeamAliveRatKingsVector(builder, numElems: int) -> int:
+    return RoundStartTeamAliveRatKingsVector(builder, numElems)
+
+def RoundAddTeamAliveBabyRats(builder: flatbuffers.Builder, teamAliveBabyRats: int):
+    builder.PrependUOffsetTRelativeSlot(4, flatbuffers.number_types.UOffsetTFlags.py_type(teamAliveBabyRats), 0)
+
+def AddTeamAliveBabyRats(builder: flatbuffers.Builder, teamAliveBabyRats: int):
+    RoundAddTeamAliveBabyRats(builder, teamAliveBabyRats)
+
+def RoundStartTeamAliveBabyRatsVector(builder, numElems: int) -> int:
+    return builder.StartVector(4, numElems, 4)
+
+def StartTeamAliveBabyRatsVector(builder, numElems: int) -> int:
+    return RoundStartTeamAliveBabyRatsVector(builder, numElems)
+
+def RoundAddTeamRatTrapCount(builder: flatbuffers.Builder, teamRatTrapCount: int):
+    builder.PrependUOffsetTRelativeSlot(5, flatbuffers.number_types.UOffsetTFlags.py_type(teamRatTrapCount), 0)
+
+def AddTeamRatTrapCount(builder: flatbuffers.Builder, teamRatTrapCount: int):
+    RoundAddTeamRatTrapCount(builder, teamRatTrapCount)
+
+def RoundStartTeamRatTrapCountVector(builder, numElems: int) -> int:
+    return builder.StartVector(4, numElems, 4)
+
+def StartTeamRatTrapCountVector(builder, numElems: int) -> int:
+    return RoundStartTeamRatTrapCountVector(builder, numElems)
+
+def RoundAddTeamCatTrapCount(builder: flatbuffers.Builder, teamCatTrapCount: int):
+    builder.PrependUOffsetTRelativeSlot(6, flatbuffers.number_types.UOffsetTFlags.py_type(teamCatTrapCount), 0)
+
+def AddTeamCatTrapCount(builder: flatbuffers.Builder, teamCatTrapCount: int):
+    RoundAddTeamCatTrapCount(builder, teamCatTrapCount)
+
+def RoundStartTeamCatTrapCountVector(builder, numElems: int) -> int:
+    return builder.StartVector(4, numElems, 4)
+
+def StartTeamCatTrapCountVector(builder, numElems: int) -> int:
+    return RoundStartTeamCatTrapCountVector(builder, numElems)
+
+def RoundAddTeamDirtAmounts(builder: flatbuffers.Builder, teamDirtAmounts: int):
+    builder.PrependUOffsetTRelativeSlot(7, flatbuffers.number_types.UOffsetTFlags.py_type(teamDirtAmounts), 0)
+
+def AddTeamDirtAmounts(builder: flatbuffers.Builder, teamDirtAmounts: int):
+    RoundAddTeamDirtAmounts(builder, teamDirtAmounts)
+
+def RoundStartTeamDirtAmountsVector(builder, numElems: int) -> int:
+    return builder.StartVector(4, numElems, 4)
+
+def StartTeamDirtAmountsVector(builder, numElems: int) -> int:
+    return RoundStartTeamDirtAmountsVector(builder, numElems)
 
 def RoundAddTurns(builder: flatbuffers.Builder, turns: int):
-    builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(turns), 0)
+    builder.PrependUOffsetTRelativeSlot(8, flatbuffers.number_types.UOffsetTFlags.py_type(turns), 0)
 
 def AddTurns(builder: flatbuffers.Builder, turns: int):
     RoundAddTurns(builder, turns)
@@ -190,7 +430,7 @@ def StartTurnsVector(builder, numElems: int) -> int:
     return RoundStartTurnsVector(builder, numElems)
 
 def RoundAddDiedIds(builder: flatbuffers.Builder, diedIds: int):
-    builder.PrependUOffsetTRelativeSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(diedIds), 0)
+    builder.PrependUOffsetTRelativeSlot(9, flatbuffers.number_types.UOffsetTFlags.py_type(diedIds), 0)
 
 def AddDiedIds(builder: flatbuffers.Builder, diedIds: int):
     RoundAddDiedIds(builder, diedIds)
@@ -202,7 +442,7 @@ def StartDiedIdsVector(builder, numElems: int) -> int:
     return RoundStartDiedIdsVector(builder, numElems)
 
 def RoundAddRoundId(builder: flatbuffers.Builder, roundId: int):
-    builder.PrependInt32Slot(4, roundId, 0)
+    builder.PrependInt32Slot(10, roundId, 0)
 
 def AddRoundId(builder: flatbuffers.Builder, roundId: int):
     RoundAddRoundId(builder, roundId)

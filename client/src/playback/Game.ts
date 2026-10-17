@@ -3,7 +3,6 @@ import { flatbuffers, schema } from 'battlecode-schema'
 import { ungzip } from 'pako'
 import assert from 'assert'
 import { SPEC_VERSION, TEAM_COLOR_NAMES } from '../constants'
-import { currentColors } from '../colors'
 import { FakeGameWrapper } from '../components/sidebar/runner/websocket'
 import { getTeamColors } from '../colors'
 
@@ -22,6 +21,9 @@ export default class Game {
     public currentMatch: Match | undefined = undefined
     public readonly teams: [Team, Team]
     public winner: Team | null = null
+
+    // Map of team id -> Team (includes neutral if present)
+    private readonly teamMap: Map<number, Team> = new Map()
 
     // Metadata
     private readonly specVersion: string
@@ -47,6 +49,8 @@ export default class Game {
                 new Team(TEAM_COLOR_NAMES[0], { wins: 0, elo: 0 }, 1, 'map_editor_red'),
                 new Team(TEAM_COLOR_NAMES[1], { wins: 0, elo: 0 }, 2, 'map_editor_blue')
             ]
+            this.teamMap.set(1, this.teams[0])
+            this.teamMap.set(2, this.teams[1])
             this.winner = this.teams[0]
             this.specVersion = SPEC_VERSION
             this.constants = new schema.GameplayConstants()
@@ -72,10 +76,15 @@ export default class Game {
             )
         }
 
-        this.teams = [
-            Team.fromSchema(gameHeader.teams(0) ?? assert.fail('Team 0 was null')),
-            Team.fromSchema(gameHeader.teams(1) ?? assert.fail('Team 1 was null'))
-        ]
+        const foundTeams: (Team | undefined)[] = [undefined, undefined]
+        for (let i = 0; i < gameHeader.teamsLength(); i++) {
+            const data = gameHeader.teams(i) ?? assert.fail(`Team ${i} null`)
+            const t = Team.fromSchema(data)
+            this.teamMap.set(t.id, t)
+            if (t.id === 1) foundTeams[0] = t
+            else if (t.id === 2) foundTeams[1] = t
+        }
+        this.teams = [foundTeams[0] ?? assert.fail('Team A missing'), foundTeams[1] ?? assert.fail('Team B missing')]
 
         // load constants
         this.constants = gameHeader.constants() ?? assert.fail('Constants was null')
@@ -135,7 +144,7 @@ export default class Game {
             case schema.Event.GameFooter: {
                 assert(this.winner === null, 'Cannot add another GameFooter event to Game')
                 const footer = event.e(new schema.GameFooter()) as schema.GameFooter
-                this.winner = this.teams[footer.winner() - 1]
+                this.winner = this.getTeamByID(footer.winner())
                 return
             }
             default: {
@@ -146,7 +155,14 @@ export default class Game {
     }
 
     public getTeamByID(id: number): Team {
-        for (const team of this.teams) if (team.id === id) return team
+        const t = this.teamMap.get(id)
+        if (t) return t
+        // If server uses id 0 for NEUTRAL but didn't include it in header, create a neutral stub.
+        if (id === 0) {
+            const neutral = new Team('Neutral', { wins: 0, elo: 0 }, 0, 'neutral')
+            this.teamMap.set(0, neutral)
+            return neutral
+        }
         throw new Error(`Team '${id}' not found`)
     }
 
@@ -172,8 +188,15 @@ export class Team {
         public readonly id: number,
         public readonly packageName: string
     ) {
-        this.colorName = TEAM_COLOR_NAMES[id - 1]
-        this.color = getTeamColors()[id - 1]
+        // id 0 is Team.NEUTRAL; handle it explicitly so the client doesn't crash when
+        // the server includes neutral team data in the header or actions reference team 0.
+        if (this.id === 0) {
+            this.colorName = 'Neutral'
+            this.color = '#999999' // neutral gray
+        } else {
+            this.colorName = TEAM_COLOR_NAMES[id - 1]
+            this.color = getTeamColors()[id - 1]
+        }
     }
 
     static fromSchema(team: schema.TeamData) {

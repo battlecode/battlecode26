@@ -13,6 +13,8 @@ export enum CanvasLayers {
 }
 
 class GameRendererClass {
+    public disableCanvasClick: boolean = false
+
     private canvases: Record<CanvasLayers, HTMLCanvasElement>
     private mouseTile?: Vector = undefined
     private mouseDownStartPos?: Vector = undefined
@@ -51,17 +53,16 @@ class GameRendererClass {
         topCanvas.oncontextmenu = (e) => e.preventDefault()
 
         // Preload all game images
-        loadImage('icons/gears_64x64.png')
-        loadImage('icons/hammer_64x64.png')
-        loadImage('icons/mop_64x64.png')
-        loadImage('ruins/silver.png')
+        loadImage('icons/cheese_64x64.png')
+        loadImage('icons/cheese_mine.png')
+        loadImage('robots/squeak.png')
+        loadImage('dirty.png')
         for (const color of TEAM_COLOR_NAMES) {
-            loadImage(`robots/${color.toLowerCase()}/defense_tower_64x64.png`)
-            loadImage(`robots/${color.toLowerCase()}/money_tower_64x64.png`)
-            loadImage(`robots/${color.toLowerCase()}/paint_tower_64x64.png`)
-            loadImage(`robots/${color.toLowerCase()}/soldier_64x64.png`)
-            loadImage(`robots/${color.toLowerCase()}/splasher_64x64.png`)
-            loadImage(`robots/${color.toLowerCase()}/mopper_64x64.png`)
+            loadImage(`robots/${color.toLowerCase()}/rat_king_64x64.png`)
+            for (let i = 0; i < 9; i++) {
+                loadImage(`robots/cat/cat_${i}.png`)
+                loadImage(`robots/${color.toLowerCase()}/rat_${i}_64x64.png`)
+            }
         }
     }
 
@@ -78,14 +79,13 @@ class GameRendererClass {
 
     setSelectedRobot(id: number | undefined) {
         if (id === this.selectedBodyID) return
-        if (this.shiftKeyDown){
+        if (this.shiftKeyDown) {
             if (this.selectedBodyID !== undefined) {
-                if(!this.prevSelectedBodyIDs?.includes(this.selectedBodyID)){
+                if (!this.prevSelectedBodyIDs?.includes(this.selectedBodyID)) {
                     this.prevSelectedBodyIDs = this.prevSelectedBodyIDs || []
                     this.prevSelectedBodyIDs?.push(this.selectedBodyID)
                 }
-            }
-            else {
+            } else {
                 this.prevSelectedBodyIDs = undefined
             }
         } else {
@@ -97,24 +97,28 @@ class GameRendererClass {
         this._trigger(this._canvasClickListeners)
     }
 
+    getSelectedRobot() {
+        return this.selectedBodyID
+    }
+
     focusRobot(id: number | undefined) {
-        if (id !== undefined){
-            if(this.focusedBodyIDs?.includes(id)) return;
+        if (id !== undefined) {
+            if (this.focusedBodyIDs?.includes(id)) return
             this.focusedBodyIDs?.push(id)
         }
-        
+
         this.render()
     }
 
     unfocusRobot(id: number | undefined) {
-        if (id !== undefined){
-            if(!this.focusedBodyIDs?.includes(id)) return;
+        if (id !== undefined) {
+            if (!this.focusedBodyIDs?.includes(id)) return
             const index = this.focusedBodyIDs.indexOf(id)
-            if(index > -1){
-                this.focusedBodyIDs.splice(index,1)
+            if (index > -1) {
+                this.focusedBodyIDs.splice(index, 1)
             }
         }
-        
+
         this.render()
     }
 
@@ -141,7 +145,16 @@ class GameRendererClass {
         const currentRound = match.currentRound
 
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-        currentRound.bodies.draw(match, null, ctx, GameConfig.config, this.selectedBodyID, this.prevSelectedBodyIDs, this.focusedBodyIDs, this.mouseTile)
+        currentRound.bodies.draw(
+            match,
+            null,
+            ctx,
+            GameConfig.config,
+            this.selectedBodyID,
+            this.prevSelectedBodyIDs,
+            this.focusedBodyIDs,
+            this.mouseTile
+        )
     }
 
     render() {
@@ -155,7 +168,16 @@ class GameRendererClass {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
         overlayCtx.clearRect(0, 0, overlayCtx.canvas.width, overlayCtx.canvas.height)
         currentRound.map.draw(match, ctx, GameConfig.config, this.selectedBodyID, this.mouseTile)
-        currentRound.bodies.draw(match, ctx, overlayCtx, GameConfig.config, this.selectedBodyID, this.prevSelectedBodyIDs, this.focusedBodyIDs, this.mouseTile)
+        currentRound.bodies.draw(
+            match,
+            ctx,
+            overlayCtx,
+            GameConfig.config,
+            this.selectedBodyID,
+            this.prevSelectedBodyIDs,
+            this.focusedBodyIDs,
+            this.mouseTile
+        )
         currentRound.actions.draw(match, ctx)
     }
 
@@ -163,7 +185,7 @@ class GameRendererClass {
         const ctx = this.ctx(CanvasLayers.Background)
         const match = GameRunner.match
         if (!match || !ctx) return
-        match.currentRound.map.staticMap.draw(ctx)
+        match.currentRound.map.staticMap.draw(ctx, GameConfig.config)
         this.render()
     }
 
@@ -238,6 +260,7 @@ class GameRendererClass {
     }
 
     private canvasClick(e: MouseEvent) {
+        if (this.disableCanvasClick) return
         // Don't trigger the click if it moved too far away from the origin
         const maxDist = 25
         if (
@@ -262,11 +285,11 @@ class GameRendererClass {
     }
 
     private shiftKeyPressed(e: KeyboardEvent) {
-        if (e.key === "Shift") this.shiftKeyDown = true
+        if (e.key === 'Shift') this.shiftKeyDown = true
     }
 
     private shiftKeyUp(e: KeyboardEvent) {
-        if (e.key === "Shift"){
+        if (e.key === 'Shift') {
             this.shiftKeyDown = false
             // this.prevSelectedBodyIDs = undefined
             // this.renderOverlay()
@@ -297,7 +320,9 @@ class GameRendererClass {
         const [canvasRightClick, setCanvasRightClick] = React.useState<boolean>(this.mouseDownRight)
         const [selectedTile, setSelectedTile] = React.useState<Vector | undefined>(this.selectedTile)
         const [selectedBodyID, setSelectedBodyID] = React.useState<number | undefined>(this.selectedBodyID)
-        const [prevSelectedBodyIDs, setPrevSelectedBodyIDs] = React.useState<Array<number> | undefined>(this.prevSelectedBodyIDs)
+        const [prevSelectedBodyIDs, setPrevSelectedBodyIDs] = React.useState<Array<number> | undefined>(
+            this.prevSelectedBodyIDs
+        )
         const [focusedBodyIDs, setFocusedBodyIds] = React.useState<Array<number> | undefined>(this.focusedBodyIDs)
         React.useEffect(() => {
             const listener = () => {
@@ -314,7 +339,7 @@ class GameRendererClass {
             }
         }, [])
 
-        return { canvasMouseDown, canvasRightClick, selectedTile, selectedBodyID, prevSelectedBodyIDs, focusedBodyIDs}
+        return { canvasMouseDown, canvasRightClick, selectedTile, selectedBodyID, prevSelectedBodyIDs, focusedBodyIDs }
     }
 
     useShiftKeyEvents = () => {

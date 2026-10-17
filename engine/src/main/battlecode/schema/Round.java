@@ -24,7 +24,7 @@ import java.nio.ByteOrder;
  */
 @SuppressWarnings("unused")
 public final class Round extends Table {
-  public static void ValidateVersion() { Constants.FLATBUFFERS_23_5_26(); }
+  public static void ValidateVersion() { Constants.FLATBUFFERS_24_3_25(); }
   public static Round getRootAsRound(ByteBuffer _bb) { return getRootAsRound(_bb, new Round()); }
   public static Round getRootAsRound(ByteBuffer _bb, Round obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
   public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
@@ -40,95 +40,151 @@ public final class Round extends Table {
   public ByteBuffer teamIdsAsByteBuffer() { return __vector_as_bytebuffer(4, 4); }
   public ByteBuffer teamIdsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 4, 4); }
   /**
-   * The total amount of resource this round per team
+   * The total amount of cheese transferred per team
    */
-  public int teamResourceAmounts(int j) { int o = __offset(6); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int teamResourceAmountsLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }
-  public IntVector teamResourceAmountsVector() { return teamResourceAmountsVector(new IntVector()); }
-  public IntVector teamResourceAmountsVector(IntVector obj) { int o = __offset(6); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer teamResourceAmountsAsByteBuffer() { return __vector_as_bytebuffer(6, 4); }
-  public ByteBuffer teamResourceAmountsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 6, 4); }
+  public int teamCheeseTransferred(int j) { int o = __offset(6); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int teamCheeseTransferredLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }
+  public IntVector teamCheeseTransferredVector() { return teamCheeseTransferredVector(new IntVector()); }
+  public IntVector teamCheeseTransferredVector(IntVector obj) { int o = __offset(6); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
+  public ByteBuffer teamCheeseTransferredAsByteBuffer() { return __vector_as_bytebuffer(6, 4); }
+  public ByteBuffer teamCheeseTransferredInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 6, 4); }
   /**
-   * The total paint coverage percent per team, mult by 10 (i.e. 70.5% is 705)
+   * The total number of cat damage done by each team
    */
-  public int teamCoverageAmounts(int j) { int o = __offset(8); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int teamCoverageAmountsLength() { int o = __offset(8); return o != 0 ? __vector_len(o) : 0; }
-  public IntVector teamCoverageAmountsVector() { return teamCoverageAmountsVector(new IntVector()); }
-  public IntVector teamCoverageAmountsVector(IntVector obj) { int o = __offset(8); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer teamCoverageAmountsAsByteBuffer() { return __vector_as_bytebuffer(8, 4); }
-  public ByteBuffer teamCoverageAmountsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 8, 4); }
+  public int teamCatDamage(int j) { int o = __offset(8); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int teamCatDamageLength() { int o = __offset(8); return o != 0 ? __vector_len(o) : 0; }
+  public IntVector teamCatDamageVector() { return teamCatDamageVector(new IntVector()); }
+  public IntVector teamCatDamageVector(IntVector obj) { int o = __offset(8); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
+  public ByteBuffer teamCatDamageAsByteBuffer() { return __vector_as_bytebuffer(8, 4); }
+  public ByteBuffer teamCatDamageInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 8, 4); }
   /**
-   * The total number of active resource patterns per team
+   * The total number of alive rat kings per team
    */
-  public int teamResourcePatternAmounts(int j) { int o = __offset(10); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int teamResourcePatternAmountsLength() { int o = __offset(10); return o != 0 ? __vector_len(o) : 0; }
-  public IntVector teamResourcePatternAmountsVector() { return teamResourcePatternAmountsVector(new IntVector()); }
-  public IntVector teamResourcePatternAmountsVector(IntVector obj) { int o = __offset(10); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer teamResourcePatternAmountsAsByteBuffer() { return __vector_as_bytebuffer(10, 4); }
-  public ByteBuffer teamResourcePatternAmountsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 10, 4); }
+  public int teamAliveRatKings(int j) { int o = __offset(10); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int teamAliveRatKingsLength() { int o = __offset(10); return o != 0 ? __vector_len(o) : 0; }
+  public IntVector teamAliveRatKingsVector() { return teamAliveRatKingsVector(new IntVector()); }
+  public IntVector teamAliveRatKingsVector(IntVector obj) { int o = __offset(10); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
+  public ByteBuffer teamAliveRatKingsAsByteBuffer() { return __vector_as_bytebuffer(10, 4); }
+  public ByteBuffer teamAliveRatKingsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 10, 4); }
+  /**
+   * The total number of alive baby rats per team
+   */
+  public int teamAliveBabyRats(int j) { int o = __offset(12); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int teamAliveBabyRatsLength() { int o = __offset(12); return o != 0 ? __vector_len(o) : 0; }
+  public IntVector teamAliveBabyRatsVector() { return teamAliveBabyRatsVector(new IntVector()); }
+  public IntVector teamAliveBabyRatsVector(IntVector obj) { int o = __offset(12); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
+  public ByteBuffer teamAliveBabyRatsAsByteBuffer() { return __vector_as_bytebuffer(12, 4); }
+  public ByteBuffer teamAliveBabyRatsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 12, 4); }
+  /**
+   * The total number of live rat traps per team
+   */
+  public int teamRatTrapCount(int j) { int o = __offset(14); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int teamRatTrapCountLength() { int o = __offset(14); return o != 0 ? __vector_len(o) : 0; }
+  public IntVector teamRatTrapCountVector() { return teamRatTrapCountVector(new IntVector()); }
+  public IntVector teamRatTrapCountVector(IntVector obj) { int o = __offset(14); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
+  public ByteBuffer teamRatTrapCountAsByteBuffer() { return __vector_as_bytebuffer(14, 4); }
+  public ByteBuffer teamRatTrapCountInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 14, 4); }
+  /**
+   * The total number of live cat traps per team
+   */
+  public int teamCatTrapCount(int j) { int o = __offset(16); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int teamCatTrapCountLength() { int o = __offset(16); return o != 0 ? __vector_len(o) : 0; }
+  public IntVector teamCatTrapCountVector() { return teamCatTrapCountVector(new IntVector()); }
+  public IntVector teamCatTrapCountVector(IntVector obj) { int o = __offset(16); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
+  public ByteBuffer teamCatTrapCountAsByteBuffer() { return __vector_as_bytebuffer(16, 4); }
+  public ByteBuffer teamCatTrapCountInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 16, 4); }
+  /**
+   * The total number of live cat traps per team
+   */
+  public int teamDirtAmounts(int j) { int o = __offset(18); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int teamDirtAmountsLength() { int o = __offset(18); return o != 0 ? __vector_len(o) : 0; }
+  public IntVector teamDirtAmountsVector() { return teamDirtAmountsVector(new IntVector()); }
+  public IntVector teamDirtAmountsVector(IntVector obj) { int o = __offset(18); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
+  public ByteBuffer teamDirtAmountsAsByteBuffer() { return __vector_as_bytebuffer(18, 4); }
+  public ByteBuffer teamDirtAmountsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 18, 4); }
   /**
    * Ordered turn data for each robot during the round
    */
   public battlecode.schema.Turn turns(int j) { return turns(new battlecode.schema.Turn(), j); }
-  public battlecode.schema.Turn turns(battlecode.schema.Turn obj, int j) { int o = __offset(12); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
-  public int turnsLength() { int o = __offset(12); return o != 0 ? __vector_len(o) : 0; }
+  public battlecode.schema.Turn turns(battlecode.schema.Turn obj, int j) { int o = __offset(20); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
+  public int turnsLength() { int o = __offset(20); return o != 0 ? __vector_len(o) : 0; }
   public battlecode.schema.Turn.Vector turnsVector() { return turnsVector(new battlecode.schema.Turn.Vector()); }
-  public battlecode.schema.Turn.Vector turnsVector(battlecode.schema.Turn.Vector obj) { int o = __offset(12); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
+  public battlecode.schema.Turn.Vector turnsVector(battlecode.schema.Turn.Vector obj) { int o = __offset(20); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
   /**
    * The IDs of bodies that died at the end of the round, with no attributable cause.
    */
-  public int diedIds(int j) { int o = __offset(14); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int diedIdsLength() { int o = __offset(14); return o != 0 ? __vector_len(o) : 0; }
+  public int diedIds(int j) { int o = __offset(22); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int diedIdsLength() { int o = __offset(22); return o != 0 ? __vector_len(o) : 0; }
   public IntVector diedIdsVector() { return diedIdsVector(new IntVector()); }
-  public IntVector diedIdsVector(IntVector obj) { int o = __offset(14); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer diedIdsAsByteBuffer() { return __vector_as_bytebuffer(14, 4); }
-  public ByteBuffer diedIdsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 14, 4); }
+  public IntVector diedIdsVector(IntVector obj) { int o = __offset(22); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
+  public ByteBuffer diedIdsAsByteBuffer() { return __vector_as_bytebuffer(22, 4); }
+  public ByteBuffer diedIdsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 22, 4); }
   /**
    * The first sent Round in a match should have index 1. (The starting state,
    * created by the MatchHeader, can be thought to have index 0.)
    * It should increase by one for each following round.
    */
-  public int roundId() { int o = __offset(16); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int roundId() { int o = __offset(24); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
 
   public static int createRound(FlatBufferBuilder builder,
       int teamIdsOffset,
-      int teamResourceAmountsOffset,
-      int teamCoverageAmountsOffset,
-      int teamResourcePatternAmountsOffset,
+      int teamCheeseTransferredOffset,
+      int teamCatDamageOffset,
+      int teamAliveRatKingsOffset,
+      int teamAliveBabyRatsOffset,
+      int teamRatTrapCountOffset,
+      int teamCatTrapCountOffset,
+      int teamDirtAmountsOffset,
       int turnsOffset,
       int diedIdsOffset,
       int roundId) {
-    builder.startTable(7);
+    builder.startTable(11);
     Round.addRoundId(builder, roundId);
     Round.addDiedIds(builder, diedIdsOffset);
     Round.addTurns(builder, turnsOffset);
-    Round.addTeamResourcePatternAmounts(builder, teamResourcePatternAmountsOffset);
-    Round.addTeamCoverageAmounts(builder, teamCoverageAmountsOffset);
-    Round.addTeamResourceAmounts(builder, teamResourceAmountsOffset);
+    Round.addTeamDirtAmounts(builder, teamDirtAmountsOffset);
+    Round.addTeamCatTrapCount(builder, teamCatTrapCountOffset);
+    Round.addTeamRatTrapCount(builder, teamRatTrapCountOffset);
+    Round.addTeamAliveBabyRats(builder, teamAliveBabyRatsOffset);
+    Round.addTeamAliveRatKings(builder, teamAliveRatKingsOffset);
+    Round.addTeamCatDamage(builder, teamCatDamageOffset);
+    Round.addTeamCheeseTransferred(builder, teamCheeseTransferredOffset);
     Round.addTeamIds(builder, teamIdsOffset);
     return Round.endRound(builder);
   }
 
-  public static void startRound(FlatBufferBuilder builder) { builder.startTable(7); }
+  public static void startRound(FlatBufferBuilder builder) { builder.startTable(11); }
   public static void addTeamIds(FlatBufferBuilder builder, int teamIdsOffset) { builder.addOffset(0, teamIdsOffset, 0); }
   public static int createTeamIdsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startTeamIdsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addTeamResourceAmounts(FlatBufferBuilder builder, int teamResourceAmountsOffset) { builder.addOffset(1, teamResourceAmountsOffset, 0); }
-  public static int createTeamResourceAmountsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startTeamResourceAmountsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addTeamCoverageAmounts(FlatBufferBuilder builder, int teamCoverageAmountsOffset) { builder.addOffset(2, teamCoverageAmountsOffset, 0); }
-  public static int createTeamCoverageAmountsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startTeamCoverageAmountsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addTeamResourcePatternAmounts(FlatBufferBuilder builder, int teamResourcePatternAmountsOffset) { builder.addOffset(3, teamResourcePatternAmountsOffset, 0); }
-  public static int createTeamResourcePatternAmountsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startTeamResourcePatternAmountsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addTurns(FlatBufferBuilder builder, int turnsOffset) { builder.addOffset(4, turnsOffset, 0); }
+  public static void addTeamCheeseTransferred(FlatBufferBuilder builder, int teamCheeseTransferredOffset) { builder.addOffset(1, teamCheeseTransferredOffset, 0); }
+  public static int createTeamCheeseTransferredVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startTeamCheeseTransferredVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addTeamCatDamage(FlatBufferBuilder builder, int teamCatDamageOffset) { builder.addOffset(2, teamCatDamageOffset, 0); }
+  public static int createTeamCatDamageVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startTeamCatDamageVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addTeamAliveRatKings(FlatBufferBuilder builder, int teamAliveRatKingsOffset) { builder.addOffset(3, teamAliveRatKingsOffset, 0); }
+  public static int createTeamAliveRatKingsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startTeamAliveRatKingsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addTeamAliveBabyRats(FlatBufferBuilder builder, int teamAliveBabyRatsOffset) { builder.addOffset(4, teamAliveBabyRatsOffset, 0); }
+  public static int createTeamAliveBabyRatsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startTeamAliveBabyRatsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addTeamRatTrapCount(FlatBufferBuilder builder, int teamRatTrapCountOffset) { builder.addOffset(5, teamRatTrapCountOffset, 0); }
+  public static int createTeamRatTrapCountVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startTeamRatTrapCountVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addTeamCatTrapCount(FlatBufferBuilder builder, int teamCatTrapCountOffset) { builder.addOffset(6, teamCatTrapCountOffset, 0); }
+  public static int createTeamCatTrapCountVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startTeamCatTrapCountVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addTeamDirtAmounts(FlatBufferBuilder builder, int teamDirtAmountsOffset) { builder.addOffset(7, teamDirtAmountsOffset, 0); }
+  public static int createTeamDirtAmountsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startTeamDirtAmountsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addTurns(FlatBufferBuilder builder, int turnsOffset) { builder.addOffset(8, turnsOffset, 0); }
   public static int createTurnsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
   public static void startTurnsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addDiedIds(FlatBufferBuilder builder, int diedIdsOffset) { builder.addOffset(5, diedIdsOffset, 0); }
+  public static void addDiedIds(FlatBufferBuilder builder, int diedIdsOffset) { builder.addOffset(9, diedIdsOffset, 0); }
   public static int createDiedIdsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startDiedIdsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addRoundId(FlatBufferBuilder builder, int roundId) { builder.addInt(6, roundId, 0); }
+  public static void addRoundId(FlatBufferBuilder builder, int roundId) { builder.addInt(10, roundId, 0); }
   public static int endRound(FlatBufferBuilder builder) {
     int o = builder.endTable();
     return o;
@@ -141,3 +197,4 @@ public final class Round extends Table {
     public Round get(Round obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
+

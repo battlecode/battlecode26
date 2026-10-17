@@ -9,10 +9,12 @@ public final class WinType {
   public static final byte RATKING_DESTROYED = 1;
   public static final byte BACKSTAB_RATKING_DESTROYED = 2;
   public static final byte MORE_POINTS = 3;
-  public static final byte TIE = 4;
-  public static final byte COIN_FLIP = 5;
+  public static final byte MORE_ROBOTS = 4;
+  public static final byte MORE_CHEESE = 5;
+  public static final byte TIE = 6;
+  public static final byte COIN_FLIP = 7;
 
-  public static final String[] names = { "RESIGNATION", "RATKING_DESTROYED", "BACKSTAB_RATKING_DESTROYED", "MORE_POINTS", "TIE", "COIN_FLIP", };
+  public static final String[] names = { "RESIGNATION", "RATKING_DESTROYED", "BACKSTAB_RATKING_DESTROYED", "MORE_POINTS", "MORE_ROBOTS", "MORE_CHEESE", "TIE", "COIN_FLIP", };
 
   public static String name(int e) { return names[e]; }
 }

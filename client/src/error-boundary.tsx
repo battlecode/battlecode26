@@ -100,7 +100,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorState> {
         return (
             <>
                 {errors.length > 0 && (
-                    <div className="fixed inset-0 bg-red/10 flex items-center justify-center z-50">
+                    <div className="fixed inset-0 bg-errorred opacity-10 flex items-center justify-center z-50">
                         <div className="bg-slate-100 p-4 rounded-lg shadow-lg max-w-[90vw] max-h-[90vh] overflow-auto relative">
                             <button
                                 className="absolute top-1 right-2 text-gray-600 hover:text-gray-900"

@@ -28,30 +28,42 @@ export type NativeAPI = {
 
 let nativeAPI: NativeAPI | undefined = undefined
 
-// attempt to connect to electron
-// @ts-ignore
-if (window.electronAPI) {
+// Initialize native API
+async function initNativeAPI() {
+    // attempt to connect to electron
     // @ts-ignore
-    nativeAPI = window.electronAPI as NativeAPI
-}
-
-// attempt to connect to tauri
-// @ts-ignore
-if (window.tauriAPI) {
-    // @ts-ignore
-    nativeAPI = window.tauriAPI as NativeAPI
-}
-
-// verify that native api is setup if available
-if (nativeAPI) {
-    Object.keys(nativeAPI).forEach(function (key) {
+    if (window.electronAPI) {
         // @ts-ignore
-        if (!nativeAPI[key]) {
-            throw new Error(`Native API missing property: ${key}`)
-        }
-    })
+        nativeAPI = window.electronAPI as NativeAPI
+    }
+    // attempt to connect to tauri
+    // @ts-ignore
+    else if (window.tauriAPIReady) {
+        // @ts-ignore
+        await window.tauriAPIReady
+        // @ts-ignore
+        nativeAPI = window.tauriAPI as NativeAPI
+    }
+    // @ts-ignore
+    else if (window.tauriAPI) {
+        // @ts-ignore
+        nativeAPI = window.tauriAPI as NativeAPI
+    }
 
-    console.log('Native API available and verified')
+    // verify that native api is setup if available
+    if (nativeAPI) {
+        Object.keys(nativeAPI).forEach(function (key) {
+            // @ts-ignore
+            if (!nativeAPI[key]) {
+                throw new Error(`Native API missing property: ${key}`)
+            }
+        })
+
+        console.log('Native API available and verified')
+    }
 }
+
+// Start initialization
+initNativeAPI()
 
 export { nativeAPI }

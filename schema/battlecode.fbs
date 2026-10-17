@@ -12,10 +12,14 @@ table VecTable {
     ys: [int];
 }
 
+enum TrapType: byte {
+    RAT_TRAP,
+    CAT_TRAP
+}
 
 enum RobotType: byte {
     NONE,
-    RAT,
+    RAT, // baby rat
     RAT_KING,
     CAT
 }
@@ -26,6 +30,8 @@ enum WinType: byte {
     RATKING_DESTROYED,
     BACKSTAB_RATKING_DESTROYED,
     MORE_POINTS,
+    MORE_ROBOTS,
+    MORE_CHEESE,
     TIE,
     COIN_FLIP
 }
@@ -41,10 +47,11 @@ table RobotTypeMetadata {
     type: RobotType;
     actionCooldown: int;
     movementCooldown: int;
+    turningCooldown: int;
     baseHealth: int;
     maxCheese: int;
-    actionRadiusSquared: int;
-    visionRadiusSquared: int;
+    visionConeRadiusSquared: int;
+    visionConeAngle: int;
     messageRadiusSquared: int;
     bytecodeLimit: int;
 }
@@ -90,9 +97,23 @@ struct RatNap {
 }
 
 
+/// Throw a rat
+struct ThrowRat {
+    /// Id of the thrown rat
+    id: ushort;
+    loc: ushort;
+}
+
+
+/// Upgrade a 3x3 area of rats into a rat king
+struct UpgradeToRatKing {
+    /// Placeholder data bc the struct cant be empty
+    phantom: ushort;
+}
+
+
 /// Rat Collision
 struct RatCollision {
-    id: ushort;
     loc: ushort;
 }
 
@@ -122,6 +143,14 @@ struct CheeseSpawn {
 }
 
 
+/// Transfer a cheese between rats
+struct CheeseTransfer {
+    /// Id of the rat which receives the cheese
+    id: ushort;
+    amount: ushort;
+}
+
+
 /// Cat scratch at location
 struct CatScratch {
     loc: ushort;
@@ -135,31 +164,29 @@ struct CatPounce {
 }
 
 
-/// Place a rat trap at location
-struct PlaceRatTrap {
+/// Place a trap at location
+struct PlaceTrap {
+    loc: ushort;
+    team: byte;
+    isRatTrapType: bool;
+}
+
+/// Remove a trap at location
+struct RemoveTrap {
+    loc: ushort;
+    team: byte;
+}
+
+/// Triggers the trap
+struct TriggerTrap {
     loc: ushort;
     team: byte;
 }
 
 
-/// Place a cat trap at location
-struct PlaceCatTrap {
+/// Rat squeak action
+struct RatSqueak {
     loc: ushort;
-    team: byte;
-}
-
-
-/// Happens when a rat tries to pick up cheese on a trap
-struct TriggerRatTrap {
-    loc: ushort;
-    team: byte;
-}
-
-
-/// Happens when a cat tries to pounce on a trap
-struct TriggerCatTrap {
-    loc: ushort;
-    team: byte;
 }
 
 
@@ -171,12 +198,21 @@ struct DamageAction {
 }
 
 
+/// Action for when a robot is stunned
+struct StunAction {
+    id: ushort;
+    cooldown: ushort;
+}
+
+
 /// Indicate that this robot was spawned on this turn
 struct SpawnAction {
     /// Id of the bot that spawned
     id: ushort;
-    x: ushort;
-    y: ushort;
+    x: ubyte;
+    y: ubyte;
+    dir: ubyte;
+    chirality: ubyte;
     team: byte;
     robotType: RobotType;
 }
@@ -220,13 +256,17 @@ union Action {
     BreakDirt,
     CheesePickup,
     CheeseSpawn,
+    CheeseTransfer,
     CatScratch,
     CatPounce,
-    PlaceRatTrap,
-    PlaceCatTrap,
-    TriggerRatTrap,
-    TriggerCatTrap,
+    PlaceTrap,
+    RemoveTrap,
+    TriggerTrap,
+    ThrowRat,
+    UpgradeToRatKing,
+    RatSqueak,
     DamageAction,
+    StunAction,
     SpawnAction,
     DieAction,
     IndicatorStringAction,
@@ -249,7 +289,10 @@ table GameMap {
     randomSeed: int;
     walls: [bool];
     dirt: [bool];
+    cheese: [int];
     cheeseMines: VecTable;
+    catWaypointIds: [ushort];
+    catWaypointVecs: [VecTable];
 }
 
 
@@ -369,11 +412,14 @@ table Turn {
     health: int;
     cheese: int;
     moveCooldown: int;
+    turningCooldown: int;
     actionCooldown: int;
     bytecodesUsed: int;
     x: ubyte;
     y: ubyte;
+    dir: ubyte;
     actions: [Action];
+    isCooperation: bool;
 }
 
 
@@ -381,8 +427,28 @@ table Turn {
 table Round {
     /// The IDs of teams in the Game.
     teamIds: [int];
-    /// The total amount of cheese this round per team
-    teamCheeseAmounts: [int];
+
+    /// The total amount of cheese transferred per team
+    teamCheeseTransferred: [int];
+
+    /// The total number of cat damage done by each team
+    teamCatDamage: [int];
+
+    /// The total number of alive rat kings per team
+    teamAliveRatKings: [int];
+   
+    /// The total number of alive baby rats per team
+    teamAliveBabyRats: [int];
+
+    /// The total number of live rat traps per team
+    teamRatTrapCount: [int];
+
+    /// The total number of live cat traps per team
+    teamCatTrapCount: [int];
+
+    /// The total number of live cat traps per team
+    teamDirtAmounts: [int];
+
    
     /// Ordered turn data for each robot during the round
     turns: [Turn];

@@ -3,6 +3,7 @@ package battlecode.server;
 import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
 import battlecode.common.Team;
+import battlecode.crossplay.CrossPlayLanguage;
 import battlecode.schema.Event;
 import battlecode.schema.GameHeader;
 import battlecode.schema.GameWrapper;
@@ -31,8 +32,8 @@ import static org.mockito.Mockito.verify;
  */
 public class GameMakerTest {
     private final GameInfo info = new GameInfo(
-                    "bananas", "org.bananas", null,
-                    "yellow","org.yellow", null,
+                    "bananas", CrossPlayLanguage.JAVA, "org.bananas", null,
+                    "yellow", CrossPlayLanguage.JAVA, "org.yellow", null,
                     new String[] {"honolulu"}, null, false
     );
 
@@ -97,8 +98,6 @@ public class GameMakerTest {
     //     assertEquals(TeamMapping.id(Team.B), h.teams(1).teamID());
     //     assertEquals("yellow", h.teams(1).name());
     //     assertEquals("org.yellow", h.teams(1).packageName());
-
-    //     // TODO more sanity checking
 
     //     assertEquals(Event.MatchHeader, output.events(1).eType());
     //     assertEquals(Event.Round, output.events(2).eType());

@@ -13,6 +13,8 @@ class WinType(object):
   RATKING_DESTROYED: int
   BACKSTAB_RATKING_DESTROYED: int
   MORE_POINTS: int
+  MORE_ROBOTS: int
+  MORE_CHEESE: int
   TIE: int
   COIN_FLIP: int
 

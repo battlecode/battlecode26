@@ -95,7 +95,7 @@ export default class Match {
      * Add the match footer to the match.
      */
     public addMatchFooter(footer: schema.MatchFooter): void {
-        this.winner = this.game.teams[footer.winner() - 1]
+        this.winner = this.game.getTeamByID(footer.winner())
         this.winType = footer.winType()
         this.addTimelineMarkers(footer)
         this.addProfilerFiles(footer)

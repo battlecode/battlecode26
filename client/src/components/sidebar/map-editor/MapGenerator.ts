@@ -1,9 +1,9 @@
 import { schema, flatbuffers } from 'battlecode-schema'
-import Game from '../../../playback/Game'
+import Game, { Team } from '../../../playback/Game'
 import Match from '../../../playback/Match'
 import { CurrentMap, StaticMap } from '../../../playback/Map'
 import Round from '../../../playback/Round'
-import Bodies from '../../../playback/Bodies'
+import Bodies, { Body } from '../../../playback/Bodies'
 import { BATTLECODE_YEAR, DIRECTIONS, TEAM_COLOR_NAMES } from '../../../constants'
 import { nativeAPI } from '../runner/native-api-wrapper'
 import { Vector } from '../../../playback/Vector'
@@ -24,6 +24,7 @@ export function loadFileAsMap(file: File): Promise<Game> {
 }
 
 export function exportMap(round: Round, name: string) {
+    /*
     Array.from(round.bodies.bodies.values())
         .filter(
             (body) =>
@@ -32,6 +33,7 @@ export function exportMap(round: Round, name: string) {
                 body.robotType === RobotType.CAT
         )
         .forEach((body) => round.bodies.removeBody(body.id))
+    */
     const mapError = verifyMap(round.map, round.bodies)
     if (mapError) return mapError
 
@@ -61,8 +63,25 @@ function verifyMap(map: CurrentMap, bodies: Bodies): string {
         return 'Map is empty'
     }
 
+    // verify there are at least 2 cats
+    const numCats = Array.from(bodies.bodies.values()).filter((body) => body.robotType === RobotType.CAT).length
+    if (numCats < 2) {
+        return 'Map must have at least 2 cats placed'
+    }
+
+    // verify there is exactly one rat-king per team initially
+    const ratKings = Array.from(bodies.bodies.values()).filter((body) => body.robotType === RobotType.RAT_KING)
+    const ratKingTeams = new Set<Team>()
+    for (const ratK of ratKings) {
+        ratKingTeams.add(ratK.team)
+    }
+    if (ratKings.length !== 2 || ratKingTeams.size !== 2) {
+        return `Each team must have exactly 1 Rat King placed`
+    }
+
     // Validate map elements
     let numWalls = 0
+    let numDirt = 0
     const mapSize = map.width * map.height
     for (let i = 0; i < mapSize; i++) {
         const pos = map.indexToLocation(i)
@@ -108,36 +127,58 @@ function verifyMap(map: CurrentMap, bodies: Bodies): string {
         }
 
         numWalls += wall
+        numDirt += map.dirt[i] > 0 ? 1 : 0
     }
 
     // Validate wall percentage
-    const maxPercent = 20
-    if (numWalls * 100 >= mapSize * maxPercent) {
+    const maxWallPercent = 20
+    if (numWalls * 100 >= mapSize * maxWallPercent) {
         const displayPercent = (numWalls / mapSize) * 100
-        return `Walls must take up at most ${maxPercent}% of the map, currently is ${displayPercent.toFixed(1)}%`
+        return `Walls must take up at most ${maxWallPercent}% of the map, currently is ${displayPercent.toFixed(1)}%`
+    }
+
+    // Validate dirt percentage
+    const maxDirtPercent = 50
+    if (numDirt * 100 >= mapSize * maxDirtPercent) {
+        const displayPercent = (numDirt / mapSize) * 100
+        return `Dirt must take up at most ${maxDirtPercent}% of the map, currently is ${displayPercent.toFixed(1)}%`
     }
 
     // Validate initial bodies
     for (const body of bodies.bodies.values()) {
-        // Check distance to nearby ruins, towers, and walls
+        // Check distance from cat to other cats and cheese mines
+        let body_type = undefined
+        switch (body.robotType) {
+            case schema.RobotType.CAT:
+                body_type = 'Cat'
+                break
+            case schema.RobotType.RAT:
+                body_type = 'Rat'
+                break
+            case schema.RobotType.RAT_KING:
+                body_type = 'Rat King'
+                break
+            default:
+                body_type = 'Unknown'
+        }
 
         for (const checkCheeseMine of map.staticMap.cheeseMines) {
-            if (squareIntersects(checkCheeseMine, body.pos, 4)) {
+            if (squareIntersects(checkCheeseMine, body.pos, 2)) {
                 return (
-                    `Cheese mine at (${checkCheeseMine.x}, ${checkCheeseMine.y}) is too close to cheese mine ` +
+                    `Cheese mine at (${checkCheeseMine.x}, ${checkCheeseMine.y}) is too close to ${body_type} ` +
                     `at (${body.pos.x}, ${body.pos.y}), must be ` +
-                    `>= 5 away`
+                    `>= 3 away`
                 )
             }
         }
 
         for (const checkBody of bodies.bodies.values()) {
             if (checkBody === body) continue
-            if (squareIntersects(checkBody.pos, body.pos, 4)) {
+            if (squareIntersects(checkBody.pos, body.pos, 0)) {
                 return (
-                    `Tower at (${body.pos.x}, ${body.pos.y}) is too close to ruin ` +
+                    `${body_type} at (${body.pos.x}, ${body.pos.y}) is too close to cat ` +
                     `at (${checkBody.pos.x}, ${checkBody.pos.y}), must be ` +
-                    `>= 5 away`
+                    `>= 1 away`
                 )
             }
         }
@@ -148,11 +189,18 @@ function verifyMap(map: CurrentMap, bodies: Bodies): string {
         if (wall !== -1) {
             const pos = map.indexToLocation(wall)
             return (
-                `Tower at (${body.pos.x}, ${body.pos.y}) is too close to wall ` +
+                `${body_type} at (${body.pos.x}, ${body.pos.y}) is too close to wall ` +
                 `at (${pos.x}, ${pos.y}), must be ` +
                 `>= 3 away`
             )
         }
+
+        if (body.robotType === schema.RobotType.CAT) {
+            if (!map.staticMap.catWaypoints.get(body.id) || map.staticMap.catWaypoints.get(body.id)?.length === 0) {
+                return `Cat with id ${body.id} has no waypoints`
+            }
+        }
+
     }
 
     return ''

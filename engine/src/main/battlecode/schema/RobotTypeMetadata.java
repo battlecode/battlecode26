@@ -21,7 +21,7 @@ import java.nio.ByteOrder;
 
 @SuppressWarnings("unused")
 public final class RobotTypeMetadata extends Table {
-  public static void ValidateVersion() { Constants.FLATBUFFERS_23_5_26(); }
+  public static void ValidateVersion() { Constants.FLATBUFFERS_24_3_25(); }
   public static RobotTypeMetadata getRootAsRobotTypeMetadata(ByteBuffer _bb) { return getRootAsRobotTypeMetadata(_bb, new RobotTypeMetadata()); }
   public static RobotTypeMetadata getRootAsRobotTypeMetadata(ByteBuffer _bb, RobotTypeMetadata obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
   public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
@@ -30,11 +30,11 @@ public final class RobotTypeMetadata extends Table {
   public byte type() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) : 0; }
   public int actionCooldown() { int o = __offset(6); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   public int movementCooldown() { int o = __offset(8); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public int baseHealth() { int o = __offset(10); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public int basePaint() { int o = __offset(12); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public int maxPaint() { int o = __offset(14); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public int actionRadiusSquared() { int o = __offset(16); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public int visionRadiusSquared() { int o = __offset(18); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int turningCooldown() { int o = __offset(10); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int baseHealth() { int o = __offset(12); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int maxCheese() { int o = __offset(14); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int visionConeRadiusSquared() { int o = __offset(16); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int visionConeAngle() { int o = __offset(18); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   public int messageRadiusSquared() { int o = __offset(20); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   public int bytecodeLimit() { int o = __offset(22); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
 
@@ -42,21 +42,21 @@ public final class RobotTypeMetadata extends Table {
       byte type,
       int actionCooldown,
       int movementCooldown,
+      int turningCooldown,
       int baseHealth,
-      int basePaint,
-      int maxPaint,
-      int actionRadiusSquared,
-      int visionRadiusSquared,
+      int maxCheese,
+      int visionConeRadiusSquared,
+      int visionConeAngle,
       int messageRadiusSquared,
       int bytecodeLimit) {
     builder.startTable(10);
     RobotTypeMetadata.addBytecodeLimit(builder, bytecodeLimit);
     RobotTypeMetadata.addMessageRadiusSquared(builder, messageRadiusSquared);
-    RobotTypeMetadata.addVisionRadiusSquared(builder, visionRadiusSquared);
-    RobotTypeMetadata.addActionRadiusSquared(builder, actionRadiusSquared);
-    RobotTypeMetadata.addMaxPaint(builder, maxPaint);
-    RobotTypeMetadata.addBasePaint(builder, basePaint);
+    RobotTypeMetadata.addVisionConeAngle(builder, visionConeAngle);
+    RobotTypeMetadata.addVisionConeRadiusSquared(builder, visionConeRadiusSquared);
+    RobotTypeMetadata.addMaxCheese(builder, maxCheese);
     RobotTypeMetadata.addBaseHealth(builder, baseHealth);
+    RobotTypeMetadata.addTurningCooldown(builder, turningCooldown);
     RobotTypeMetadata.addMovementCooldown(builder, movementCooldown);
     RobotTypeMetadata.addActionCooldown(builder, actionCooldown);
     RobotTypeMetadata.addType(builder, type);
@@ -67,11 +67,11 @@ public final class RobotTypeMetadata extends Table {
   public static void addType(FlatBufferBuilder builder, byte type) { builder.addByte(0, type, 0); }
   public static void addActionCooldown(FlatBufferBuilder builder, int actionCooldown) { builder.addInt(1, actionCooldown, 0); }
   public static void addMovementCooldown(FlatBufferBuilder builder, int movementCooldown) { builder.addInt(2, movementCooldown, 0); }
-  public static void addBaseHealth(FlatBufferBuilder builder, int baseHealth) { builder.addInt(3, baseHealth, 0); }
-  public static void addBasePaint(FlatBufferBuilder builder, int basePaint) { builder.addInt(4, basePaint, 0); }
-  public static void addMaxPaint(FlatBufferBuilder builder, int maxPaint) { builder.addInt(5, maxPaint, 0); }
-  public static void addActionRadiusSquared(FlatBufferBuilder builder, int actionRadiusSquared) { builder.addInt(6, actionRadiusSquared, 0); }
-  public static void addVisionRadiusSquared(FlatBufferBuilder builder, int visionRadiusSquared) { builder.addInt(7, visionRadiusSquared, 0); }
+  public static void addTurningCooldown(FlatBufferBuilder builder, int turningCooldown) { builder.addInt(3, turningCooldown, 0); }
+  public static void addBaseHealth(FlatBufferBuilder builder, int baseHealth) { builder.addInt(4, baseHealth, 0); }
+  public static void addMaxCheese(FlatBufferBuilder builder, int maxCheese) { builder.addInt(5, maxCheese, 0); }
+  public static void addVisionConeRadiusSquared(FlatBufferBuilder builder, int visionConeRadiusSquared) { builder.addInt(6, visionConeRadiusSquared, 0); }
+  public static void addVisionConeAngle(FlatBufferBuilder builder, int visionConeAngle) { builder.addInt(7, visionConeAngle, 0); }
   public static void addMessageRadiusSquared(FlatBufferBuilder builder, int messageRadiusSquared) { builder.addInt(8, messageRadiusSquared, 0); }
   public static void addBytecodeLimit(FlatBufferBuilder builder, int bytecodeLimit) { builder.addInt(9, bytecodeLimit, 0); }
   public static int endRobotTypeMetadata(FlatBufferBuilder builder) {
@@ -86,3 +86,4 @@ public final class RobotTypeMetadata extends Table {
     public RobotTypeMetadata get(RobotTypeMetadata obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
 }
+

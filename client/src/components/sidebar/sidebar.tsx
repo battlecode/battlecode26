@@ -19,7 +19,7 @@ import { ConfigPage } from '../../client-config'
 import { UpdateWarning } from './update-warning'
 import Game from '../../playback/Game'
 import GameRunner from '../../playback/GameRunner'
-import { Colors, currentColors } from '../../colors'
+import { Colors } from '../../colors'
 
 export const Sidebar: React.FC = () => {
     const { width, height } = useWindowDimensions()
@@ -164,7 +164,7 @@ export const Sidebar: React.FC = () => {
     return (
         <div
             className={`${minWidth} ${maxWidth} h-screen transition-[min-width,max-width] overflow-hidden text-white`}
-            style={{ backgroundColor: currentColors[Colors.SIDEBAR_BACKGROUND] }}
+            style={{ backgroundColor: Colors.SIDEBAR_BACKGROUND.get() }}
         >
             <Scrollbars
                 universal={true}

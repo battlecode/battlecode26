@@ -104,7 +104,6 @@ public class RobotControllerTest {
 
     //     // The following specifies the code to be executed in the next round.
     //     // Bytecodes are not counted, and yields are automatic at the end.
-    //     // TODO? fix test?
     //     game.round((id, rc) -> {
     //         assertTrue("Can't build robot", rc.canBuildRobot(RobotType.MUCKRAKER, Direction.EAST, 40));
     //         rc.buildRobot(RobotType.MUCKRAKER, Direction.EAST, 40);

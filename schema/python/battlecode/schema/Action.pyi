@@ -18,13 +18,17 @@ class Action(object):
   BreakDirt: int
   CheesePickup: int
   CheeseSpawn: int
+  CheeseTransfer: int
   CatScratch: int
   CatPounce: int
-  PlaceRatTrap: int
-  PlaceCatTrap: int
-  TriggerRatTrap: int
-  TriggerCatTrap: int
+  PlaceTrap: int
+  RemoveTrap: int
+  TriggerTrap: int
+  ThrowRat: int
+  UpgradeToRatKing: int
+  RatSqueak: int
   DamageAction: int
+  StunAction: int
   SpawnAction: int
   DieAction: int
   IndicatorStringAction: int

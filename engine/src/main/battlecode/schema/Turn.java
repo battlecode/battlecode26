@@ -21,7 +21,7 @@ import java.nio.ByteOrder;
 
 @SuppressWarnings("unused")
 public final class Turn extends Table {
-  public static void ValidateVersion() { Constants.FLATBUFFERS_23_5_26(); }
+  public static void ValidateVersion() { Constants.FLATBUFFERS_24_3_25(); }
   public static Turn getRootAsTurn(ByteBuffer _bb) { return getRootAsTurn(_bb, new Turn()); }
   public static Turn getRootAsTurn(ByteBuffer _bb, Turn obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
   public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
@@ -29,63 +29,75 @@ public final class Turn extends Table {
 
   public int robotId() { int o = __offset(4); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   public int health() { int o = __offset(6); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public int paint() { int o = __offset(8); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int cheese() { int o = __offset(8); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   public int moveCooldown() { int o = __offset(10); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public int actionCooldown() { int o = __offset(12); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public int bytecodesUsed() { int o = __offset(14); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public int x() { int o = __offset(16); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
-  public int y() { int o = __offset(18); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
-  public byte actionsType(int j) { int o = __offset(20); return o != 0 ? bb.get(__vector(o) + j * 1) : 0; }
-  public int actionsTypeLength() { int o = __offset(20); return o != 0 ? __vector_len(o) : 0; }
+  public int turningCooldown() { int o = __offset(12); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int actionCooldown() { int o = __offset(14); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int bytecodesUsed() { int o = __offset(16); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int x() { int o = __offset(18); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
+  public int y() { int o = __offset(20); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
+  public int dir() { int o = __offset(22); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
+  public byte actionsType(int j) { int o = __offset(24); return o != 0 ? bb.get(__vector(o) + j * 1) : 0; }
+  public int actionsTypeLength() { int o = __offset(24); return o != 0 ? __vector_len(o) : 0; }
   public ByteVector actionsTypeVector() { return actionsTypeVector(new ByteVector()); }
-  public ByteVector actionsTypeVector(ByteVector obj) { int o = __offset(20); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer actionsTypeAsByteBuffer() { return __vector_as_bytebuffer(20, 1); }
-  public ByteBuffer actionsTypeInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 20, 1); }
-  public Table actions(Table obj, int j) { int o = __offset(22); return o != 0 ? __union(obj, __vector(o) + j * 4) : null; }
-  public int actionsLength() { int o = __offset(22); return o != 0 ? __vector_len(o) : 0; }
+  public ByteVector actionsTypeVector(ByteVector obj) { int o = __offset(24); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
+  public ByteBuffer actionsTypeAsByteBuffer() { return __vector_as_bytebuffer(24, 1); }
+  public ByteBuffer actionsTypeInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 24, 1); }
+  public Table actions(Table obj, int j) { int o = __offset(26); return o != 0 ? __union(obj, __vector(o) + j * 4) : null; }
+  public int actionsLength() { int o = __offset(26); return o != 0 ? __vector_len(o) : 0; }
   public UnionVector actionsVector() { return actionsVector(new UnionVector()); }
-  public UnionVector actionsVector(UnionVector obj) { int o = __offset(22); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
+  public UnionVector actionsVector(UnionVector obj) { int o = __offset(26); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
+  public boolean isCooperation() { int o = __offset(28); return o != 0 ? 0!=bb.get(o + bb_pos) : false; }
 
   public static int createTurn(FlatBufferBuilder builder,
       int robotId,
       int health,
-      int paint,
+      int cheese,
       int moveCooldown,
+      int turningCooldown,
       int actionCooldown,
       int bytecodesUsed,
       int x,
       int y,
+      int dir,
       int actionsTypeOffset,
-      int actionsOffset) {
-    builder.startTable(10);
+      int actionsOffset,
+      boolean isCooperation) {
+    builder.startTable(13);
     Turn.addActions(builder, actionsOffset);
     Turn.addActionsType(builder, actionsTypeOffset);
     Turn.addBytecodesUsed(builder, bytecodesUsed);
     Turn.addActionCooldown(builder, actionCooldown);
+    Turn.addTurningCooldown(builder, turningCooldown);
     Turn.addMoveCooldown(builder, moveCooldown);
-    Turn.addPaint(builder, paint);
+    Turn.addCheese(builder, cheese);
     Turn.addHealth(builder, health);
     Turn.addRobotId(builder, robotId);
+    Turn.addIsCooperation(builder, isCooperation);
+    Turn.addDir(builder, dir);
     Turn.addY(builder, y);
     Turn.addX(builder, x);
     return Turn.endTurn(builder);
   }
 
-  public static void startTurn(FlatBufferBuilder builder) { builder.startTable(10); }
+  public static void startTurn(FlatBufferBuilder builder) { builder.startTable(13); }
   public static void addRobotId(FlatBufferBuilder builder, int robotId) { builder.addInt(0, robotId, 0); }
   public static void addHealth(FlatBufferBuilder builder, int health) { builder.addInt(1, health, 0); }
-  public static void addPaint(FlatBufferBuilder builder, int paint) { builder.addInt(2, paint, 0); }
+  public static void addCheese(FlatBufferBuilder builder, int cheese) { builder.addInt(2, cheese, 0); }
   public static void addMoveCooldown(FlatBufferBuilder builder, int moveCooldown) { builder.addInt(3, moveCooldown, 0); }
-  public static void addActionCooldown(FlatBufferBuilder builder, int actionCooldown) { builder.addInt(4, actionCooldown, 0); }
-  public static void addBytecodesUsed(FlatBufferBuilder builder, int bytecodesUsed) { builder.addInt(5, bytecodesUsed, 0); }
-  public static void addX(FlatBufferBuilder builder, int x) { builder.addByte(6, (byte) x, (byte) 0); }
-  public static void addY(FlatBufferBuilder builder, int y) { builder.addByte(7, (byte) y, (byte) 0); }
-  public static void addActionsType(FlatBufferBuilder builder, int actionsTypeOffset) { builder.addOffset(8, actionsTypeOffset, 0); }
+  public static void addTurningCooldown(FlatBufferBuilder builder, int turningCooldown) { builder.addInt(4, turningCooldown, 0); }
+  public static void addActionCooldown(FlatBufferBuilder builder, int actionCooldown) { builder.addInt(5, actionCooldown, 0); }
+  public static void addBytecodesUsed(FlatBufferBuilder builder, int bytecodesUsed) { builder.addInt(6, bytecodesUsed, 0); }
+  public static void addX(FlatBufferBuilder builder, int x) { builder.addByte(7, (byte) x, (byte) 0); }
+  public static void addY(FlatBufferBuilder builder, int y) { builder.addByte(8, (byte) y, (byte) 0); }
+  public static void addDir(FlatBufferBuilder builder, int dir) { builder.addByte(9, (byte) dir, (byte) 0); }
+  public static void addActionsType(FlatBufferBuilder builder, int actionsTypeOffset) { builder.addOffset(10, actionsTypeOffset, 0); }
   public static int createActionsTypeVector(FlatBufferBuilder builder, byte[] data) { builder.startVector(1, data.length, 1); for (int i = data.length - 1; i >= 0; i--) builder.addByte(data[i]); return builder.endVector(); }
   public static void startActionsTypeVector(FlatBufferBuilder builder, int numElems) { builder.startVector(1, numElems, 1); }
-  public static void addActions(FlatBufferBuilder builder, int actionsOffset) { builder.addOffset(9, actionsOffset, 0); }
+  public static void addActions(FlatBufferBuilder builder, int actionsOffset) { builder.addOffset(11, actionsOffset, 0); }
   public static int createActionsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
   public static void startActionsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addIsCooperation(FlatBufferBuilder builder, boolean isCooperation) { builder.addBoolean(12, isCooperation, false); }
   public static int endTurn(FlatBufferBuilder builder) {
     int o = builder.endTable();
     return o;

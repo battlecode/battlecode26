@@ -7,7 +7,6 @@ import battlecode.instrumenter.InstrumentationException;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -231,7 +230,6 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
         ));
     }
 
-    @SuppressWarnings("unchecked")
     private void addDebugHandler() {
         // will be injected at the end of the method
         final LabelNode debugEndLabel = new LabelNode(new Label());
@@ -276,7 +274,7 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
         instructions.add(new InsnNode(ATHROW));
     }
 
-    @SuppressWarnings("unchecked")	// This is to fix the warning from the add() to tryCatchBlocks
+    // This is to fix the warning from the add() to tryCatchBlocks
     private void addRobotDeathHandler() {
         LabelNode robotDeathLabel = new LabelNode(new Label());
         LabelNode firstTryCatch = null;
@@ -690,7 +688,7 @@ public class InstrumentingMethodVisitor extends MethodNode implements Opcodes {
         }
     }
 
-    @SuppressWarnings("unchecked")	// n.local and n.stack are both supposed to be List<Object>, but they aren't for some reason?
+    // n.local and n.stack are both supposed to be List<Object>, but they aren't for some reason?
     private void visitFrameNode(FrameNode n) {
         replaceVars(n.local);
         replaceVars(n.stack);

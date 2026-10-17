@@ -2,10 +2,16 @@ import { StaticMap, CurrentMap } from '../../../playback/Map'
 
 export type UndoFunction = (() => void) | undefined
 
+export enum MapEditorBrushClickBehavior {
+    DEFAULT, // Default behavior of clicking an empty tile will deselect any robots
+    NO_DESELECT // Clicking an empty tile will not deselect the current robot
+}
+
 export abstract class MapEditorBrush {
     abstract name: string
     abstract fields: Record<string, MapEditorBrushField>
     abstract apply(x: number, y: number, fields: Record<string, MapEditorBrushField>, robotOne: boolean): UndoFunction
+    public readonly clickBehavior: MapEditorBrushClickBehavior = MapEditorBrushClickBehavior.DEFAULT
     public open: boolean = false
 
     public opened(open: boolean): MapEditorBrush {

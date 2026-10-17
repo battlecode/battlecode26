@@ -1,6 +1,6 @@
 {
-    "name": "battlecode-client-2025",
-    "version": "25.0.0",
+    "name": "battlecode-client-2026",
+    "version": "26.0.0",
     "description": "Battlecode client",
     "main": "src-electron/electron-main.js",
     "scripts": {
@@ -21,7 +21,7 @@
     },
     "build": {
         "asar": false,
-        "appId": "com.battlecode.client.2025",
+        "appId": "com.battlecode.client.2026",
         "productName": "Battlecode Client",
         "compression": "store",
         "directories": {
@@ -29,16 +29,16 @@
         },
         "fileAssociations": [
             {
-                "ext": "bc25",
-                "name": "BC25",
-                "description": "Battlecode Match 2025",
+                "ext": "bc26",
+                "name": "BC26",
+                "description": "Battlecode Match 2026",
                 "role": "Viewer",
                 "icon": "icons/icon"
             },
             {
-                "ext": "map25",
-                "name": "MAP25",
-                "description": "Battlecode Map 2025",
+                "ext": "map26",
+                "name": "MAP26",
+                "description": "Battlecode Map 2026",
                 "role": "Viewer",
                 "icon": "icons/icon"
             }
@@ -119,14 +119,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/battlecode/battlecode25.git"
+        "url": "git+https://github.com/battlecode/battlecode26.git"
     },
     "author": "Teh Devs",
     "license": "GPL-3.0",
     "bugs": {
-        "url": "https://github.com/battlecode/battlecode25/issues"
+        "url": "https://github.com/battlecode/battlecode26/issues"
     },
-    "homepage": "https://github.com/battlecode/battlecode25#readme",
+    "homepage": "https://github.com/battlecode/battlecode26#readme",
     "dependencies": {
         "@headlessui/react": "^2.2.0",
         "assert": "^2.0.0",
@@ -151,7 +151,7 @@
         "where-is-it": "github:TheApplePieGod/where-is-it"
     },
     "devDependencies": {
-        "@tauri-apps/cli": "1.6.3",
+        "@tauri-apps/cli": "2.9.4",
         "@types/pako": "^2.0.0",
         "@types/react": "^18.2.5",
         "@types/react-color": "^3.0.12",

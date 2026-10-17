@@ -8,8 +8,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-// TODO: read default map paths from config file
-// TODO: remove the dependency on Server
 
 /**
  * A utility class for finding the two types match inputs (teams and maps) that
@@ -143,6 +141,7 @@ public class PlayerFinder {
                     found.add(name.substring(start, end - start));
                 }
             }
+            jar.close();
         } catch (IOException e) {
         }
     }

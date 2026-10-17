@@ -33,18 +33,45 @@ public class RobotInfo {
     public final MapLocation location;
 
     /**
-     * The current paint amount of the robot.
+     * The current location of the robot.
      */
-    public final int paintAmount;
+    public final Direction direction;
 
-    public RobotInfo(int ID, Team team, UnitType type, int health, MapLocation location, int paintAmount) {
-        super();
+    /**
+     * Robot chirality (used by cat only).
+     */
+    public final int chirality;
+
+    /**
+     * The current cheese this robot holds
+     */
+    public final int cheeseAmount;
+  
+    /**
+     * The current robot being carried by this robot, or null if not carrying any robots.
+     */
+    public final RobotInfo carryingRobot;
+
+    public RobotInfo(int ID, Team team, UnitType type, int health, MapLocation location, Direction direction, int chirality, int cheeseAmount, RobotInfo carryingRobot) {
+        if (team == null) {
+            throw new IllegalArgumentException("Team in RobotInfo constructor cannot be null");
+        } else if (type == null) {
+            throw new IllegalArgumentException("UnitType in RobotInfo constructor cannot be null");
+        } else if (location == null) {
+            throw new IllegalArgumentException("MapLocation in RobotInfo constructor cannot be null");
+        } else if (direction == null) {
+            throw new IllegalArgumentException("Direction in RobotInfo constructor cannot be null");
+        }
+
         this.ID = ID;
         this.team = team;
         this.type = type;
         this.health = health;
         this.location = location;
-        this.paintAmount = paintAmount;
+        this.direction = direction;
+        this.chirality = chirality;
+        this.cheeseAmount = cheeseAmount;
+        this.carryingRobot = carryingRobot;
     }
 
     /**
@@ -62,7 +89,7 @@ public class RobotInfo {
      * @return the team that this robot is on
      */
     public Team getTeam() {
-        return team;
+        return this.team;
     }
 
     /**
@@ -71,7 +98,7 @@ public class RobotInfo {
      * @return the health of this robot
      */
     public int getHealth() {
-        return health;
+        return this.health;
     }
 
     /**
@@ -84,34 +111,65 @@ public class RobotInfo {
     }
 
     /**
+     * Returns the direction of this robot.
+     *
+     * @return the direction of this robot
+     */
+    public Direction getDirection() {
+        return this.direction;
+    }
+
+    /**
+     * Returns the chirality of this robot.
+     *
+     * @return the chirality of this robot
+     */
+    public int getChirality() {
+        return this.chirality;
+    }
+
+    /**
      * Returns this robot's type.
      * 
      * @return the type of this robot.
      */
-    public UnitType getType(){
+    public UnitType getType() {
         return this.type;
     }
 
     /**
-     * Returns the paint amount of this robot. 
+     * Returns the cheese amount of this robot.
      * 
-     * @return the paint amount of the robot
+     * @return the cheese amount of the robot
      */
-    public int getPaintAmount(){
-        return this.paintAmount;
+    public int getRawCheeseAmount() {
+        return this.cheeseAmount;
     }
 
+    /**
+     * Returns the robot this robot is carrying, or null if not carrying a robot. 
+     * 
+     * @return the robot the robot is carrying, or null if not carrying a robot
+     */
+    public RobotInfo getCarryingRobot() {
+        return this.carryingRobot;
+    }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         RobotInfo robotInfo = (RobotInfo) o;
 
-        if (ID != robotInfo.ID) return false;
-        if (team != robotInfo.team) return false;
-        if (health != robotInfo.health) return false;
+        if (ID != robotInfo.ID)
+            return false;
+        if (team != robotInfo.team)
+            return false;
+        if (health != robotInfo.health)
+            return false;
         return location.equals(robotInfo.location);
     }
 
@@ -132,7 +190,8 @@ public class RobotInfo {
                 ", team=" + team +
                 ", health=" + health +
                 ", location=" + location +
-                ", paint amount=" + paintAmount +
+                ", raw cheese amount=" + cheeseAmount +
+                ", carrying=" + carryingRobot +
                 '}';
     }
 }

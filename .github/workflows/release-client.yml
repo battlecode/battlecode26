@@ -9,7 +9,7 @@ env:
   GCS_BUCKET: mitbattlecode-releases
 
   # CLIENT_ARTIFACT_ID is the name of the base client artifact produced by the buildsystem.
-  CLIENT_ARTIFACT_ID: battlecode25
+  CLIENT_ARTIFACT_ID: battlecode26
 
   # IS_PUBLIC is whether to release deployments publicly. Set to exactly the text "YES" to do so.
   IS_PUBLIC: NO
@@ -49,10 +49,10 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v3
 
-      - name: Set up Node 18
+      - name: Set up Node 22
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 22
 
       # Rust toolchain is preinstalled on runner images, but we need to add the x86
       # toolchain on macos to compile universal apps from the M1 runner
@@ -60,18 +60,18 @@ jobs:
         if: startsWith(matrix.platform-name, 'macos')
         run: |
           rustup target add x86_64-apple-darwin
-          npm install @tauri-apps/cli-darwin-arm64@1.6.3
+          npm install @tauri-apps/cli-darwin-arm64@2.9.4
 
       - name: Install linux dependencies
         if: startsWith(matrix.platform-name, 'ubuntu')
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev build-essential wget libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
-          npm install @tauri-apps/cli-linux-x64-gnu@1.6.3
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential wget libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
+          npm install @tauri-apps/cli-linux-x64-gnu@2.9.4
 
       - name: Install windows dependencies
         if: startsWith(matrix.platform-name, 'windows')
-        run: npm install @tauri-apps/cli-win32-x64-msvc@1.6.3
+        run: npm install @tauri-apps/cli-win32-x64-msvc@2.9.4
 
       - name: Install schema
         run: npm install
@@ -108,13 +108,13 @@ jobs:
       # the same result
       - name: Upload dist files artifact
         if: matrix.upload-dist
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: client-dist
           path: ./client/dist
       
       - name: Upload client artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: client-${{ matrix.build-name }}
           path: |
@@ -157,14 +157,14 @@ jobs:
           distribution: adopt
 
       - name: Download all client artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: ./client/artifacts
 
       # Always cleanup even if other commands failed so we don't unnecessarily store
       # the artifacts in the cloud 
       - name: Cleanup client artifacts
-        uses: geekyeggo/delete-artifact@54ab544f12cdb7b71613a16a2b5a37a9ade990af
+        uses: geekyeggo/delete-artifact@v5
         if: always()
         with:
           name: client-*

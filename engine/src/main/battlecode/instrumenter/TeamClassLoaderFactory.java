@@ -420,7 +420,7 @@ public final class TeamClassLoaderFactory {
             }
 
             // this is the class we'll return
-            Class finishedClass;
+            Class<?> finishedClass;
 
             if (TeamClassLoaderFactory.this.hasCached(name)) {
                 byte[] classBytes = TeamClassLoaderFactory.this.getCached(name);

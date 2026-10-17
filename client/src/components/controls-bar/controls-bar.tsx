@@ -107,8 +107,8 @@ export const ControlsBar: React.FC = () => {
                         <Tooltip
                             text={
                                 markerTeam == 0
-                                    ? 'Switch timeline markers to Gold'
-                                    : 'Switch timeline markers to Silver'
+                                    ? 'Switch timeline markers to Plum'
+                                    : 'Switch timeline markers to Cheddar'
                             }
                             wrapperClass="flex pointer-events-auto"
                         >
@@ -117,7 +117,7 @@ export const ControlsBar: React.FC = () => {
                                 style={{ color: getTeamColors()[markerTeam] }}
                                 onClick={() => setMarkerTeam(1 - markerTeam)}
                             >
-                                {markerTeam === 0 ? 'S' : 'G'}
+                                {markerTeam === 0 ? 'C' : 'P'}
                             </button>
                         </Tooltip>
                     )}

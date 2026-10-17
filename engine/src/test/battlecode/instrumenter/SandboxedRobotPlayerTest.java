@@ -62,7 +62,7 @@ public class SandboxedRobotPlayerTest {
 
         // SandboxedRobotPlayer uses rc.getTeam; tell it we're team A
         when(rc.getTeam()).thenReturn(Team.A);
-        when(rc.getType()).thenReturn(RobotType.HQ); // TODO?!
+        when(rc.getType()).thenReturn(RobotType.HQ);
         when(rc.getID()).thenReturn(0);
         when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
         when(rc.getRoundNum()).thenReturn(0);

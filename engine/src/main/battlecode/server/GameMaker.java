@@ -2,8 +2,10 @@ package battlecode.server;
 
 import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
+import battlecode.common.Direction;
 import battlecode.common.UnitType;
 import battlecode.common.Team;
+import battlecode.common.TrapType;
 import battlecode.instrumenter.profiler.Profiler;
 import battlecode.instrumenter.profiler.ProfilerCollection;
 import battlecode.instrumenter.profiler.ProfilerEventType;
@@ -12,7 +14,6 @@ import battlecode.util.FlatHelpers;
 import battlecode.util.TeamMapping;
 import battlecode.world.*;
 import com.google.flatbuffers.FlatBufferBuilder;
-import gnu.trove.TByteArrayList;
 import gnu.trove.TIntArrayList;
 import java.util.List;
 import java.util.ArrayList;
@@ -25,8 +26,6 @@ import java.nio.ByteBuffer;
 import java.util.function.ToIntFunction;
 import java.util.function.Consumer;
 import java.util.zip.GZIPOutputStream;
-
-import static battlecode.util.FlatHelpers.*;
 
 /**
  * Writes a game to a flatbuffer, hooray.
@@ -193,9 +192,10 @@ public class GameMaker {
 
     /**
      * Write a match out to a file.
-     *
+     * 
      * @param saveFile the file to save to
      */
+
     public void writeGame(File saveFile) {
         if (saveFile == null) {
             throw new RuntimeException("Null file provided to writeGame");
@@ -272,7 +272,8 @@ public class GameMaker {
             TeamData.addPackageName(builder, packageName);
             TeamData.addTeamId(builder, TeamMapping.id(Team.B));
             int teamBOffset = TeamData.endTeamData(builder);
-            int[] teamsVec = { teamAOffset, teamBOffset };
+
+            int[] teamsVec = {teamAOffset, teamBOffset};
 
             int teamsOffset = GameHeader.createTeamsVector(builder, teamsVec);
             int robotTypeMetaDataOffset = makeRobotTypeMetadata(builder);
@@ -291,29 +292,26 @@ public class GameMaker {
         });
     }
 
-    public int makeRobotTypeMetadata(FlatBufferBuilder builder){
+    public int makeRobotTypeMetadata(FlatBufferBuilder builder) {
         TIntArrayList robotTypeMetadataOffsets = new TIntArrayList();
-        for (UnitType type : UnitType.values()){
-            //turns all types into level 1 to convert easily into RobotType
+        for (UnitType type : UnitType.values()) {
+            // turns all types into level 1 to convert easily into RobotType
             UnitType levelOneType = FlatHelpers.getUnitTypeFromRobotType(FlatHelpers.getRobotTypeFromUnitType(type));
-            if (type != levelOneType){
-                continue; //avoid double counting
+
+            if (type != levelOneType) {
+                continue; // avoid double counting
             }
+
             RobotTypeMetadata.startRobotTypeMetadata(builder);
             RobotTypeMetadata.addType(builder, FlatHelpers.getRobotTypeFromUnitType(type));
-            RobotTypeMetadata.addMaxPaint(builder, type.paintCapacity);
-            if (type.isRobotType())
-                RobotTypeMetadata.addBasePaint(builder, (int) Math.round(type.paintCapacity * GameConstants.INITIAL_ROBOT_PAINT_PERCENTAGE / 100.0));
-            else{
-                RobotTypeMetadata.addBasePaint(builder, GameConstants.INITIAL_TOWER_PAINT_AMOUNT);
-            }
             RobotTypeMetadata.addActionCooldown(builder, type.actionCooldown);
-            RobotTypeMetadata.addActionRadiusSquared(builder, type.actionRadiusSquared);
-            RobotTypeMetadata.addBaseHealth(builder,type.health);
-            RobotTypeMetadata.addBytecodeLimit(builder, type.isRobotType() ? GameConstants.ROBOT_BYTECODE_LIMIT : GameConstants.TOWER_BYTECODE_LIMIT);
-            RobotTypeMetadata.addMovementCooldown(builder, GameConstants.MOVEMENT_COOLDOWN); 
-            RobotTypeMetadata.addVisionRadiusSquared(builder, GameConstants.VISION_RADIUS_SQUARED);
-            RobotTypeMetadata.addMessageRadiusSquared(builder, GameConstants.MESSAGE_RADIUS_SQUARED);
+            RobotTypeMetadata.addTurningCooldown(builder, GameConstants.TURNING_COOLDOWN);
+            RobotTypeMetadata.addBaseHealth(builder, type.health);
+            RobotTypeMetadata.addBytecodeLimit(builder, type.bytecodeLimit);
+            RobotTypeMetadata.addMovementCooldown(builder, type.movementCooldown);
+            RobotTypeMetadata.addVisionConeRadiusSquared(builder, type.visionConeRadiusSquared);
+            RobotTypeMetadata.addVisionConeAngle(builder, type.visionConeAngle);
+            RobotTypeMetadata.addMessageRadiusSquared(builder, GameConstants.SQUEAK_RADIUS_SQUARED);
             robotTypeMetadataOffsets.add(RobotTypeMetadata.endRobotTypeMetadata(builder));
         }
         return GameHeader.createRobotTypeMetadataVector(builder, robotTypeMetadataOffsets.toNativeArray());
@@ -338,17 +336,29 @@ public class GameMaker {
 
         // Round statistics
         private TIntArrayList teamIDs;
-        private TIntArrayList teamMoneyAmounts;
-        private TIntArrayList teamPaintCoverageAmounts;
-        private TIntArrayList teamResourcePatternAmounts;
+        private TIntArrayList teamCatDamage;
+        private TIntArrayList teamCheeseTransferred;
+        private TIntArrayList teamAliveRatKings;
+        private TIntArrayList teamAliveBabyRats;
+        private TIntArrayList teamRatTrapCount;
+        private TIntArrayList teamCatTrapCount;
+        private TIntArrayList teamDirtCount;
 
         private TIntArrayList diedIds; // ints
+
+        // private TIntArrayList trapAddedIds;
+        // private TIntArrayList trapAddedX;
+        // private TIntArrayList trapAddedY;
+        // private TByteArrayList trapAddedTypes;
+        // private TByteArrayList trapAddedTeams;
+
+        // private TIntArrayList trapTriggeredIds;
 
         private int currentRound;
         private int currentMapWidth = -1;
 
         private ArrayList<Byte> timelineMarkerTeams;
-        private ArrayList<Integer> timelineMarkerRounds; 
+        private ArrayList<Integer> timelineMarkerRounds;
         private ArrayList<String> timelineMarkerLabels;
         private ArrayList<Integer> timelineMarkerColors;
 
@@ -357,9 +367,14 @@ public class GameMaker {
 
         public MatchMaker() {
             this.teamIDs = new TIntArrayList();
-            this.teamMoneyAmounts = new TIntArrayList();
-            this.teamPaintCoverageAmounts = new TIntArrayList();
-            this.teamResourcePatternAmounts = new TIntArrayList();
+            this.teamCatDamage = new TIntArrayList();
+            this.teamCheeseTransferred = new TIntArrayList();
+            this.teamAliveRatKings = new TIntArrayList();
+            this.teamAliveBabyRats = new TIntArrayList();
+            this.teamDirtCount = new TIntArrayList();
+            this.teamRatTrapCount = new TIntArrayList();
+            this.teamCatTrapCount = new TIntArrayList();
+
             this.diedIds = new TIntArrayList();
             this.currentRound = 0;
             this.logger = new ByteArrayOutputStream();
@@ -367,6 +382,14 @@ public class GameMaker {
             this.timelineMarkerRounds = new ArrayList<>();
             this.timelineMarkerLabels = new ArrayList<>();
             this.timelineMarkerColors = new ArrayList<>();
+            
+            // this.trapAddedIds = new TIntArrayList();
+            // this.trapAddedX = new TIntArrayList();
+            // this.trapAddedY = new TIntArrayList();
+            // this.trapAddedTypes = new TByteArrayList();
+            // this.trapAddedTeams = new TByteArrayList();
+            // this.trapTriggeredIds = new TIntArrayList();
+
         }
 
         public void makeMatchHeader(LiveMap gameMap) {
@@ -427,16 +450,19 @@ public class GameMaker {
                 int profilerFilesOffset = MatchFooter.createProfilerFilesVector(builder, profilerFiles.toNativeArray());
 
                 TIntArrayList timelineMarkerOffsets = new TIntArrayList();
-                for (int i = 0; i < this.timelineMarkerRounds.size(); i++){
-                    int timelineMarkerOffset = TimelineMarker.createTimelineMarker(builder, timelineMarkerTeams.get(i), timelineMarkerRounds.get(i), 
-                    timelineMarkerColors.get(i), builder.createString(timelineMarkerLabels.get(i)));
+                for (int i = 0; i < this.timelineMarkerRounds.size(); i++) {
+                    int timelineMarkerOffset = TimelineMarker.createTimelineMarker(builder, timelineMarkerTeams.get(i),
+                            timelineMarkerRounds.get(i),
+                            timelineMarkerColors.get(i), builder.createString(timelineMarkerLabels.get(i)));
                     timelineMarkerOffsets.add(timelineMarkerOffset);
                 }
-                int timelineMarkersOffset = MatchFooter.createTimelineMarkersVector(builder, timelineMarkerOffsets.toNativeArray());
+                int timelineMarkersOffset = MatchFooter.createTimelineMarkersVector(builder,
+                        timelineMarkerOffsets.toNativeArray());
 
                 return EventWrapper.createEventWrapper(builder, Event.MatchFooter,
                         MatchFooter.createMatchFooter(builder, TeamMapping.id(winTeam),
-                                FlatHelpers.getWinTypeFromDominationFactor(winType), totalRounds, timelineMarkersOffset, profilerFilesOffset));
+                                FlatHelpers.getWinTypeFromDominationFactor(winType), totalRounds, timelineMarkersOffset,
+                                profilerFilesOffset));
             });
 
             matchFooters.add(events.size() - 1);
@@ -455,22 +481,32 @@ public class GameMaker {
             this.currentRound = roundNum;
         }
 
-        public void endRound(){
+        public void endRound() {
             createEvent((builder) -> {
                 // Round statistics
                 int teamIDsP = Round.createTeamIdsVector(builder, teamIDs.toNativeArray());
-                int teamCoverageAmountsP = Round.createTeamCoverageAmountsVector(builder, teamPaintCoverageAmounts.toNativeArray());
-                int teamMoneyAmountsP = Round.createTeamResourceAmountsVector(builder, teamMoneyAmounts.toNativeArray());
-                int teamResourcePatternAmountsP = Round.createTeamResourcePatternAmountsVector(builder, teamResourcePatternAmounts.toNativeArray());
+                int teamCheeseTransferredP = Round.createTeamCheeseTransferredVector(builder,
+                        teamCheeseTransferred.toNativeArray());
+                int teamCatDamageP = Round.createTeamCatDamageVector(builder, teamCatDamage.toNativeArray());
+                int teamAliveRatKingsP = Round.createTeamAliveRatKingsVector(builder, teamAliveRatKings.toNativeArray());
+                int teamAliveBabyRatsP = Round.createTeamAliveBabyRatsVector(builder, teamAliveBabyRats.toNativeArray());
+                int teamDirtCountP = Round.createTeamDirtAmountsVector(builder, teamDirtCount.toNativeArray());
+                int teamRatTrapCountP = Round.createTeamRatTrapCountVector(builder, teamRatTrapCount.toNativeArray());
+                int teamCatTrapCountP = Round.createTeamCatTrapCountVector(builder, teamCatTrapCount.toNativeArray());
+
                 int diedIdsP = Round.createDiedIdsVector(builder, diedIds.toNativeArray());
 
                 builder.startRound();
 
                 Round.addTeamIds(builder, teamIDsP);
-                Round.addTeamCoverageAmounts(builder, teamCoverageAmountsP);
-                Round.addTeamResourcePatternAmounts(builder, teamResourcePatternAmountsP);
                 Round.addRoundId(builder, this.currentRound);
-                Round.addTeamResourceAmounts(builder, teamMoneyAmountsP);
+                Round.addTeamCheeseTransferred(builder, teamCheeseTransferredP);
+                Round.addTeamCatDamage(builder, teamCatDamageP);
+                Round.addTeamAliveBabyRats(builder, teamAliveBabyRatsP);
+                Round.addTeamAliveRatKings(builder, teamAliveRatKingsP);
+                Round.addTeamDirtAmounts(builder, teamDirtCountP);
+                Round.addTeamRatTrapCount(builder, teamRatTrapCountP);
+                Round.addTeamCatTrapCount(builder, teamCatTrapCountP);
                 Round.addDiedIds(builder, diedIdsP);
 
                 int round = builder.finishRound();
@@ -480,22 +516,26 @@ public class GameMaker {
             clearRoundData();
         }
 
-        public void startTurn(int robotID){
+        public void startTurn(int robotID) {
             return;
         }
 
-        public void endTurn(int robotID, int health, int paint, int movementCooldown, int actionCooldown, int bytecodesUsed, MapLocation loc){
+        public void endTurn(int robotID, int health, int cheese, int movementCooldown, int actionCooldown, int turningCooldown,
+                int bytecodesUsed, MapLocation loc, Direction dir, boolean isCooperation) {
             applyToBuilders((builder) -> {
                 builder.startTurn();
 
                 Turn.addRobotId(builder, robotID);
                 Turn.addHealth(builder, health);
-                Turn.addPaint(builder, paint);
+                Turn.addCheese(builder, cheese);
+                Turn.addIsCooperation(builder, isCooperation);
                 Turn.addMoveCooldown(builder, movementCooldown);
                 Turn.addActionCooldown(builder, actionCooldown);
+                Turn.addTurningCooldown(builder, turningCooldown);
                 Turn.addBytecodesUsed(builder, bytecodesUsed);
                 Turn.addX(builder, loc.x);
                 Turn.addY(builder, loc.y);
+                Turn.addDir(builder, FlatHelpers.getOrdinalFromDirection(dir));
 
                 builder.finishTurn();
             });
@@ -509,126 +549,147 @@ public class GameMaker {
         }
 
         /// Generic action representing damage to a robot
-        public void addDamageAction(int damagedRobotID, int damage){
+        public void addDamageAction(int damagedRobotID, int damage) {
             applyToBuilders((builder) -> {
                 int action = DamageAction.createDamageAction(builder, damagedRobotID, damage);
                 builder.addAction(action, Action.DamageAction);
             });
         }
 
-        // Moppers send damage actions when removing paint for per turn visualization
-        public void addRemovePaintAction(int affectedRobotID, int amountRemoved){
+        public void addRatNapAction(int nappedID) {
             applyToBuilders((builder) -> {
-                int action = DamageAction.createDamageAction(builder, affectedRobotID, amountRemoved);
-                builder.addAction(action, Action.DamageAction);
-            });
-        }
-        
-        /// Visually indicate a tile has been painted
-        public void addPaintAction(MapLocation loc, boolean isSecondary){ 
-            applyToBuilders((builder) -> {
-                int action = PaintAction.createPaintAction(builder, locationToInt(loc), isSecondary ? (byte) 1 : 0);
-                builder.addAction(action, Action.PaintAction);
+                int action = RatNap.createRatNap(builder, nappedID);
+                builder.addAction(action, Action.RatNap);
             });
         }
 
-        /// Visually indicate a tile's paint has been removed
-        public void addUnpaintAction(MapLocation loc){
+        public void addCatFeedAction(int sacrificedRatID){
             applyToBuilders((builder) -> {
-                int action = UnpaintAction.createUnpaintAction(builder, locationToInt(loc));
-                builder.addAction(action, Action.UnpaintAction);
+                int action = CatFeed.createCatFeed(builder, sacrificedRatID);
+                builder.addAction(action, Action.CatFeed);
             });
         }
 
-        public void addMarkAction(MapLocation loc, boolean isSecondary){
+
+        public void addThrowAction(int thrownRobotID, MapLocation throwDirLocation) {
             applyToBuilders((builder) -> {
-                int action = MarkAction.createMarkAction(builder, locationToInt(loc), isSecondary ? (byte) 1 : 0);
-                builder.addAction(action, Action.MarkAction);
+                int action = ThrowRat.createThrowRat(builder, thrownRobotID, locationToInt(throwDirLocation));
+                builder.addAction(action, Action.ThrowRat);
             });
         }
 
-        public void addUnmarkAction(MapLocation loc){
+        /// Visually indicate an rat bite
+        public void addBiteAction(int biterID) {
             applyToBuilders((builder) -> {
-                int action = UnmarkAction.createUnmarkAction(builder, locationToInt(loc));
-                builder.addAction(action, Action.UnmarkAction);
+                int action = RatAttack.createRatAttack(builder, biterID);
+                builder.addAction(action, Action.RatAttack);
             });
         }
 
-        /// Visually indicate an attack
-        public void addAttackAction(int otherID){
+        /// Visually indicate an cat scratch
+        public void addScratchAction(int loc) {
             applyToBuilders((builder) -> {
-                int action = AttackAction.createAttackAction(builder, otherID);
-                builder.addAction(action, Action.AttackAction);
+                int action = CatScratch.createCatScratch(builder, loc);
+                builder.addAction(action, Action.CatScratch);
             });
         }
 
-        public void addSplashAction(MapLocation loc){
+        public void addStunAction(int robotID, int cooldown) {
             applyToBuilders((builder) -> {
-                int action = SplashAction.createSplashAction(builder, locationToInt(loc));
-                builder.addAction(action, Action.SplashAction);
+                int action = StunAction.createStunAction(builder, robotID, cooldown);
+                builder.addAction(action, Action.StunAction);
             });
         }
 
-        /// Visually indicate a mop attack
-        public void addMopAction(int  id1, int id2, int id3){
+        public void addBecomeRatKingAction(int id) {
             applyToBuilders((builder) -> {
-                int action = MopAction.createMopAction(builder, id1, id2, id3);
-                builder.addAction(action, Action.MopAction);
+                int action = UpgradeToRatKing.createUpgradeToRatKing(builder, id);
+                builder.addAction(action, Action.UpgradeToRatKing);
             });
         }
 
-        /// Visually indicate a tower being built
-        public void addBuildAction(int towerID){
+        public void addPlaceTrapAction(int trapID, MapLocation loc, Team team, TrapType type) {
             applyToBuilders((builder) -> {
-                int action = BuildAction.createBuildAction(builder, towerID);
-                builder.addAction(action, Action.BuildAction);
+                byte teamID = TeamMapping.id(team);
+                int action = PlaceTrap.createPlaceTrap(builder, locationToInt(loc), teamID, type==TrapType.RAT_TRAP);
+                builder.addAction(action, Action.PlaceTrap);
             });
         }
 
-        /// Visually indicate transferring paint from one robot to another
-        public void addTransferAction(int otherRobotID, int amount){
+        public void addRemoveTrapAction(MapLocation loc, Team team) {
             applyToBuilders((builder) -> {
-                int action = TransferAction.createTransferAction(builder, otherRobotID, amount);
-                builder.addAction(action, Action.TransferAction);
+                byte teamID = TeamMapping.id(team);
+                int action = RemoveTrap.createRemoveTrap(builder, locationToInt(loc), teamID);
+                builder.addAction(action, Action.RemoveTrap);
             });
         }
 
-        //IMPORTANT: We are overloading the transferAction for this and must
-        // maintain invariant that 0 resource transfers are not allowed by engine.
-        public void addCompleteResourcePatternAction(MapLocation loc){
+        public void addTrapTriggerAction(int trapID, MapLocation loc, Team team, TrapType type) {
             applyToBuilders((builder) -> {
-                int action = TransferAction.createTransferAction(builder, locationToInt(loc), 0);
-                builder.addAction(action, Action.TransferAction);
+                byte teamID = TeamMapping.id(team);
+                int action = TriggerTrap.createTriggerTrap(builder, locationToInt(loc), teamID);
+                builder.addAction(action, Action.TriggerTrap);
             });
         }
 
-        /// Visually indicate messaging from one robot to another
-        public void addMessageAction(int receiverID, int data){
+        /// Visually indicate dirt or trap being built
+        public void addPlaceDirtAction(MapLocation loc) {
             applyToBuilders((builder) -> {
-                int action = MessageAction.createMessageAction(builder, receiverID, data);
-                builder.addAction(action, Action.MessageAction);
+                int action = PlaceDirt.createPlaceDirt(builder, locationToInt(loc));
+                builder.addAction(action, Action.PlaceDirt);
+            });
+        }
+
+        /// Visually indicate dirt being removed
+        public void addRemoveDirtAction(MapLocation loc) {
+            applyToBuilders((builder) -> {
+                int action = BreakDirt.createBreakDirt(builder, locationToInt(loc));
+                builder.addAction(action, Action.BreakDirt);
+            });
+        }
+
+        /// Visually indicates a rat squeaking
+        public void addSqueakAction(MapLocation loc) {
+            applyToBuilders((builder) -> {
+                int action = RatSqueak.createRatSqueak(builder, locationToInt(loc));
+                builder.addAction(action, Action.RatSqueak);
+            });
+        }
+
+        /// Visually indicates a cheese transfer
+        public void addCheeseTransferAction(int toID, int amount) {
+            applyToBuilders((builder) -> {
+                int action = CheeseTransfer.createCheeseTransfer(builder, toID, amount);
+                builder.addAction(action, Action.CheeseTransfer);
+            });
+        }
+
+        public void addCheeseSpawnAction(MapLocation loc, int amount) {
+            applyToBuilders((builder) -> {
+                int action = CheeseSpawn.createCheeseSpawn(builder, locationToInt(loc), amount);
+                builder.addAction(action, Action.CheeseSpawn);
+            });
+        }
+
+        public void addCheesePickUpAction(MapLocation loc) {
+            applyToBuilders((builder) -> {
+                int action = CheesePickup.createCheesePickup(builder, locationToInt(loc));
+                builder.addAction(action, Action.CheesePickup);
             });
         }
 
         /// Indicate that this robot was spawned on this turn
-        public void addSpawnAction(int id, MapLocation loc, Team team, UnitType type){
+        public void addSpawnAction(int id, MapLocation loc, Direction dir, int chirality, Team team, UnitType type) {
             applyToBuilders((builder) -> {
                 byte teamID = TeamMapping.id(team);
                 byte robotType = FlatHelpers.getRobotTypeFromUnitType(type);
-                int action = SpawnAction.createSpawnAction(builder, id, loc.x, loc.y, teamID, robotType);
+                int dirOrdinal = FlatHelpers.getOrdinalFromDirection(dir);
+                int action = SpawnAction.createSpawnAction(builder, id, loc.x, loc.y, dirOrdinal, chirality, teamID, robotType);
                 builder.addAction(action, Action.SpawnAction);
             });
         }
 
-        //visually indicates tower has been upgraded
-        public void addUpgradeAction(int towerID, int newHealth, int newMaxHealth, int newPaint, int newMaxPaint){
-            applyToBuilders((builder) -> {
-                int action = UpgradeAction.createUpgradeAction(builder, towerID, newHealth, newMaxHealth, newPaint, newMaxPaint);
-                builder.addAction(action, Action.UpgradeAction);
-            });
-        }
-
-        public void addDieAction(int id, boolean fromException){
+        public void addDieAction(int id, boolean fromException) {
             byte deathReason = fromException ? DieType.EXCEPTION : DieType.UNKNOWN;
             applyToBuilders((builder) -> {
                 int action = DieAction.createDieAction(builder, id, deathReason);
@@ -636,15 +697,19 @@ public class GameMaker {
             });
         }
 
-        public void addTeamInfo(Team team, int moneyAmount, int paintCoverage, int numResourcePatterns) {
+        public void addTeamInfo(Team team, int cheeseTransferred, int catDamage, int aliveRatKings, int aliveBabyRats, int amountDirtCollected, int ratTrapCount, int catTrapCount) {
             teamIDs.add(TeamMapping.id(team));
-            teamMoneyAmounts.add(moneyAmount);
-            teamPaintCoverageAmounts.add(paintCoverage);
-            teamResourcePatternAmounts.add(numResourcePatterns);
+            teamCheeseTransferred.add(cheeseTransferred);
+            teamCatDamage.add(catDamage);
+            teamAliveRatKings.add(aliveRatKings);
+            teamAliveBabyRats.add(aliveBabyRats);
+            teamDirtCount.add(amountDirtCollected);
+            teamRatTrapCount.add(ratTrapCount);
+            teamCatTrapCount.add(catTrapCount);
         }
 
-        public void addTimelineMarker(Team team, String label, int red, int green, int blue){
-            if (!showIndicators){
+        public void addTimelineMarker(Team team, String label, int red, int green, int blue) {
+            if (!showIndicators) {
                 return;
             }
             this.timelineMarkerTeams.add((byte) team.ordinal());
@@ -671,7 +736,8 @@ public class GameMaker {
                 return;
             }
             applyToBuilders((builder) -> {
-                int action = IndicatorDotAction.createIndicatorDotAction(builder, locationToInt(loc), FlatHelpers.RGBtoInt(red, green, blue));
+                int action = IndicatorDotAction.createIndicatorDotAction(builder, locationToInt(loc),
+                        FlatHelpers.RGBtoInt(red, green, blue));
                 builder.addAction(action, Action.IndicatorDotAction);
             });
         }
@@ -682,7 +748,8 @@ public class GameMaker {
                 return;
             }
             applyToBuilders((builder) -> {
-                int action = IndicatorLineAction.createIndicatorLineAction(builder, locationToInt(startLoc), locationToInt(endLoc), FlatHelpers.RGBtoInt(red, green, blue));
+                int action = IndicatorLineAction.createIndicatorLineAction(builder, locationToInt(startLoc),
+                        locationToInt(endLoc), FlatHelpers.RGBtoInt(red, green, blue));
                 builder.addAction(action, Action.IndicatorLineAction);
             });
         }
@@ -691,15 +758,40 @@ public class GameMaker {
             diedIds.add(id);
         }
 
-        private int locationToInt(MapLocation loc){
+        // public void addTrap(Trap trap) {
+        //     trapAddedIds.add(trap.getId());
+        //     MapLocation loc = trap.getLocation();
+        //     trapAddedX.add(loc.x);
+        //     trapAddedY.add(loc.y);
+        //     trapAddedTypes.add(FlatHelpers.getSchemaTrapTypeFromTrapType(trap.getType()));
+        //     trapAddedTeams.add(TeamMapping.id(trap.getTeam()));
+        // }
+
+        // public void addTriggeredTrap(int id) {
+        //     trapTriggeredIds.add(id);
+        // }
+
+        private int locationToInt(MapLocation loc) {
             return loc.x + this.currentMapWidth * loc.y;
         }
 
         private void clearRoundData() {
             this.teamIDs.clear();
-            this.teamMoneyAmounts.clear();
-            this.teamPaintCoverageAmounts.clear();
-            this.teamResourcePatternAmounts.clear();
+            this.teamCatDamage.clear();
+            this.teamCheeseTransferred.clear();
+            this.teamAliveRatKings.clear();
+            this.teamAliveBabyRats.clear();
+            this.teamDirtCount.clear();
+            this.teamRatTrapCount.clear();
+            this.teamCatTrapCount.clear();
+
+            // this.trapAddedIds.clear();
+            // this.trapAddedX.clear();
+            // this.trapAddedY.clear();
+            // this.trapAddedTypes.clear();
+            // this.trapAddedTeams.clear();
+            // this.trapTriggeredIds.clear();
+
             this.diedIds.clear();
         }
 
@@ -713,8 +805,8 @@ public class GameMaker {
     }
 
     public class FlatBufferBuilderWrapper extends FlatBufferBuilder {
-        private ArrayList<Integer> turnOffsets = new ArrayList<>(); 
-        private ArrayList<Integer> actionOffsets = new ArrayList<>(); 
+        private ArrayList<Integer> turnOffsets = new ArrayList<>();
+        private ArrayList<Integer> actionOffsets = new ArrayList<>();
         private ArrayList<Byte> actionTypes = new ArrayList<>();
 
         public FlatBufferBuilderWrapper() {
@@ -731,8 +823,10 @@ public class GameMaker {
         }
 
         public void startTurn() {
-            int actionsOffset = Turn.createActionsVector(this, ArrayUtils.toPrimitive(this.actionOffsets.toArray(new Integer[this.actionOffsets.size()])));
-            int actionTypesOffsets = Turn.createActionsTypeVector(this, ArrayUtils.toPrimitive(this.actionTypes.toArray(new Byte[this.actionTypes.size()])));
+            int actionsOffset = Turn.createActionsVector(this,
+                    ArrayUtils.toPrimitive(this.actionOffsets.toArray(new Integer[this.actionOffsets.size()])));
+            int actionTypesOffsets = Turn.createActionsTypeVector(this,
+                    ArrayUtils.toPrimitive(this.actionTypes.toArray(new Byte[this.actionTypes.size()])));
 
             Turn.startTurn(this);
             Turn.addActions(this, actionsOffset);
@@ -750,7 +844,8 @@ public class GameMaker {
         }
 
         public void startRound() {
-            int turnsOffset = Round.createTurnsVector(this, ArrayUtils.toPrimitive(this.turnOffsets.toArray(new Integer[this.turnOffsets.size()])));
+            int turnsOffset = Round.createTurnsVector(this,
+                    ArrayUtils.toPrimitive(this.turnOffsets.toArray(new Integer[this.turnOffsets.size()])));
 
             Round.startRound(this);
             Round.addTurns(this, turnsOffset);

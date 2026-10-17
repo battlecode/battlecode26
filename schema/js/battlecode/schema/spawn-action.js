@@ -22,10 +22,16 @@ var SpawnAction = /** @class */ (function () {
         return this.bb.readUint16(this.bb_pos);
     };
     SpawnAction.prototype.x = function () {
-        return this.bb.readUint16(this.bb_pos + 2);
+        return this.bb.readUint8(this.bb_pos + 2);
     };
     SpawnAction.prototype.y = function () {
-        return this.bb.readUint16(this.bb_pos + 4);
+        return this.bb.readUint8(this.bb_pos + 3);
+    };
+    SpawnAction.prototype.dir = function () {
+        return this.bb.readUint8(this.bb_pos + 4);
+    };
+    SpawnAction.prototype.chirality = function () {
+        return this.bb.readUint8(this.bb_pos + 5);
     };
     SpawnAction.prototype.team = function () {
         return this.bb.readInt8(this.bb_pos + 6);
@@ -36,12 +42,14 @@ var SpawnAction = /** @class */ (function () {
     SpawnAction.sizeOf = function () {
         return 8;
     };
-    SpawnAction.createSpawnAction = function (builder, id, x, y, team, robotType) {
+    SpawnAction.createSpawnAction = function (builder, id, x, y, dir, chirality, team, robotType) {
         builder.prep(2, 8);
         builder.writeInt8(robotType);
         builder.writeInt8(team);
-        builder.writeInt16(y);
-        builder.writeInt16(x);
+        builder.writeInt8(chirality);
+        builder.writeInt8(dir);
+        builder.writeInt8(y);
+        builder.writeInt8(x);
         builder.writeInt16(id);
         return builder.offset();
     };

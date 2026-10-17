@@ -68,12 +68,44 @@ var GameMap = /** @class */ (function () {
         var offset = this.bb.__offset(this.bb_pos, 16);
         return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
     };
-    GameMap.prototype.cheeseMines = function (obj) {
+    GameMap.prototype.cheese = function (index) {
         var offset = this.bb.__offset(this.bb_pos, 18);
+        return offset ? this.bb.readInt8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
+    };
+    GameMap.prototype.cheeseLength = function () {
+        var offset = this.bb.__offset(this.bb_pos, 18);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+    GameMap.prototype.cheeseArray = function () {
+        var offset = this.bb.__offset(this.bb_pos, 18);
+        return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+    };
+    GameMap.prototype.cheeseMines = function (obj) {
+        var offset = this.bb.__offset(this.bb_pos, 20);
         return offset ? (obj || new vec_table_1.VecTable()).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
     };
+    GameMap.prototype.catWaypointIds = function (index) {
+        var offset = this.bb.__offset(this.bb_pos, 22);
+        return offset ? this.bb.readUint16(this.bb.__vector(this.bb_pos + offset) + index * 2) : 0;
+    };
+    GameMap.prototype.catWaypointIdsLength = function () {
+        var offset = this.bb.__offset(this.bb_pos, 22);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+    GameMap.prototype.catWaypointIdsArray = function () {
+        var offset = this.bb.__offset(this.bb_pos, 22);
+        return offset ? new Uint16Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+    };
+    GameMap.prototype.catWaypointVecs = function (index, obj) {
+        var offset = this.bb.__offset(this.bb_pos, 24);
+        return offset ? (obj || new vec_table_1.VecTable()).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+    };
+    GameMap.prototype.catWaypointVecsLength = function () {
+        var offset = this.bb.__offset(this.bb_pos, 24);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
     GameMap.startGameMap = function (builder) {
-        builder.startObject(8);
+        builder.startObject(11);
     };
     GameMap.addName = function (builder, nameOffset) {
         builder.addFieldOffset(0, nameOffset, 0);
@@ -116,8 +148,47 @@ var GameMap = /** @class */ (function () {
     GameMap.startDirtVector = function (builder, numElems) {
         builder.startVector(1, numElems, 1);
     };
+    GameMap.addCheese = function (builder, cheeseOffset) {
+        builder.addFieldOffset(7, cheeseOffset, 0);
+    };
+    GameMap.createCheeseVector = function (builder, data) {
+        builder.startVector(1, data.length, 1);
+        for (var i = data.length - 1; i >= 0; i--) {
+            builder.addInt8(data[i]);
+        }
+        return builder.endVector();
+    };
+    GameMap.startCheeseVector = function (builder, numElems) {
+        builder.startVector(1, numElems, 1);
+    };
     GameMap.addCheeseMines = function (builder, cheeseMinesOffset) {
-        builder.addFieldOffset(7, cheeseMinesOffset, 0);
+        builder.addFieldOffset(8, cheeseMinesOffset, 0);
+    };
+    GameMap.addCatWaypointIds = function (builder, catWaypointIdsOffset) {
+        builder.addFieldOffset(9, catWaypointIdsOffset, 0);
+    };
+    GameMap.createCatWaypointIdsVector = function (builder, data) {
+        builder.startVector(2, data.length, 2);
+        for (var i = data.length - 1; i >= 0; i--) {
+            builder.addInt16(data[i]);
+        }
+        return builder.endVector();
+    };
+    GameMap.startCatWaypointIdsVector = function (builder, numElems) {
+        builder.startVector(2, numElems, 2);
+    };
+    GameMap.addCatWaypointVecs = function (builder, catWaypointVecsOffset) {
+        builder.addFieldOffset(10, catWaypointVecsOffset, 0);
+    };
+    GameMap.createCatWaypointVecsVector = function (builder, data) {
+        builder.startVector(4, data.length, 4);
+        for (var i = data.length - 1; i >= 0; i--) {
+            builder.addOffset(data[i]);
+        }
+        return builder.endVector();
+    };
+    GameMap.startCatWaypointVecsVector = function (builder, numElems) {
+        builder.startVector(4, numElems, 4);
     };
     GameMap.endGameMap = function (builder) {
         var offset = builder.endObject();

@@ -1,9 +1,11 @@
 import { schema } from 'battlecode-schema'
 import {
+    MapEditorBrushClickBehavior,
     MapEditorBrushField,
     MapEditorBrushFieldType,
     SinglePointMapEditorBrush,
-    SymmetricMapEditorBrush
+    SymmetricMapEditorBrush,
+    UndoFunction
 } from '../components/sidebar/map-editor/MapEditorBrush'
 import { ACTION_DEFINITIONS } from './Actions'
 import Bodies from './Bodies'
@@ -11,6 +13,8 @@ import { CurrentMap, StaticMap } from './Map'
 import { Vector } from './Vector'
 import { Team } from './Game'
 import Round from './Round'
+import { GameRenderer } from './GameRenderer'
+import { dir } from 'console'
 
 const applyInRadius = (
     map: CurrentMap | StaticMap,
@@ -69,9 +73,20 @@ const checkValidCheeseMinePlacement = (check: Vector, map: StaticMap, bodies: Bo
     return true
 }
 
+const checkValidCatPlacement = (check: Vector, map: StaticMap, bodies: Bodies) => {
+    return true
+}
+
 // Create minimal editor-only action data so the real Action
 // subclasses in ACTION_DEFINITIONS can draw their visuals.
-const makeEditorActionData = (map: StaticMap, atype: schema.Action, tx: number, ty: number, targetId?: number) => {
+const makeEditorActionData = (
+    map: StaticMap,
+    atype: schema.Action,
+    tx: number,
+    ty: number,
+    targetId?: number,
+    bodies?: Bodies
+) => {
     const mapWidth = map.width
     const mapHeight = map.height
 
@@ -79,14 +94,16 @@ const makeEditorActionData = (map: StaticMap, atype: schema.Action, tx: number, 
     let targetY = ty
     let validLocFound = false
     // find the first offset that yields a valid square inside the map
+    let nx: number = targetX
+    let ny: number = targetY
     while (!validLocFound) {
-        const nx = tx + Math.random() * 3 - 1
-        const ny = ty + Math.random() * 3 - 1
         if (nx >= 0 && nx < mapWidth && ny >= 0 && ny < mapHeight) {
             targetX = nx
             targetY = ny
             break
         }
+        nx = tx + Math.random() * 3 - 1
+        ny = ty + Math.random() * 3 - 1
     }
 
     const loc = map.locationToIndex(targetX, targetY)
@@ -98,35 +115,37 @@ const makeEditorActionData = (map: StaticMap, atype: schema.Action, tx: number, 
         case schema.Action.CatFeed:
             return { loc: () => loc }
         case schema.Action.CatPounce:
-            return { loc: () => loc }
+            return { startLoc: () => loc, endLoc: () => map.locationToIndex(targetX + 1, targetY + 2) }
+        case schema.Action.RatSqueak:
+            return { id: () => targetId }
         case schema.Action.CatScratch:
-            return { id: () => targetId }
+            return { loc: () => loc }
         case schema.Action.CheesePickup:
-            return { id: () => targetId, amount: () => 1 }
+            return { loc: () => loc }
         case schema.Action.CheeseSpawn:
-            return { id0: () => targetId, id1: () => 0, id2: () => 0 }
+            return { loc: () => loc, amount: () => 1 }
+        case schema.Action.CheeseTransfer:
+            return { id: () => targetId, amount: () => 1 }
         case schema.Action.DamageAction:
-            return { id: () => targetId, loc: () => loc }
+            return { id: () => targetId, damage: () => 1 }
         case schema.Action.DieAction:
-            return { id: () => targetId }
-        case schema.Action.PlaceCatTrap:
-            return { loc: () => loc }
+            return { id: () => targetId, dieType: () => 0 }
+        case schema.Action.PlaceTrap:
+            return { isRatTrapType: () => true, loc: () => loc, team: () => 0 }
         case schema.Action.PlaceDirt:
-            return { loc: () => loc }
-        case schema.Action.PlaceRatTrap:
             return { loc: () => loc }
         case schema.Action.RatAttack:
             return { id: () => targetId }
         case schema.Action.RatCollision:
-            return { id0: () => targetId, id1: () => 0 }
+            return { loc: () => loc }
         case schema.Action.RatNap:
             return { id: () => targetId }
-        case schema.Action.SpawnAction:
-            return { loc: () => loc, id: () => targetId }
-        case schema.Action.TriggerCatTrap:
-            return { id: () => targetId }
-        case schema.Action.TriggerRatTrap:
-            return { id: () => targetId }
+        case schema.Action.TriggerTrap:
+            return { loc: () => loc, team: () => 0 }
+        case schema.Action.ThrowRat:
+            return { id: () => targetId, loc: () => map.locationToIndex(targetX, targetY + 2) }
+        case schema.Action.UpgradeToRatKing:
+            return { phantom: () => targetId }
         default:
             return {}
     }
@@ -180,20 +199,21 @@ export class RobotBrush extends SinglePointMapEditorBrush<StaticMap> {
                 { value: schema.Action.BreakDirt, label: 'Break Dirt' },
                 { value: schema.Action.CatFeed, label: 'Cat Feed' },
                 { value: schema.Action.CatPounce, label: 'Cat Pounce' },
+                { value: schema.Action.RatSqueak, label: 'Rat Squeak' },
                 { value: schema.Action.CatScratch, label: 'Cat Scratch' },
                 { value: schema.Action.CheesePickup, label: 'Cheese Pickup' },
                 { value: schema.Action.CheeseSpawn, label: 'Cheese Spawn' },
+                { value: schema.Action.CheeseTransfer, label: 'Cheese Transfer' },
                 { value: schema.Action.DamageAction, label: 'Damage' },
                 { value: schema.Action.DieAction, label: 'Die' },
-                { value: schema.Action.PlaceCatTrap, label: 'Place Cat Trap' },
                 { value: schema.Action.PlaceDirt, label: 'Place Dirt' },
-                { value: schema.Action.PlaceRatTrap, label: 'Place Rat Trap' },
+                { value: schema.Action.PlaceTrap, label: 'Place Trap' },
                 { value: schema.Action.RatAttack, label: 'Rat Attack' },
                 { value: schema.Action.RatCollision, label: 'Rat Collision' },
                 { value: schema.Action.RatNap, label: 'Rat Nap' },
-                { value: schema.Action.SpawnAction, label: 'Spawn Action' },
-                { value: schema.Action.TriggerCatTrap, label: 'Trigger Cat Trap' },
-                { value: schema.Action.TriggerRatTrap, label: 'Trigger Rat Trap' }
+                { value: schema.Action.TriggerTrap, label: 'Trigger Trap' },
+                { value: schema.Action.ThrowRat, label: 'Throw Rat' },
+                { value: schema.Action.UpgradeToRatKing, label: 'Upgrade To Rat King' }
             ]
         }
     }
@@ -212,7 +232,9 @@ export class RobotBrush extends SinglePointMapEditorBrush<StaticMap> {
             const pos = { x, y }
 
             const id = this.bodies.getNextID()
-            this.bodies.spawnBodyFromValues(id, robotType, team, pos)
+            if (this.bodies.checkBodyCollisionAtLocation(robotType, pos)) return null
+
+            this.bodies.spawnBodyFromValues(id, robotType, team, pos, 0, 0)
 
             return id
         }
@@ -237,7 +259,7 @@ export class RobotBrush extends SinglePointMapEditorBrush<StaticMap> {
                 const ActionCtor = ACTION_DEFINITIONS[actionType]
                 if (ActionCtor) {
                     const targetIdToUse = findNearestRobotId(this.bodies, id, x, y) ?? id
-                    const adata = makeEditorActionData(this.map, actionType, x, y, targetIdToUse)
+                    const adata = makeEditorActionData(this.map, actionType, x, y, targetIdToUse, this.bodies)
                     const actionInstance = new ActionCtor(id, adata as any)
                     const actionsArray = this.bodies.game?.currentMatch?.currentRound?.actions?.actions
                     const currentRound = this.bodies.game?.currentMatch?.currentRound
@@ -295,15 +317,16 @@ export class WallsBrush extends SymmetricMapEditorBrush<StaticMap> {
             const cheeseMine = this.map.cheeseMines.findIndex((l) => squareIntersects(l, pos, 2))
             const dirt = this.map.initialDirt[idx]
 
-            let tower = undefined
-            for (const b of this.bodies.bodies.values()) {
-                if (squareIntersects(pos, b.pos, 2)) {
-                    tower = b
-                    break
+            for (const waypoints of this.map.catWaypoints.values()) {
+                for (const waypoint of waypoints) {
+                    if (waypoint.x === pos.x && waypoint.y === pos.y) return true
+                    for (let nei of this.map.getNeighbors(waypoint.x, waypoint.y)) {
+                        if (nei.x === pos.x && nei.y === pos.y) return true
+                    }
                 }
             }
 
-            if (tower || cheeseMine !== -1 || dirt) return true
+            if (cheeseMine !== -1 || dirt) return true
 
             this.map.walls[idx] = 1
         }
@@ -381,23 +404,10 @@ export class DirtBrush extends SymmetricMapEditorBrush<CurrentMap> {
             type: MapEditorBrushFieldType.ADD_REMOVE,
             value: true
         },
-        team: {
-            type: MapEditorBrushFieldType.TEAM,
-            value: 0
-        },
         radius: {
             type: MapEditorBrushFieldType.POSITIVE_INTEGER,
             value: 1,
             label: 'Radius'
-        },
-        paintType: {
-            type: MapEditorBrushFieldType.SINGLE_SELECT,
-            value: 0,
-            label: 'Paint Type',
-            options: [
-                { value: 0, label: 'Primary' },
-                { value: 1, label: 'Secondary' }
-            ]
         }
     }
 
@@ -407,14 +417,14 @@ export class DirtBrush extends SymmetricMapEditorBrush<CurrentMap> {
     }
 
     public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>, robotOne: boolean) {
-        const add = (idx: number, value: number) => {
+        const add = (idx: number) => {
             // Check if this is a valid paint location
             const pos = this.map.indexToLocation(idx)
             const cheeseMine = this.map.staticMap.cheeseMines.find((r) => r.x === pos.x && r.y === pos.y)
             const wall = this.map.staticMap.walls[idx]
             const body = this.bodies.getBodyAtLocation(pos.x, pos.y)
             if (body || cheeseMine || wall) return true
-            this.map.dirt[idx] = value
+            this.map.dirt[idx] = 1
             this.map.staticMap.initialDirt[idx] = this.map.dirt[idx]
         }
 
@@ -428,10 +438,7 @@ export class DirtBrush extends SymmetricMapEditorBrush<CurrentMap> {
         applyInRadius(this.map, x, y, radius, (idx) => {
             const prevDirt = this.map.dirt[idx]
             if (fields.shouldAdd.value) {
-                let teamIdx = robotOne ? 0 : 1
-                if (fields.team.value === 1) teamIdx = 1 - teamIdx
-                const newVal = teamIdx * 2 + 1 + fields.paintType.value
-                if (add(idx, newVal)) return
+                if (add(idx)) return
                 changes.push({ idx, prevDirt })
             } else {
                 remove(idx)
@@ -448,72 +455,245 @@ export class DirtBrush extends SymmetricMapEditorBrush<CurrentMap> {
     }
 }
 
-// export class TowerBrush extends SymmetricMapEditorBrush<StaticMap> {
-//     private readonly bodies: Bodies
-//     public readonly name = 'Towers'
-//     public readonly fields = {
-//         isTower: {
-//             type: MapEditorBrushFieldType.ADD_REMOVE,
-//             value: true
-//         },
-//         team: {
-//             type: MapEditorBrushFieldType.TEAM,
-//             value: 0
-//         },
-//         towerType: {
-//             type: MapEditorBrushFieldType.SINGLE_SELECT,
-//             value: schema.RobotType.,
-//             label: 'Tower Type',
-//             options: [
-//                 { value: schema.RobotType.PAINT_TOWER, label: 'Paint Tower' },
-//                 { value: schema.RobotType.MONEY_TOWER, label: 'Money Tower' }
-//             ]
-//         }
-//     }
+export class CatBrush extends SymmetricMapEditorBrush<StaticMap> {
+    public clickBehavior = MapEditorBrushClickBehavior.NO_DESELECT
+    private readonly bodies: Bodies
+    public readonly name = 'Cat'
+    public readonly fields = {
+        isCat: {
+            type: MapEditorBrushFieldType.ADD_REMOVE,
+            value: true
+        },
+        catOrWaypointMode: {
+            type: MapEditorBrushFieldType.SINGLE_SELECT,
+            value: 0,
+            label: 'Mode',
+            options: [
+                { value: 0, label: 'Cat' },
+                { value: 1, label: 'Waypoint' }
+            ]
+        }
+    }
 
-//     constructor(round: Round) {
-//         super(round.map.staticMap)
-//         this.bodies = round.bodies
-//     }
+    constructor(round: Round) {
+        super(round.map.staticMap)
+        this.bodies = round.bodies
+    }
 
-//     public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>, robotOne: boolean) {
-//         const towerType: schema.RobotType = fields.towerType.value
-//         const isTower: boolean = fields.isTower.value
+    public lastSelectedCat = -1
 
-//         const add = (x: number, y: number, team: Team) => {
-//             const pos = { x, y }
-//             if (!checkValidRuinPlacement(pos, this.map, this.bodies)) {
-//                 return null
-//             }
+    public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>, robotOne: boolean) {
+        const isCat: boolean = fields.isCat.value
+        const selectedBodyID = GameRenderer.getSelectedRobot()
+        let lastSelectedCatLoc: Vector | null = null
 
-//             const id = this.bodies.getNextID()
-//             this.bodies.spawnBodyFromValues(id, towerType, team, pos)
+        if (selectedBodyID !== null && selectedBodyID !== undefined) {
+            const body = this.bodies.bodies.get(selectedBodyID)
+            if (body && body.robotType === schema.RobotType.CAT) {
+                this.lastSelectedCat = selectedBodyID
+                lastSelectedCatLoc = this.bodies.getById(this.lastSelectedCat)?.pos
+            } else {
+                this.lastSelectedCat = -1
+                lastSelectedCatLoc = null
+            }
+        }
+        
+        // console.log(`last selected cat: ${this.lastSelectedCat}`)
 
-//             return id
-//         }
+        if (fields.catOrWaypointMode.value === 1) {
+            // Waypoint mode
+            if (this.lastSelectedCat === -1) return null
+            let currentCat = this.lastSelectedCat
+            if (!robotOne) {
+                const symmetricPoint = this.map.applySymmetryCat(this.bodies.getById(this.lastSelectedCat)!.pos)
+                currentCat = this.bodies.getBodyAtLocation(symmetricPoint.x, symmetricPoint.y)!.id
+                lastSelectedCatLoc = this.map.applySymmetry(lastSelectedCatLoc!)
+            }
 
-//         const remove = (x: number, y: number) => {
-//             const body = this.bodies.getBodyAtLocation(x, y)
+            // if undoing a waypoint addition
+            if (fields.isCat.value === false) {
+                if (!this.map.catWaypoints.has(currentCat)) {
+                    return null
+                }
+                this.map.catWaypoints.set(
+                    currentCat,
+                    this.map.catWaypoints.get(currentCat)!.filter((wp) => wp.x !== x || wp.y !== y)
+                )
+                return () => {
+                    this.map.catWaypoints.set(currentCat, this.map.catWaypoints.get(currentCat)!.concat({ x, y }))
+                }
+            }
 
-//             if (!body) return null
+            // if adding a waypoint
+            for (let nei of this.map.getNeighbors(x, y)) {
+                if (this.map.wallAt(nei.x, nei.y) || !this.map.inBounds(nei.x, nei.y)) {
+                    return null
+                }
+            }
 
-//             const team = body.team
-//             this.bodies.removeBody(body.id)
+            if (this.bodies.getBodyAtLocation(x, y) || this.map.wallAt(x, y)) {
+                return null
+            }
 
-//             return team
-//         }
+            if (!this.map.catWaypoints.has(currentCat)) {
+                this.map.catWaypoints.set(currentCat, [lastSelectedCatLoc!])
+            }
+            this.map.catWaypoints.get(currentCat)?.push({ x, y })
 
-//         if (isTower) {
-//             let teamIdx = robotOne ? 0 : 1
-//             if (fields.team.value === 1) teamIdx = 1 - teamIdx
-//             const team = this.bodies.game.teams[teamIdx]
-//             const id = add(x, y, team)
-//             if (id) return () => this.bodies.removeBody(id)
-//             return null
-//         } else {
-//             const team = remove(x, y)
-//             if (!team) return null
-//             return () => add(x, y, team)
-//         }
-//     }
-// }
+            return () => {
+                this.map.catWaypoints.set(
+                    currentCat,
+                    this.map.catWaypoints.get(currentCat)!.filter((wp) => wp.x !== x || wp.y !== y)
+                )
+            }
+        }
+
+        const add = (x: number, y: number, team: Team) => {
+            const pos = { x, y }
+
+            if (
+                this.bodies.checkBodyCollisionAtLocation(schema.RobotType.CAT, pos)||
+                !this.bodies.checkBodyOutofBoundsAtLocation(schema.RobotType.CAT, pos)
+            ) {
+                return null
+            }
+
+            const id = this.bodies.getNextID()
+            this.bodies.spawnBodyFromValues(id, schema.RobotType.CAT, team, pos, 0, robotOne ? 0 : 1)
+
+            return id
+        }
+
+        const remove = (x: number, y: number) => {
+            const body = this.bodies.getBodyAtLocation(x, y)
+
+            if (!body) return null
+
+            const team = body.team
+            const pos = body.pos
+            this.bodies.removeBody(body.id)
+            const waypoints = this.map.catWaypoints.get(body.id)
+            this.map.catWaypoints.delete(body.id)
+
+            return { team, waypoints, pos }
+        }
+        if (isCat) {
+            // shouldnt matter which team we add to since cats are neutral
+            const id = add(x, y, this.bodies.game.teams[0])
+            if (id) return () => this.bodies.removeBody(id)
+            return null
+        } else {
+            const removed = remove(x, y)
+            if (!removed) return null
+
+            const { team, waypoints, pos } = removed
+            if (!team) return null
+
+            return () => {
+                add(pos.x, pos.y, team)
+                if (waypoints) {
+                    this.map.catWaypoints.set(this.bodies.getBodyAtLocation(x, y)!.id, waypoints)
+                }
+            }
+        }
+    }
+
+    // Override default symmetric apply behavior because cats occupy a 2x2 footprint
+    public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>, robotOne: boolean): UndoFunction {
+        const undoFunctions: UndoFunction[] = []
+
+        const body = this.bodies.getBodyAtLocation(x, y)
+        const anchor = body?.pos
+
+        const undo0 = this.symmetricApply(x, y, fields, robotOne)
+
+        // Return early if brush could not be applied
+        if (!undo0) return () => {}
+
+        undoFunctions.push(undo0)
+
+        let symmetryPoint: { x: number; y: number }
+        if (fields.catOrWaypointMode.value === 1) {
+            symmetryPoint = this.map.applySymmetry({ x: x, y: y })
+        } else {
+            symmetryPoint = !anchor ? this.map.applySymmetryCat({ x: x, y: y }) : this.map.applySymmetryCat(anchor)
+        }
+        if (symmetryPoint.x != x || symmetryPoint.y != y) {
+            const undo1 = this.symmetricApply(symmetryPoint.x, symmetryPoint.y, fields, !robotOne)
+
+            // If the symmetry is not applied, revert the original change
+            if (!undo1) {
+                undo0()
+                return () => {}
+            }
+
+            undoFunctions.push(undo1)
+        }
+
+        return () => undoFunctions.forEach((f) => f && f())
+    }
+}
+
+export class RatKingBrush extends SymmetricMapEditorBrush<StaticMap> {
+    private readonly bodies: Bodies
+    public readonly name = 'Rat Kings'
+    public readonly fields = {
+        isRatKing: {
+            type: MapEditorBrushFieldType.ADD_REMOVE,
+            value: true
+        },
+        team: {
+            type: MapEditorBrushFieldType.TEAM,
+            value: 0
+        }
+    }
+
+    constructor(round: Round) {
+        super(round.map.staticMap)
+        this.bodies = round.bodies
+    }
+
+    public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>, robotOne: boolean) {
+        const isRatKing: boolean = fields.isRatKing.value
+
+        const add = (x: number, y: number, team: Team) => {
+            const pos = { x, y }
+            if (
+                this.bodies.getBodyAtLocation(x, y) ||
+                this.bodies.checkBodyCollisionAtLocation(schema.RobotType.RAT_KING, pos) ||
+                !this.bodies.checkBodyOutofBoundsAtLocation(schema.RobotType.RAT_KING, pos)
+            ) {
+                return null
+            }
+
+            const id = this.bodies.getNextID()
+            this.bodies.spawnBodyFromValues(id, schema.RobotType.RAT_KING, team, pos, 0, robotOne ? 0:1)
+
+            return id
+        }
+
+        const remove = (x: number, y: number) => {
+            const body = this.bodies.getBodyAtLocation(x, y)
+
+            if (!body) return null
+
+            const team = body.team
+            this.bodies.removeBody(body.id)
+
+            return team
+        }
+
+        if (isRatKing) {
+            let teamIdx = robotOne ? 0 : 1
+            if (fields.team.value === 1) teamIdx = 1 - teamIdx
+            const team = this.bodies.game.teams[teamIdx]
+            const id = add(x, y, team)
+            if (id) return () => this.bodies.removeBody(id)
+            return null
+        } else {
+            const team = remove(x, y)
+            if (!team) return null
+            return () => add(x, y, team)
+        }
+    }
+}

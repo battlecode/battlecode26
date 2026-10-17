@@ -50,8 +50,8 @@ public class RoboPrintStream extends PrintStream {
 
     public void print(char[] s) {
         String header = getHeader();
-        real.print(header + s);
-        if (this.writeToSystemOut) java.lang.System.out.print(header + s);
+        real.print(header + new String(s));
+        if (this.writeToSystemOut) java.lang.System.out.print(header + new String(s));
     }
 
     public void print(double d) {
@@ -108,8 +108,8 @@ public class RoboPrintStream extends PrintStream {
 
     public void println(char[] s) {
         String header = getHeader();
-        real.println(header + s);
-        if (this.writeToSystemOut) java.lang.System.out.println(header + s);
+        real.println(header + new String(s));
+        if (this.writeToSystemOut) java.lang.System.out.println(header + new String(s));
     }
 
     public void println(double d) {

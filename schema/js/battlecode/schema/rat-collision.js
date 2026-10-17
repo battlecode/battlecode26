@@ -15,19 +15,15 @@ var RatCollision = /** @class */ (function () {
         this.bb = bb;
         return this;
     };
-    RatCollision.prototype.id = function () {
+    RatCollision.prototype.loc = function () {
         return this.bb.readUint16(this.bb_pos);
     };
-    RatCollision.prototype.loc = function () {
-        return this.bb.readUint16(this.bb_pos + 2);
-    };
     RatCollision.sizeOf = function () {
-        return 4;
+        return 2;
     };
-    RatCollision.createRatCollision = function (builder, id, loc) {
-        builder.prep(2, 4);
+    RatCollision.createRatCollision = function (builder, loc) {
+        builder.prep(2, 2);
         builder.writeInt16(loc);
-        builder.writeInt16(id);
         return builder.offset();
     };
     return RatCollision;

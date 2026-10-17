@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import battlecode.crossplay.CrossPlayLanguage;
+
 /**
  * Represents a "Game": a series of Matches between two players,
  * on a set of maps.
@@ -16,6 +18,11 @@ public class GameInfo implements Serializable {
      * The name of team A.
      */
     private final String teamAName;
+
+    /**
+     * The language of team A.
+     */
+    private final CrossPlayLanguage teamALanguage;
 
     /**
      * The package name of team A.
@@ -32,6 +39,11 @@ public class GameInfo implements Serializable {
      * The name of team B.
      */
     private final String teamBName;
+
+    /**
+     * The language of team B.
+     */
+    private final CrossPlayLanguage teamBLanguage;
 
     /**
      * The package name of team B.
@@ -65,25 +77,31 @@ public class GameInfo implements Serializable {
     /**
      * Create a GameInfo.
      *
-     * @param teamAPackage the package of A team
+     * @param teamAName the name of team A
+     * @param teamALanguage the language of team A
+     * @param teamAPackage the package of team A
      * @param teamAURL the location of team A classes - directory or jar,
      *                     or null to use the system classpath
-     * @param teamBPackage the B team
+     * @param teamBName the name of team B
+     * @param teamBLanguage the language of team B
+     * @param teamBPackage the package of team B
      * @param teamBURL the location of team B classes
-     * @param maps the names maps to play on
+     * @param maps the names of maps to play on
      * @param saveFile the file to save to if the server is configured to save
      *                 matches, or null to never save
      * @param bestOfThree whether the game is best of three
      */
-    public GameInfo(String teamAName, String teamAPackage, String teamAURL,
-                    String teamBName, String teamBPackage, String teamBURL,
+    public GameInfo(String teamAName, CrossPlayLanguage teamALanguage, String teamAPackage, String teamAURL,
+                    String teamBName, CrossPlayLanguage teamBLanguage, String teamBPackage, String teamBURL,
                     String[] maps,
                     File saveFile,
                     boolean bestOfThree) {
         this.teamAName = teamAName;
+        this.teamALanguage = teamALanguage;
         this.teamAPackage = teamAPackage;
         this.teamAURL = teamAURL;
         this.teamBName = teamBName;
+        this.teamBLanguage = teamBLanguage;
         this.teamBPackage = teamBPackage;
         this.teamBURL = teamBURL;
         this.maps = maps;
@@ -99,6 +117,13 @@ public class GameInfo implements Serializable {
     }
 
     /**
+     * @return the language of team A
+     */
+    public CrossPlayLanguage getTeamALanguage() {
+        return teamALanguage;
+    }
+
+    /**
      * @return the package name of team A
      */
     public String getTeamAPackage() {
@@ -110,6 +135,13 @@ public class GameInfo implements Serializable {
      */
     public String getTeamAURL() {
         return teamAURL;
+    }
+
+    /**
+     * @return the language of team B
+     */
+    public CrossPlayLanguage getTeamBLanguage() {
+        return teamBLanguage;
     }
 
     /**

@@ -15,7 +15,6 @@ public class TestMapBuilder {
     }
     
     public TestMapBuilder setWall(int x, int y, boolean value) {
-        //TODO; maybe fix mapbuilder stuff
         // this.mapBuilder.setWall(x, y, value);
         return this;
     }

@@ -6,7 +6,6 @@ import static org.junit.Assert.*;
 
 public class DirectionTest {
 
-    // TODO: write a bunch more of these
 
     // @Test
     // public void testBasic() {

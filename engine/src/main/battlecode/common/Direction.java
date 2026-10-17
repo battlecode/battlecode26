@@ -74,6 +74,23 @@ public enum Direction {
     }
 
     /**
+     * Converts dx and dy to a Direction.
+     * 
+     * @param dx the change in x
+     * @param dy the change in y
+     * @return null if invalid dx, dy; otherwise the corresponding Direction
+     */
+    public static Direction fromDelta(int dx, int dy) {
+        for (Direction dir : Direction.values()) {
+            if (dir.dx == dx && dir.dy == dy) {
+                return dir;
+            }
+        }
+        
+        return null;
+    }
+
+    /**
      * Computes the direction opposite this one.
      *
      * @return the direction pointing in the opposite direction to this one

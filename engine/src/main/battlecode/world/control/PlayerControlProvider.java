@@ -2,6 +2,8 @@ package battlecode.world.control;
 
 import battlecode.common.GameConstants;
 import battlecode.common.Team;
+import battlecode.crossplay.CrossPlay;
+import battlecode.crossplay.CrossPlayLanguage;
 import battlecode.instrumenter.InstrumentationException;
 import battlecode.instrumenter.TeamClassLoaderFactory;
 import battlecode.instrumenter.SandboxedRobotPlayer;
@@ -12,7 +14,6 @@ import battlecode.world.GameWorld;
 import battlecode.world.InternalRobot;
 
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,6 +52,16 @@ public class PlayerControlProvider implements RobotControlProvider {
     private final String teamPackage;
 
     /**
+     * The language that the team's code is written in.
+     */
+    private final CrossPlayLanguage teamLanguage;
+
+    /**
+     * A handle to the cross play server used for communicating with external bots
+     */
+    private final CrossPlay crossPlayServer;
+
+    /**
      * The printstream robots should write to (besides System.out).
      */
     private final OutputStream robotOut;
@@ -69,7 +80,7 @@ public class PlayerControlProvider implements RobotControlProvider {
     /**
      * The match id of the current match. Incremented by one every time a new match starts.
      */
-    private int matchId = -1;
+    // private int matchId = -1;
 
     /**
      * The total time the player's bots have spent executing, measured in ns
@@ -87,10 +98,14 @@ public class PlayerControlProvider implements RobotControlProvider {
      */
     public PlayerControlProvider(Team team,
                                  String teamPackage,
+                                 CrossPlayLanguage teamLanguage,
+                                 CrossPlay crossPlayServer,
                                  String teamURL,
                                  OutputStream robotOut,
                                  boolean profilingEnabled) {
         this.teamPackage = teamPackage;
+        this.teamLanguage = teamLanguage;
+        this.crossPlayServer = crossPlayServer;
         this.sandboxes = new HashMap<>(); // GameWorld maintains order for us
         this.factory = new TeamClassLoaderFactory(teamURL);
         this.robotOut = robotOut;
@@ -112,7 +127,7 @@ public class PlayerControlProvider implements RobotControlProvider {
     @Override
     public void matchStarted(GameWorld gameWorld) {
         this.gameWorld = gameWorld;
-        matchId++;
+        // matchId++;
     }
 
     @Override
@@ -143,6 +158,8 @@ public class PlayerControlProvider implements RobotControlProvider {
 
             final SandboxedRobotPlayer player = new SandboxedRobotPlayer(
                     teamPackage,
+                    teamLanguage,
+                    crossPlayServer,
                     robot.getController(),
                     robot.getID(),
                     factory.createLoader(profiler != null),
@@ -163,6 +180,9 @@ public class PlayerControlProvider implements RobotControlProvider {
 
     @Override
     public void robotKilled(InternalRobot robot) {
+        if (teamLanguage != CrossPlayLanguage.JAVA) {
+            crossPlayServer.sendDestroyBot(robot.getID());
+        }
         // Note that a robot may be killed even if it is not in Sandboxes, if
         // there was an error while loading it.
 

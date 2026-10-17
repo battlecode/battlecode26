@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react'
-import { Colors, currentColors } from '../../../colors'
 import { drawAxes, getAxes, setCanvasResolution } from '../../../util/graph-util'
 import { useGame } from '../../../playback/GameRunner'
 

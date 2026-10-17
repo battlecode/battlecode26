@@ -11,20 +11,24 @@ const EMPTY_ROBOT_COUNTS: Record<schema.RobotType, number> = {
 }
 
 export class TeamRoundStat {
-    robotCounts: Record<schema.RobotType, number> = { ...EMPTY_ROBOT_COUNTS }
-    robotPaints: Record<schema.RobotType, number> = { ...EMPTY_ROBOT_COUNTS }
-    moneyAmount: number = 0
-    totalPaint: number = 0
-    paintPercent: number = 0
-    resourcePatterns: number = 0
+    gameModeCooperation: boolean = true
+    cheeseAmount: number = 0
+    cheesePercent: number = 0
+    catDamageAmount: number = 0
+    catDamagePercent: number = 0
+    ratKingCount: number = 0
+    ratKingPercent: number = 0
+    dirtAmount: number = 0
+    globalCheeseAmount: number = 0
+    globalRawCheeseAmount: number = 0
+    babyRatCount: number = 0
+    ratTrapAmount: number = 0
+    catTrapAmount: number = 0
 
     copy(): TeamRoundStat {
         const newStat: TeamRoundStat = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
 
         // Copy any internal objects here
-        newStat.robotCounts = { ...this.robotCounts }
-        newStat.robotPaints = { ...this.robotPaints }
-
         return newStat
     }
 }
@@ -70,51 +74,69 @@ export default class RoundStat {
         // Compute team stats for this round
         const time = Date.now()
         if (delta) {
+            let totalCheese = 0
+            let totalCatDamage = 0
+            let totalRatKings = 0
+
+
+            for (let i = 0; i < delta.teamIdsLength(); i++) {
+                const combinedStat = delta.teamAliveRatKings(i)!
+                totalCheese += delta.teamCheeseTransferred(i)!
+                totalCatDamage += delta.teamCatDamage(i)!
+                totalRatKings += (combinedStat%10) //lmao
+            }
+
             for (let i = 0; i < delta.teamIdsLength(); i++) {
                 const team = this.game.teams[(delta.teamIds(i) ?? assert.fail('teamID not found in round')) - 1]
                 assert(team != undefined, `team ${i} not found in game.teams in round`)
                 const teamStat = this.teams.get(team) ?? assert.fail(`team ${i} not found in team stats in round`)
 
-                // teamStat.moneyAmount = delta.teamResourceAmounts(i) ?? assert.fail('missing resource amount')
-                // teamStat.paintPercent = delta.teamCoverageAmounts(i) ?? assert.fail('missing coverage amount')
-                // teamStat.resourcePatterns = delta.teamResourcePatternAmounts(i) ?? assert.fail('missing pattern amount')
-                // teamStat.paintPercent /= 10.0
+                teamStat.cheeseAmount = delta.teamCheeseTransferred(i) ?? assert.fail('missing cheese amount')
+                teamStat.globalCheeseAmount = Math.floor(delta.teamAliveRatKings(i)! / 10)
+                teamStat.cheesePercent = totalCheese ? teamStat.cheeseAmount / totalCheese : 0
+                teamStat.catDamageAmount = delta.teamCatDamage(i) ?? assert.fail('missing cat damage amount')
+                teamStat.catDamagePercent = totalCatDamage ? teamStat.catDamageAmount / totalCatDamage : 0
 
-                /*
-                // Compute average datapoint every 10 rounds
-                if (round.roundNumber % 10 == 0) {
-                    const teamStat = this.teams.get(team) ?? assert.fail(`team ${team} not found in team stats in round`)
-                    let avgValue = teamStat.resourceAmount
-                    let avgCount = 1
-                    for (let i = round.roundNumber - 1; i >= Math.max(0, round.roundNumber - 100); i--) {
-                        const prevStat = round.match.stats[i].getTeamStat(team)
-                        avgValue += prevStat.resourceAmount
-                        avgCount += 1
+                teamStat.ratKingCount = delta.teamAliveRatKings(i) ?? assert.fail('missing rat king count')
+                teamStat.ratKingCount %= 10
+                
+                teamStat.ratKingPercent = totalRatKings ? teamStat.ratKingCount / totalRatKings : 0
+                teamStat.dirtAmount = delta.teamDirtAmounts(i) ?? assert.fail('missing dirt amount')
+                teamStat.ratTrapAmount = delta.teamRatTrapCount(i) ?? assert.fail('missing rat trap amount')
+                teamStat.catTrapAmount = delta.teamCatTrapCount(i) ?? assert.fail('missing cat trap amount')
+                teamStat.babyRatCount = delta.teamAliveBabyRats(i) ?? assert.fail('missing baby rat count')
+
+                // Use the engine-emitted cooperation flag (per-turn) when available.
+                // If any turn in this delta indicates cooperation, consider gameMode active.
+                let isCoop = false
+                for (let ti = 0; ti < delta.turnsLength(); ti++) {
+                    const t = delta.turns(ti)
+                    if (t && t.isCooperation && t.isCooperation()) {
+                        isCoop = true
+                        break
                     }
-
-                    teamStat.resourceAmountAverageDatapoint = avgValue / avgCount
                 }
-                */
+                teamStat.gameModeCooperation = isCoop
             }
         }
 
         // Clear values for recomputing
         for (const stat of this.teams.values()) {
-            stat.totalPaint = 0
-            stat.robotCounts = { ...EMPTY_ROBOT_COUNTS }
-            stat.robotPaints = { ...EMPTY_ROBOT_COUNTS }
+            stat.babyRatCount = 0
         }
 
         // Compute total robot counts
         for (const body of round.bodies.bodies.values()) {
+            if (body.team.id === 0) continue // skip neutral bodies
             const teamStat = round.stat.getTeamStat(body.team)
 
             // Count number of alive robots
             if (body.dead) continue
 
-            teamStat.robotCounts[body.robotType]++
-            // teamStat.robotCheese[body.robotType] += body.cheese
-            // teamStat.totalCheese += body.cheese
+            if (body.robotType == schema.RobotType.RAT) {
+                teamStat.babyRatCount++
+                teamStat.globalRawCheeseAmount += body.cheese
+            }
         }
 
         const timems = Date.now() - time

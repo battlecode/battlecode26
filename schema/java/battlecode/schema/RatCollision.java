@@ -27,13 +27,11 @@ public final class RatCollision extends Struct {
   public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public RatCollision __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public int id() { return bb.getShort(bb_pos + 0) & 0xFFFF; }
-  public int loc() { return bb.getShort(bb_pos + 2) & 0xFFFF; }
+  public int loc() { return bb.getShort(bb_pos + 0) & 0xFFFF; }
 
-  public static int createRatCollision(FlatBufferBuilder builder, int id, int loc) {
-    builder.prep(2, 4);
+  public static int createRatCollision(FlatBufferBuilder builder, int loc) {
+    builder.prep(2, 2);
     builder.putShort((short) loc);
-    builder.putShort((short) id);
     return builder.offset();
   }
 

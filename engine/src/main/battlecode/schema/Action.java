@@ -6,25 +6,33 @@ package battlecode.schema;
 public final class Action {
   private Action() { }
   public static final byte NONE = 0;
-  public static final byte DamageAction = 1;
-  public static final byte PaintAction = 2;
-  public static final byte UnpaintAction = 3;
-  public static final byte MarkAction = 4;
-  public static final byte UnmarkAction = 5;
-  public static final byte AttackAction = 6;
-  public static final byte SplashAction = 7;
-  public static final byte MopAction = 8;
-  public static final byte BuildAction = 9;
-  public static final byte TransferAction = 10;
-  public static final byte MessageAction = 11;
-  public static final byte SpawnAction = 12;
-  public static final byte DieAction = 13;
-  public static final byte UpgradeAction = 14;
-  public static final byte IndicatorStringAction = 15;
-  public static final byte IndicatorDotAction = 16;
-  public static final byte IndicatorLineAction = 17;
+  public static final byte CatFeed = 1;
+  public static final byte RatAttack = 2;
+  public static final byte RatNap = 3;
+  public static final byte RatCollision = 4;
+  public static final byte PlaceDirt = 5;
+  public static final byte BreakDirt = 6;
+  public static final byte CheesePickup = 7;
+  public static final byte CheeseSpawn = 8;
+  public static final byte CheeseTransfer = 9;
+  public static final byte CatScratch = 10;
+  public static final byte CatPounce = 11;
+  public static final byte PlaceTrap = 12;
+  public static final byte RemoveTrap = 13;
+  public static final byte TriggerTrap = 14;
+  public static final byte ThrowRat = 15;
+  public static final byte UpgradeToRatKing = 16;
+  public static final byte RatSqueak = 17;
+  public static final byte DamageAction = 18;
+  public static final byte StunAction = 19;
+  public static final byte SpawnAction = 20;
+  public static final byte DieAction = 21;
+  public static final byte IndicatorStringAction = 22;
+  public static final byte IndicatorDotAction = 23;
+  public static final byte IndicatorLineAction = 24;
 
-  public static final String[] names = { "NONE", "DamageAction", "PaintAction", "UnpaintAction", "MarkAction", "UnmarkAction", "AttackAction", "SplashAction", "MopAction", "BuildAction", "TransferAction", "MessageAction", "SpawnAction", "DieAction", "UpgradeAction", "IndicatorStringAction", "IndicatorDotAction", "IndicatorLineAction", };
+  public static final String[] names = { "NONE", "CatFeed", "RatAttack", "RatNap", "RatCollision", "PlaceDirt", "BreakDirt", "CheesePickup", "CheeseSpawn", "CheeseTransfer", "CatScratch", "CatPounce", "PlaceTrap", "RemoveTrap", "TriggerTrap", "ThrowRat", "UpgradeToRatKing", "RatSqueak", "DamageAction", "StunAction", "SpawnAction", "DieAction", "IndicatorStringAction", "IndicatorDotAction", "IndicatorLineAction", };
 
   public static String name(int e) { return names[e]; }
 }
+

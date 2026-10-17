@@ -23,19 +23,25 @@ class SpawnAction(object):
     # SpawnAction
     def Id(self): return self._tab.Get(flatbuffers.number_types.Uint16Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(0))
     # SpawnAction
-    def X(self): return self._tab.Get(flatbuffers.number_types.Uint16Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(2))
+    def X(self): return self._tab.Get(flatbuffers.number_types.Uint8Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(2))
     # SpawnAction
-    def Y(self): return self._tab.Get(flatbuffers.number_types.Uint16Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(4))
+    def Y(self): return self._tab.Get(flatbuffers.number_types.Uint8Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(3))
+    # SpawnAction
+    def Dir(self): return self._tab.Get(flatbuffers.number_types.Uint8Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(4))
+    # SpawnAction
+    def Chirality(self): return self._tab.Get(flatbuffers.number_types.Uint8Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(5))
     # SpawnAction
     def Team(self): return self._tab.Get(flatbuffers.number_types.Int8Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(6))
     # SpawnAction
     def RobotType(self): return self._tab.Get(flatbuffers.number_types.Int8Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(7))
 
-def CreateSpawnAction(builder, id, x, y, team, robotType):
+def CreateSpawnAction(builder, id, x, y, dir, chirality, team, robotType):
     builder.Prep(2, 8)
     builder.PrependInt8(robotType)
     builder.PrependInt8(team)
-    builder.PrependUint16(y)
-    builder.PrependUint16(x)
+    builder.PrependUint8(chirality)
+    builder.PrependUint8(dir)
+    builder.PrependUint8(y)
+    builder.PrependUint8(x)
     builder.PrependUint16(id)
     return builder.Offset()

@@ -7,6 +7,8 @@ export enum WinType {
   RATKING_DESTROYED = 1,
   BACKSTAB_RATKING_DESTROYED = 2,
   MORE_POINTS = 3,
-  TIE = 4,
-  COIN_FLIP = 5
+  MORE_ROBOTS = 4,
+  MORE_CHEESE = 5,
+  TIE = 6,
+  COIN_FLIP = 7
 }

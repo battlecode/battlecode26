@@ -93,6 +93,15 @@ export const GamePage: React.FC<Props> = React.memo((props) => {
         )
     }
 
+    const isGameModeCooperation =
+        (round ?? true) &&
+        !!game &&
+        (() => {
+            const t0 = round?.stat.getTeamStat(game.teams[0])?.gameModeCooperation ?? true
+            const t1 = round?.stat.getTeamStat(game.teams[1])?.gameModeCooperation ?? true
+            return t0 && t1
+        })()
+
     return (
         <div className="flex flex-col overflow-x-hidden">
             <div className="w-full pb-3 px-4 text-center">
@@ -100,6 +109,21 @@ export const GamePage: React.FC<Props> = React.memo((props) => {
                     <div className="border-white border rounded-md font-bold">{game.currentMatch.map.name}</div>
                 )}
             </div>
+            {game ? (
+                isGameModeCooperation ? (
+                    <div className="w-full flex justify-center my-2">
+                        <div className="px-3 py-1 rounded-md bg-lime-500 text-black font-bold">
+                            Cooperation Mode Active
+                        </div>
+                    </div>
+                ) : (
+                    <div className="w-full flex justify-center my-2">
+                        <div className="px-3 py-1 rounded-md bg-rose-600 text-black font-bold">
+                            Backstab Mode Active
+                        </div>
+                    </div>
+                )
+            ) : null}
             {teamBox(0)}
             <TeamTable teamIdx={0} />
 
@@ -119,11 +143,42 @@ export const GamePage: React.FC<Props> = React.memo((props) => {
                     <div /*className="flex items-center gap-2"*/>
                         {/* Note: to keep animation smooth, we should still keep the elements rendered, but we pass showStats into
                             them so that they don't render any data (since we're likely hiding stats to prevent lag) */}
-                        <ResourceGraph active={showStats} property="paintPercent" propertyDisplayName="Coverage %" />
+                        <ResourceGraph
+                            active={showStats}
+                            property="globalCheeseAmount"
+                            propertyDisplayName="Global Cheese "
+                        />
                         <br />
-                        <ResourceGraph active={showStats} property="moneyAmount" propertyDisplayName="Chips" />
+                        <ResourceGraph
+                            active={showStats}
+                            property="cheeseAmount"
+                            propertyDisplayName="Cheese Transferred "
+                        />
                         <br />
-                        <ResourceGraph active={showStats} property="totalPaint" propertyDisplayName="Paint" />
+                        <ResourceGraph
+                            active={showStats}
+                            property="cheesePercent"
+                            propertyDisplayName="Cheese Percent "
+                        />
+                        <br />
+                        <ResourceGraph active={showStats} property="catDamageAmount" propertyDisplayName="Cat Damage" />
+                        <br />
+                        <ResourceGraph
+                            active={showStats}
+                            property="catDamagePercent"
+                            propertyDisplayName="Cat Damage Percent"
+                        />
+                        <ResourceGraph
+                            active={showStats}
+                            property="ratKingCount"
+                            propertyDisplayName="Rat King Count"
+                        />
+                        <br />
+                        <ResourceGraph
+                            active={showStats}
+                            property="ratKingPercent"
+                            propertyDisplayName="Rat King Percent"
+                        />
                     </div>
                 ) : (
                     <div>Select a game to see stats</div>

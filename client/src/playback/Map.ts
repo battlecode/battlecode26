@@ -9,8 +9,9 @@ import { TEAM_COLOR_NAMES } from '../constants'
 import * as renderUtils from '../util/RenderUtil'
 import { getImageIfLoaded } from '../util/ImageLoader'
 import { ClientConfig } from '../client-config'
-import { Colors, currentColors, getTeamColors } from '../colors'
+import { Colors, getTeamColors } from '../colors'
 import Round from './Round'
+import { render } from 'react-dom'
 
 export type Dimension = {
     minCorner: Vector
@@ -22,7 +23,10 @@ export type Dimension = {
 type SchemaPacket = {
     wallsOffset: number
     dirtOffset: number
+    cheeseOffset: number
     cheeseMinesOffset: number
+    catWaypointIdsOffset: number
+    catWaypointVecsOffset: number
 }
 
 type ResourcePatternData = {
@@ -35,6 +39,9 @@ export class CurrentMap {
     public readonly staticMap: StaticMap
     public readonly dirt: Int8Array
     public readonly markers: [Int8Array, Int8Array] // Each team has markers
+    public readonly ratTrapData: Int8Array
+    public readonly catTrapData: Int8Array
+    public readonly cheeseData: Int32Array
     public readonly resourcePatterns: ResourcePatternData[]
 
     get width(): number {
@@ -48,23 +55,28 @@ export class CurrentMap {
     }
 
     constructor(from: StaticMap | CurrentMap) {
-        //this.flagData = new Map()
         if (from instanceof StaticMap) {
             // Create current map from static map
 
             this.staticMap = from
             this.dirt = new Int8Array(from.initialDirt)
+            this.cheeseData = new Int32Array(from.cheese)
             this.markers = [new Int8Array(this.width * this.height), new Int8Array(this.width * this.height)]
             this.resourcePatterns = []
+            this.ratTrapData = new Int8Array(this.width * this.height)
+            this.catTrapData = new Int8Array(this.width * this.height)
         } else {
             // Create current map from current map (copy)
 
             this.staticMap = from.staticMap
             this.dirt = new Int8Array(from.dirt)
+            this.cheeseData = new Int32Array(from.cheeseData)
             this.markers = [new Int8Array(from.markers[0]), new Int8Array(from.markers[1])]
 
             // Assumes ResourcePatternData is immutable
             this.resourcePatterns = [...from.resourcePatterns]
+            this.ratTrapData = new Int8Array(from.ratTrapData)
+            this.catTrapData = new Int8Array(from.catTrapData)
         }
     }
 
@@ -143,15 +155,44 @@ export class CurrentMap {
                             this,
                             this.dirt,
                             () => {
-                                ctx.fillStyle = Colors.DIRT_COLOR
+                                ctx.fillStyle = Colors.DIRT_COLOR.get()
                                 ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
                             },
                             { x: true, y: false }
                         )
                     } else {
-                        ctx.fillStyle = Colors.DIRT_COLOR
+                        ctx.fillStyle = Colors.DIRT_COLOR.get()
                         ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
                     }
+                }
+
+                const cheese = this.cheeseData[schemaIdx]
+                if (cheese) {
+                    renderUtils.renderCenteredImageOrLoadingIndicator(
+                        ctx,
+                        getImageIfLoaded('icons/cheese_64x64.png'),
+                        coords,
+                        1.0
+                    )
+                }
+
+                const ratTrap = this.ratTrapData[schemaIdx]
+                if (ratTrap) {
+                    renderUtils.renderCenteredImageOrLoadingIndicator(
+                        ctx,
+                        getImageIfLoaded('icons/rat_trap.png'),
+                        coords,
+                        1.0
+                    )
+                }
+                const catTrap = this.catTrapData[schemaIdx]
+                if (catTrap) {
+                    renderUtils.renderCenteredImageOrLoadingIndicator(
+                        ctx,
+                        getImageIfLoaded('icons/cat_trap.png'),
+                        coords,
+                        1.0
+                    )
                 }
 
                 if (config.showPaintMarkers) {
@@ -205,6 +246,34 @@ export class CurrentMap {
                 }
             })
         }
+
+        const bodies = match.currentRound.bodies
+        if (
+            selectedBodyID &&
+            bodies.hasId(selectedBodyID) &&
+            bodies.getById(selectedBodyID).robotType === schema.RobotType.CAT
+        ) {
+            const waypoints = this.staticMap.catWaypoints.get(selectedBodyID)
+            waypoints?.forEach((waypoint, idx) => {
+                const coords = renderUtils.getRenderCoords(waypoint.x, waypoint.y, this.dimension)
+                ctx.beginPath()
+                ctx.arc(coords.x + 0.5, coords.y + 0.5, 0.1, 0, 2 * Math.PI)
+                ctx.fill()
+            })
+            waypoints?.forEach((waypoint, idx) => {
+                let prevWaypoint = waypoints[0]
+                if (idx > 1) {
+                    prevWaypoint = waypoints[idx - 1]
+                }
+                const startCoords = renderUtils.getRenderCoords(prevWaypoint.x, prevWaypoint.y, this.dimension)
+                const endCoords = renderUtils.getRenderCoords(waypoint.x, waypoint.y, this.dimension)
+                renderUtils.renderLine(ctx, startCoords, endCoords, {
+                    lineWidth: 0.06,
+                    opacity: 0.5,
+                    renderArrow: true
+                })
+            })
+        }
     }
 
     getTooltipInfo(square: Vector, match: Match): string[] {
@@ -215,7 +284,10 @@ export class CurrentMap {
 
         const dirt = this.dirt[schemaIdx]
         const wall = this.staticMap.walls[schemaIdx]
+        const ratTrap = this.ratTrapData[schemaIdx]
+        const catTrap = this.catTrapData[schemaIdx]
         const cheeseMine = this.staticMap.cheeseMines.find((r) => r.x === square.x && r.y === square.y)
+        const cheese = this.cheeseData[schemaIdx]
         const srp = this.resourcePatterns.find((r) => r.center.x === square.x && r.center.y === square.y)
         const markerA = this.markers[0][schemaIdx]
         const markerB = this.markers[1][schemaIdx]
@@ -229,16 +301,30 @@ export class CurrentMap {
         //     }
         // }
         if (markerA) {
-            info.push(`Silver Marker (${markerA === 1 ? 'Primary' : 'Secondary'})`)
+            info.push(`Cheddar Marker (${markerA === 1 ? 'Primary' : 'Secondary'})`)
         }
         if (markerB) {
-            info.push(`Gold Marker (${markerB === 3 ? 'Primary' : 'Secondary'})`)
+            info.push(`Plum Marker (${markerB === 3 ? 'Primary' : 'Secondary'})`)
         }
         if (wall) {
             info.push('Wall')
         }
         if (cheeseMine) {
             info.push('Cheese Mine')
+        }
+        if (dirt) {
+            info.push('Dirt')
+        }
+        if (ratTrap) {
+            info.push('Rat Trap')
+            info.push(`Placed by ${TEAM_COLOR_NAMES[ratTrap - 2]}`)
+        }
+        if (catTrap) {
+            info.push('Cat Trap')
+            info.push(`Placed by ${TEAM_COLOR_NAMES[catTrap - 2]}`)
+        }
+        if (cheese) {
+            info.push(`Cheese: ${cheese}`)
         }
         if (srp) {
             const roundsRemaining = Math.max(srp.createRound + 50 - match.currentRound.roundNumber, 0)
@@ -275,12 +361,24 @@ export class CurrentMap {
             builder,
             Array.from(this.staticMap.initialDirt).map((x) => !!x)
         )
+        const cheeseOffset = schema.GameMap.createCheeseVector(builder, Array.from(this.staticMap.cheese))
         const cheeseMinesOffset = packVecTable(builder, this.staticMap.cheeseMines)
+        const catWaypointIdsOffset = schema.GameMap.createCatWaypointIdsVector(
+            builder,
+            Array.from(this.staticMap.catWaypoints.keys())
+        )
+        const catWaypointVecsOffsets = Array.from(this.staticMap.catWaypoints.values()).map((vecs) =>
+            packVecTable(builder, vecs)
+        )
+        const catWaypointVecsOffset = schema.GameMap.createCatWaypointVecsVector(builder, catWaypointVecsOffsets)
 
         return {
             wallsOffset,
             dirtOffset,
-            cheeseMinesOffset
+            cheeseOffset,
+            cheeseMinesOffset,
+            catWaypointIdsOffset,
+            catWaypointVecsOffset
         }
     }
 
@@ -291,7 +389,10 @@ export class CurrentMap {
     insertSchemaPacket(builder: flatbuffers.Builder, packet: SchemaPacket) {
         schema.GameMap.addWalls(builder, packet.wallsOffset)
         schema.GameMap.addDirt(builder, packet.dirtOffset)
+        schema.GameMap.addCheese(builder, packet.cheeseOffset)
         schema.GameMap.addCheeseMines(builder, packet.cheeseMinesOffset)
+        schema.GameMap.addCatWaypointIds(builder, packet.catWaypointIdsOffset)
+        schema.GameMap.addCatWaypointVecs(builder, packet.catWaypointVecsOffset)
     }
 }
 
@@ -302,8 +403,10 @@ export class StaticMap {
         public readonly symmetry: number,
         public readonly dimension: Dimension,
         public readonly walls: Int8Array,
+        public readonly cheese: Int8Array,
         public readonly cheeseMines: Vector[],
-        public readonly initialDirt: Int8Array
+        public readonly initialDirt: Int8Array,
+        public readonly catWaypoints: Map<number, Vector[]>
     ) {
         if (symmetry < 0 || symmetry > 2 || !Number.isInteger(symmetry)) {
             throw new Error(`Invalid symmetry ${symmetry}`)
@@ -316,10 +419,14 @@ export class StaticMap {
             throw new Error('Invalid dirt length')
         }
 
+        if (cheese.length != dimension.width * dimension.height) {
+            throw new Error('Invalid cheese length')
+        }
+
         if (walls.some((x) => x !== 0 && x !== 1)) {
             throw new Error('Invalid walls value')
         }
-        if (initialDirt.some((x) => x < 0 || x > 4)) {
+        if (initialDirt.some((x) => x !== 0 && x !== 1)) {
             throw new Error('Invalid dirt value')
         }
     }
@@ -342,7 +449,27 @@ export class StaticMap {
         const walls = schemaMap.wallsArray() ?? assert.fail('wallsArray() is null')
         const cheeseMines = parseVecTable(schemaMap.cheeseMines() ?? assert.fail('cheeseMines() is null'))
         const initialDirt = schemaMap.dirtArray() ?? assert.fail('dirtArray() is null')
-        return new StaticMap(name, randomSeed, symmetry, dimension, walls, cheeseMines, initialDirt)
+        const cheese = schemaMap.cheeseArray() ?? assert.fail('cheeseArray() is null')
+        const catWaypointIds = schemaMap.catWaypointIdsArray() ?? assert.fail('catWaypointIdsArray() is null')
+        const catWaypoints = new Map<number, Vector[]>()
+        catWaypointIds.forEach((id, idx) => {
+            catWaypoints.set(
+                id,
+                parseVecTable(schemaMap.catWaypointVecs(idx) ?? assert.fail(`catWaypointVecs(${idx}) is null`))
+            )
+        })
+
+        return new StaticMap(
+            name,
+            randomSeed,
+            symmetry,
+            dimension,
+            walls,
+            cheese,
+            cheeseMines,
+            initialDirt,
+            catWaypoints
+        )
     }
 
     static fromParams(width: number, height: number, symmetry: Symmetry) {
@@ -359,9 +486,21 @@ export class StaticMap {
         }
 
         const walls = new Int8Array(width * height)
+        const cheese = new Int8Array(width * height)
         const cheeseMines: Vector[] = []
         const initialDirt = new Int8Array(width * height)
-        return new StaticMap(name, randomSeed, symmetry, dimension, walls, cheeseMines, initialDirt)
+        const catWaypoints = new Map<number, Vector[]>()
+        return new StaticMap(
+            name,
+            randomSeed,
+            symmetry,
+            dimension,
+            walls,
+            cheese,
+            cheeseMines,
+            initialDirt,
+            catWaypoints
+        )
     }
 
     get width(): number {
@@ -405,26 +544,33 @@ export class StaticMap {
         }
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    applySymmetryCat(point: Vector): Vector {
+        // Cats occupy a 2x2 footprint; adjust offsets so symmetry maps the cat's
+        // bottom-left anchor to the corresponding bottom-left anchor on the other side.
+        switch (this.symmetry) {
+            case Symmetry.VERTICAL:
+                // bottom-left -> bottom-right
+                return { x: this.width - point.x - 2, y: point.y }
+            case Symmetry.HORIZONTAL:
+                // bottom-left -> top-left
+                return { x: point.x, y: this.height - point.y - 2 }
+            case Symmetry.ROTATIONAL:
+                // bottom-left -> top-right
+                return { x: this.width - point.x - 2, y: this.height - point.y - 2 }
+            default:
+                throw new Error(`Invalid symmetry ${this.symmetry}`)
+        }
+    }
+
+    draw(ctx: CanvasRenderingContext2D, config: ClientConfig) {
         // Fill background
-        ctx.fillStyle = currentColors[Colors.TILE_COLOR]
+        ctx.fillStyle = Colors.TILES_COLOR.get()
         ctx.fillRect(
             this.dimension.minCorner.x,
             this.dimension.minCorner.y,
             this.dimension.width,
             this.dimension.height
         )
-
-        const dirtImg = getImageIfLoaded('dirty.png')
-        if (dirtImg) {
-            ctx.drawImage(
-                dirtImg,
-                this.dimension.minCorner.x,
-                this.dimension.minCorner.y,
-                this.dimension.width,
-                this.dimension.height
-            )
-        }
 
         for (let i = 0; i < this.dimension.width; i++) {
             for (let j = 0; j < this.dimension.height; j++) {
@@ -433,10 +579,15 @@ export class StaticMap {
 
                 // Render rounded (clipped) wall
                 if (this.walls[schemaIdx]) {
-                    renderUtils.renderRounded(ctx, i, j, this, this.walls, () => {
-                        ctx.fillStyle = currentColors[Colors.WALLS_COLOR]
+                    if (config.enableFancyPaint) {
+                        renderUtils.renderRounded(ctx, i, j, this, this.walls, () => {
+                            ctx.fillStyle = Colors.WALLS_COLOR.get()
+                            ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
+                        })
+                    } else {
+                        ctx.fillStyle = Colors.WALLS_COLOR.get()
                         ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
-                    })
+                    }
                 }
 
                 // Draw grid
@@ -463,7 +614,7 @@ export class StaticMap {
         this.cheeseMines.forEach(({ x, y }) => {
             const coords = renderUtils.getRenderCoords(x, y, this.dimension)
 
-            const imgPath = `cheese_mines/silver_64x64.png`
+            const imgPath = `icons/cheese_mine.png`
             const cheeseMineImage = getImageIfLoaded(imgPath)
             renderUtils.renderCenteredImageOrLoadingIndicator(ctx, cheeseMineImage, coords, 1.0)
         })
@@ -475,5 +626,24 @@ export class StaticMap {
 
     getEditorBrushes(): MapEditorBrush[] {
         return []
+    }
+
+    public inBounds(x: number, y: number) {
+        return x >= 0 && x < this.width && y >= 0 && y < this.height
+    }
+    public wallAt(x: number, y: number) {
+        return this.inBounds(x, y) && this.walls[this.locationToIndex(x, y)]
+    }
+    public getNeighbors(x: number, y: number): Vector[] {
+        const neighbors: Vector[] = []
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+                if (Math.abs(dx) + Math.abs(dy) === 0) continue
+                const nx = x + dx
+                const ny = y + dy
+                neighbors.push({ x: nx, y: ny })
+            }
+        }
+        return neighbors
     }
 }

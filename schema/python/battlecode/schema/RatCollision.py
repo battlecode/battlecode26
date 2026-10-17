@@ -13,19 +13,16 @@ class RatCollision(object):
 
     @classmethod
     def SizeOf(cls) -> int:
-        return 4
+        return 2
 
     # RatCollision
     def Init(self, buf: bytes, pos: int):
         self._tab = flatbuffers.table.Table(buf, pos)
 
     # RatCollision
-    def Id(self): return self._tab.Get(flatbuffers.number_types.Uint16Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(0))
-    # RatCollision
-    def Loc(self): return self._tab.Get(flatbuffers.number_types.Uint16Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(2))
+    def Loc(self): return self._tab.Get(flatbuffers.number_types.Uint16Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(0))
 
-def CreateRatCollision(builder, id, loc):
-    builder.Prep(2, 4)
+def CreateRatCollision(builder, loc):
+    builder.Prep(2, 2)
     builder.PrependUint16(loc)
-    builder.PrependUint16(id)
     return builder.Offset()
