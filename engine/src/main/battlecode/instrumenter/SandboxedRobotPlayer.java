@@ -121,6 +121,7 @@ public class SandboxedRobotPlayer {
      * @throws RuntimeException if our code fails for some reason
      */
     public SandboxedRobotPlayer(String teamName,
+                                String teamURL,
                                 CrossPlayLanguage teamLanguage,
                                 WasmCrossplayServer crossPlayServer,
                                 RobotController robotController,
@@ -196,7 +197,7 @@ public class SandboxedRobotPlayer {
                 // Pause immediately
                 pauseMethod.invoke(null);
                 // Run the robot!
-                loadAndRunPlayer(teamName, teamLanguage, PLAYER_CLASS_NAME);
+                loadAndRunPlayer(teamName, teamLanguage, PLAYER_CLASS_NAME, teamURL);
 
                 // If we get here, we've returned from the 'run' method. Tell the user.
                 if (robotController.getLocation() != null) {
@@ -259,12 +260,12 @@ public class SandboxedRobotPlayer {
         }
     }
 
-    private void loadAndRunPlayer(String teamName, CrossPlayLanguage teamLanguage, String playerClassName)
+    private void loadAndRunPlayer(String teamName, CrossPlayLanguage teamLanguage, String playerClassName, String path)
             throws InvocationTargetException, IllegalAccessException, InstrumentationException, NonJavaBotException {
         if (teamLanguage == CrossPlayLanguage.JAVA) {
             loadAndRunPlayerJava(teamName, playerClassName);
         } else {
-            loadAndRunPlayerCrossPlay(teamName, playerClassName);
+            loadAndRunPlayerCrossPlay(teamName, path, playerClassName);
         }
     }
 
@@ -303,11 +304,12 @@ public class SandboxedRobotPlayer {
         runMethod.invoke(null, robotController);
     }
 
-    private void loadAndRunPlayerCrossPlay(String teamName, String playerClassName)
+    private void loadAndRunPlayerCrossPlay(String teamName, String path, String playerClassName)
             throws InvocationTargetException, IllegalAccessException, InstrumentationException, NonJavaBotException {
+        crossPlayServer.initBot(teamName, path, robotController);
+
         while (true) {
             try {
-                crossPlayServer.initBot(teamName, robotController);
                 // TODO: handle fuel
                 crossPlayServer.playTurn(robotController, systemOut, teamName);
             } catch (RethrownGameActionException e) {

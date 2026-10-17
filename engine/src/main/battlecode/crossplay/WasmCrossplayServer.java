@@ -2,6 +2,7 @@ package battlecode.crossplay;
 
 import ai.tegmentum.wasmtime4j.component.ComponentVal;
 import ai.tegmentum.webassembly4j.api.*;
+import ai.tegmentum.webassembly4j.provider.wasmtime.config.WasmtimeConfig;
 import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.MapInfo;
@@ -14,10 +15,9 @@ import battlecode.server.Config;
 
 import java.io.*;
 
-import ai.tegmentum.webassembly4j.api.Module;
-
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -30,22 +30,29 @@ public class WasmCrossplayServer {
 
     private int fuelLimit;
 
-    private Map<RobotController, WasmRobot> robots;
-    // team name -> the team's compiled wasm module
-    private Map<String, Module> teams;
+    private final Map<RobotController, WasmRobot> robots;
+    // team name -> the team's compiled wasm component
+    private final Map<String, Component> teams;
 
-    public record WasmRobot(Instance guest, DefaultLinkingContext linking) {}
+    public record WasmRobot(ComponentInstance guest, DefaultLinkingContext linking) {}
 
 
     public WasmCrossplayServer(int fuelLimit) {
-        wasmEngine = WebAssembly.builder().provider("wasmtime").build();
+        wasmEngine = WebAssembly.builder()
+                .provider("wasmtime")
+                .engineConfig(WasmtimeConfig.builder()
+                        .wasmComponentModel(true)
+                        //.consumeFuel(true)
+                        .build())
+                .build();
         this.fuelLimit = fuelLimit;
 
-
+        robots = new HashMap<>();
+        teams = new HashMap<>();
     }
 
     public WasmCrossplayServer(Config config) {
-        this(100_000);
+        this(100_000_000);
     }
 
     public void sendDestroyBot(RobotController robotController) {
@@ -59,31 +66,30 @@ public class WasmCrossplayServer {
         // TODO:
     }
 
-    public void initBot(String teamName, RobotController robotController) {
-        // if this is the first time we need to also load the module!
+    // TODO: proper thread safety
+    public synchronized void initBot(String teamName, String path, RobotController robotController) {
+        // if this is the first time we need to also load the component!
         if(!teams.containsKey(teamName)) {
-            try (InputStream inputStream = new FileInputStream(Path.of("crossplay", teamName + ".wasm").toString())) {
-                Module module = wasmEngine.loadModule(inputStream);
-                teams.put(teamName, module);
+            try (InputStream inputStream = new FileInputStream(path)) {
+                Component comp = wasmEngine.loadComponent(inputStream.readAllBytes());
+                teams.put(teamName, comp);
             } catch (IOException e) {
                 throw new RuntimeException(e);
+            } catch (Exception e) {
+                System.out.println();
             }
         }
-
-        Instance guest = teams.get(teamName).instantiate();
+        var linkingContext = createLinkingContext(robotController);
+        ComponentInstance guest = teams.get(teamName).instantiate(linkingContext);
         // TODO: handle ai.tegmentum.webassembly4j.api.exception.ExecutionException
-        guest.function("init").ifPresentOrElse(
-                a -> a.invoke(),
-                () -> System.out.println("Team " + teamName + "missing init method."));
-        robots.put(robotController, new WasmRobot(guest, createLinkingContext(robotController)));
+        guest.invoke("init");
+        robots.put(robotController, new WasmRobot(guest, linkingContext));
     }
-
-    public void playTurn(RobotController controller, OutputStream systemOut, String teamName) throws RethrownGameActionException {
+    // TODO: proper thread safety
+    public synchronized void playTurn(RobotController controller, OutputStream systemOut, String teamName) throws RethrownGameActionException {
         WasmRobot bot = robots.get(controller);
         // TODO: handle ai.tegmentum.webassembly4j.api.exception.ExecutionException
-        bot.guest.function("play-turn").ifPresentOrElse(
-                a -> a.invoke(),
-                () -> System.out.println("Team " + teamName + "missing play turn method."));
+        bot.guest.invoke("play-turn");
     }
 
     public void printException(Team team, int id, int round, Exception e) {
@@ -127,7 +133,10 @@ public class WasmCrossplayServer {
         addRobotWitFunction(b, "get-team",
                 a -> enumToWasm(rc.getTeam()));
         addRobotWitFunction(b, "get-location",
-                a -> MapLocationToWasm(rc.getLocation()));
+                a -> {
+                    var x=  MapLocationToWasm(rc.getLocation());
+                    return  x;
+                });
         addRobotWitFunction(b, "get-all-part-locations",
                 a -> listToWasm(rc.getAllPartLocations(), WasmCrossplayServer::MapLocationToWasm));
         addRobotWitFunction(b, "get-direction",

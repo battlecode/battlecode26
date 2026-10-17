@@ -78,6 +78,8 @@ public class PlayerControlProvider implements RobotControlProvider {
      */
     private ProfilerCollection profilerCollection;
 
+    private final String teamURL;
+
     /**
      * The match id of the current match. Incremented by one every time a new match starts.
      */
@@ -109,6 +111,7 @@ public class PlayerControlProvider implements RobotControlProvider {
         this.crossPlayServer = crossPlayServer;
         this.sandboxes = new HashMap<>(); // GameWorld maintains order for us
         this.factory = new TeamClassLoaderFactory(teamURL);
+        this.teamURL = teamURL;
         this.robotOut = robotOut;
         this.team = team;
 
@@ -159,6 +162,7 @@ public class PlayerControlProvider implements RobotControlProvider {
 
             final SandboxedRobotPlayer player = new SandboxedRobotPlayer(
                     teamPackage,
+                    teamURL,
                     teamLanguage,
                     crossPlayServer,
                     robot.getController(),
@@ -182,7 +186,7 @@ public class PlayerControlProvider implements RobotControlProvider {
     @Override
     public void robotKilled(InternalRobot robot) {
         if (teamLanguage != CrossPlayLanguage.JAVA) {
-            crossPlayServer.sendDestroyBot(robot.getID());
+            crossPlayServer.sendDestroyBot(robot.getController());
         }
         // Note that a robot may be killed even if it is not in Sandboxes, if
         // there was an error while loading it.

@@ -83,7 +83,7 @@ internal class RobotPlayer
 
                 if (CanTurn())
                 {
-                    Turn(_directions[randomDirection]);
+                    //Turn(_directions[randomDirection]);
                 }
             }
         }
