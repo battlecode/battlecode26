@@ -2,16 +2,13 @@ package battlecode.instrumenter;
 
 import battlecode.common.RobotController;
 import battlecode.common.Team;
+import battlecode.crossplay.*;
 import battlecode.instrumenter.profiler.Profiler;
 import battlecode.instrumenter.stream.RoboPrintStream;
 import battlecode.instrumenter.stream.SilencedPrintStream;
 import battlecode.server.ErrorReporter;
 import battlecode.world.control.PlayerControlProvider;
 import battlecode.server.Config;
-import battlecode.crossplay.CrossPlay;
-import battlecode.crossplay.CrossPlayLanguage;
-import battlecode.crossplay.NonJavaBotException;
-import battlecode.crossplay.RethrownGameActionException;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -52,7 +49,7 @@ public class SandboxedRobotPlayer {
     /**
      * A handle to the cross play server used for communicating with external bots
      */
-    private final CrossPlay crossPlayServer;
+    private final WasmCrossplayServer crossPlayServer;
 
     /**
      * The seed to use in all "random" operations.
@@ -125,7 +122,7 @@ public class SandboxedRobotPlayer {
      */
     public SandboxedRobotPlayer(String teamName,
                                 CrossPlayLanguage teamLanguage,
-                                CrossPlay crossPlayServer,
+                                WasmCrossplayServer crossPlayServer,
                                 RobotController robotController,
                                 int seed,
                                 TeamClassLoaderFactory.Loader loader,
@@ -310,9 +307,9 @@ public class SandboxedRobotPlayer {
             throws InvocationTargetException, IllegalAccessException, InstrumentationException, NonJavaBotException {
         while (true) {
             try {
-                // TODO set bytecode limit somehow (maybe in python, maybe here)
-                // int bytecodeUsed = crossPlay.playTurn(robotController, systemOut);
-                crossPlayServer.playTurn(robotController, systemOut);
+                crossPlayServer.initBot(teamName, robotController);
+                // TODO: handle fuel
+                crossPlayServer.playTurn(robotController, systemOut, teamName);
             } catch (RethrownGameActionException e) {
                 throw new NonJavaBotException(e.getMessage());
             }

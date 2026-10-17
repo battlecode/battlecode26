@@ -2,9 +2,9 @@ package battlecode.server;
 
 import battlecode.common.MapLocation;
 import battlecode.common.Team;
+import battlecode.crossplay.WasmCrossplayServer;
 import battlecode.world.*;
 import battlecode.world.control.*;
-import battlecode.crossplay.CrossPlay;
 
 import java.io.File;
 import java.io.IOException;
@@ -152,7 +152,7 @@ public class Server implements Runnable {
 
             debug("Running: "+currentGame);
 
-            CrossPlay crossPlayServer = new CrossPlay();
+            WasmCrossplayServer crossPlayServer = new WasmCrossplayServer(options);
 
             try {
                 // Set up our control provider
@@ -202,7 +202,7 @@ public class Server implements Runnable {
                 gameMaker.makeGameFooter(winner);
                 gameMaker.writeGame(currentGame.getSaveFile());
             } finally {
-                crossPlayServer.cleanup();
+                crossPlayServer.cleanUp();
             }
         }
     }
@@ -325,7 +325,7 @@ public class Server implements Runnable {
     private RobotControlProvider createControlProvider(GameInfo game,
                                                        GameMaker gameMaker,
                                                        boolean profilingEnabled,
-                                                       CrossPlay crossPlayServer) {
+                                                       WasmCrossplayServer crossPlayServer) {
         // Strictly speaking, this should probably be somewhere in battlecode.world
         // Whatever
 

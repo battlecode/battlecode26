@@ -65,3 +65,37 @@ infrastructure/worker/app/gcloud-key.json
 # Resumes
 backend/resumes/files/*
 backend/resumes/*.csv
+
+## User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Build outputs
+[Dd]ebug/
+[Ww]in32/
+[Xx]64/
+[A]nnotation/
+[Aa]rm/
+[Aa]rm64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Log]s/
+
+## Visual Studio 2015 / 2017 / 2019 / 2022 cache directory
+.vs/
+
+## Test results
+[Tt]est[Rr]esults/
+*.trx
+
+## NuGet Packages
+*.nupkg
+packages/
+
+## MSBuild log files
+*.binlog

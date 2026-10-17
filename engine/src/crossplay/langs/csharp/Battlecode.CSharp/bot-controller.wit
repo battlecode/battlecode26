@@ -1,0 +1,233 @@
+package battlecode:bot-controller@2026.1.0;
+
+interface types {
+  // battlecode.common.MapLocation
+  record map-location {
+    x: s32,
+    y: s32,
+  }
+
+  // battlecode.common.Direction
+  enum direction {
+    north,
+    northeast,
+    east,
+    southeast,
+    south,
+    southwest,
+    west,
+    northwest,
+    center,
+  }
+
+  // battlecode.common.Team
+  enum team {
+    a,
+    b,
+    neutral,
+  }
+
+  // battlecode.common.UnitType
+  enum unit-type {
+    baby-rat,
+    rat-king,
+    cat,
+  }
+
+  // battlecode.common.TrapType
+  enum trap-type {
+    rat-trap,
+    cat-trap,
+    none,
+  }
+
+  // battlecode.common.GameActionExceptionType
+  enum game-action-exception-type {
+    internal-error,
+    not-enough-resource,
+    cant-move-there,
+    is-not-ready,
+    cant-sense-that,
+    out-of-range,
+    cant-do-that,
+    no-robot-there,
+    round-out-of-range,
+  }
+
+  record game-action-error {
+    kind: game-action-exception-type,
+    message: string,
+  }
+
+  record carried-robot-info {
+    id: s32,
+    team: team,
+    unit-type: unit-type,
+    health: s32,
+    location: map-location,
+    direction: direction,
+    chirality: s32,
+    cheese-amount: s32,
+  }
+
+  // battlecode.common.RobotInfo
+  record robot-info {
+    id: s32,
+    team: team,
+    unit-type: unit-type,
+    health: s32,
+    location: map-location,
+    direction: direction,
+    chirality: s32,
+    cheese-amount: s32,
+    carrying: option<carried-robot-info>,
+  }
+
+  // battlecode.common.MapInfo
+  record map-info {
+    location: map-location,
+    is-passable: bool,
+    flying-robot: option<robot-info>,
+    is-wall: bool,
+    is-dirt: bool,
+    cheese-amount: s32,
+    trap: trap-type,
+    has-cheese-mine: bool,
+  }
+
+  // battlecode.common.Message
+  record message {
+    bytes: s32,
+    sender-id: s32,
+    round: s32,
+    source: map-location,
+  }
+}
+
+// battlecode.common.RobotController.
+interface controller {
+  use types.{
+    map-location,
+    direction,
+    team,
+    unit-type,
+    game-action-error,
+    robot-info,
+    map-info,
+    message,
+  };
+
+  get-round-num: func() -> s32;
+  get-map-width: func() -> s32;
+  get-map-height: func() -> s32;
+  is-cooperation: func() -> bool;
+  get-backstabbing-team: func() -> option<team>;
+  get-number-cat-traps: func() -> s32;
+  get-number-rat-traps: func() -> s32;
+
+  get-id: func() -> s32;
+  get-team: func() -> team;
+  get-location: func() -> map-location;
+  get-all-part-locations: func() -> list<map-location>;
+  get-direction: func() -> direction;
+  get-health: func() -> s32;
+  get-raw-cheese: func() -> s32;
+  get-global-cheese: func() -> s32;
+  get-all-cheese: func() -> s32;
+  get-dirt: func() -> s32;
+  get-type: func() -> unit-type;
+  get-carrying: func() -> option<robot-info>;
+  is-being-thrown: func() -> bool;
+  is-being-carried: func() -> bool;
+
+  on-the-map: func(loc: map-location) -> bool;
+  can-sense-location: func(loc: map-location) -> bool;
+  is-location-occupied: func(loc: map-location) -> result<bool, game-action-error>;
+  can-sense-robot-at-location: func(loc: map-location) -> bool;
+  sense-robot-at-location: func(loc: map-location) -> result<option<robot-info>, game-action-error>;
+  can-sense-robot: func(id: s32) -> bool;
+  sense-robot: func(id: s32) -> result<robot-info, game-action-error>;
+  sense-nearby-robots: func() -> list<robot-info>;
+  sense-nearby-robots-within: func(radius-squared: s32) -> result<list<robot-info>, game-action-error>;
+  sense-nearby-robots-within-team: func(radius-squared: s32, team: option<team>) -> result<list<robot-info>, game-action-error>;
+  sense-nearby-robots-at: func(center: map-location, radius-squared: s32, team: option<team>) -> result<list<robot-info>, game-action-error>;
+  sense-passability: func(loc: map-location) -> result<bool, game-action-error>;
+  sense-map-info: func(loc: map-location) -> result<map-info, game-action-error>;
+  sense-nearby-map-infos: func() -> list<map-info>;
+  sense-nearby-map-infos-within: func(radius-squared: s32) -> result<list<map-info>, game-action-error>;
+  sense-nearby-map-infos-at: func(center: map-location) -> result<list<map-info>, game-action-error>;
+  sense-nearby-map-infos-at-within: func(center: map-location, radius-squared: s32) -> result<list<map-info>, game-action-error>;
+  adjacent-location: func(dir: direction) -> map-location;
+  get-all-locations-within-radius-squared: func(center: map-location, radius-squared: s32) -> result<list<map-location>, game-action-error>;
+
+  is-action-ready: func() -> bool;
+  get-action-cooldown-turns: func() -> s32;
+  is-movement-ready: func() -> bool;
+  is-turning-ready: func() -> bool;
+  get-movement-cooldown-turns: func() -> s32;
+  get-turning-cooldown-turns: func() -> s32;
+  can-move-forward: func() -> bool;
+  can-move: func(dir: direction) -> bool;
+  move-forward: func() -> result<_, game-action-error>;
+  move: func(dir: direction) -> result<_, game-action-error>;
+  can-turn: func() -> bool;
+  can-turn-to: func(dir: direction) -> bool;
+  turn: func(dir: direction) -> result<_, game-action-error>;
+
+  get-current-rat-cost: func() -> s32;
+  can-build-rat: func(loc: map-location) -> bool;
+  build-rat: func(loc: map-location) -> result<_, game-action-error>;
+  can-become-rat-king: func() -> bool;
+  become-rat-king: func() -> result<_, game-action-error>;
+
+  can-place-dirt: func(loc: map-location) -> bool;
+  place-dirt: func(loc: map-location) -> result<_, game-action-error>;
+  can-remove-dirt: func(loc: map-location) -> bool;
+  remove-dirt: func(loc: map-location) -> result<_, game-action-error>;
+  can-place-rat-trap: func(loc: map-location) -> bool;
+  place-rat-trap: func(loc: map-location) -> result<_, game-action-error>;
+  can-remove-rat-trap: func(loc: map-location) -> bool;
+  remove-rat-trap: func(loc: map-location) -> result<_, game-action-error>;
+  can-place-cat-trap: func(loc: map-location) -> bool;
+  place-cat-trap: func(loc: map-location) -> result<_, game-action-error>;
+  can-remove-cat-trap: func(loc: map-location) -> bool;
+  remove-cat-trap: func(loc: map-location) -> result<_, game-action-error>;
+
+  can-pick-up-cheese: func(loc: map-location) -> bool;
+  pick-up-cheese: func(loc: map-location) -> result<_, game-action-error>;
+  pick-up-cheese-amount: func(loc: map-location, pick-up-amount: s32) -> result<_, game-action-error>;
+  can-transfer-cheese: func(loc: map-location, amount: s32) -> bool;
+  transfer-cheese: func(loc: map-location, amount: s32) -> result<_, game-action-error>;
+
+  can-attack: func(loc: map-location) -> bool;
+  can-attack-with-cheese: func(loc: map-location, cheese-amount: s32) -> bool;
+  attack: func(loc: map-location) -> result<_, game-action-error>;
+  attack-with-cheese: func(loc: map-location, cheese-amount: s32) -> result<_, game-action-error>;
+
+  squeak: func(message-content: s32) -> bool;
+  read-squeaks: func(round-num: s32) -> list<message>;
+  write-shared-array: func(index: s32, value: s32) -> result<_, game-action-error>;
+  read-shared-array: func(index: s32) -> result<s32, game-action-error>;
+
+  can-throw-rat: func() -> bool;
+  throw-rat: func() -> result<_, game-action-error>;
+  can-drop-rat: func(dir: direction) -> bool;
+  drop-rat: func(dir: direction) -> result<_, game-action-error>;
+  can-carry-rat: func(loc: map-location) -> bool;
+  carry-rat: func(loc: map-location) -> result<_, game-action-error>;
+
+  disintegrate: func();
+  resign: func();
+
+  set-indicator-string: func(s: string);
+  set-indicator-dot: func(loc: map-location, red: s32, green: s32, blue: s32) -> result<_, game-action-error>;
+  set-indicator-line: func(start-loc: map-location, end-loc: map-location, red: s32, green: s32, blue: s32) -> result<_, game-action-error>;
+  set-timeline-marker: func(label: string, red: s32, green: s32, blue: s32);
+}
+
+world bot-controller {
+  import controller;
+
+  export init: func();
+  export play-turn: func();
+}

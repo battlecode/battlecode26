@@ -60,6 +60,9 @@ dependencies {
     [group: 'net.sf.trove4j', name: 'trove4j', version: '2.1.0'],
     
     [group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.2'],
+
+    [group: 'ai.tegmentum.webassembly4j', name: 'wasmtime4j-provider', version: '2.4.0'],
+    [group: 'ai.tegmentum.webassembly4j', name: 'webassembly4j-api', version: '2.4.0']
   )
   // implementation files('lib/jsi-1.0.jar')
 

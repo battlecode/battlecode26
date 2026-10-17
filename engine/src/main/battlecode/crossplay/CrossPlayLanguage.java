@@ -1,18 +1,26 @@
 package battlecode.crossplay;
 
 public enum CrossPlayLanguage {
-    JAVA,
-    PYTHON,
+    JAVA("Java", 1),
+    PYTHON("Python", 0.2f),
+    CSHARP("C#", 1),
     ;
 
+    public final String DisplayName;
+    public final float FuelCostMultiplier;
+
+    CrossPlayLanguage(String name, float fuelCostMultiplier) {
+        DisplayName = name;
+        FuelCostMultiplier = fuelCostMultiplier;
+    }
+
     public static CrossPlayLanguage parse(String languageStr) {
-        switch (languageStr.toLowerCase()) {
-            case "java":
-                return JAVA;
-            case "python":
-                return PYTHON;
-            default:
-                throw new IllegalArgumentException("Unsupported cross-play language: " + languageStr);
+        for (CrossPlayLanguage c: CrossPlayLanguage.values())
+        {
+            if(c.DisplayName.equalsIgnoreCase(languageStr) || c.name().equalsIgnoreCase(languageStr))
+                return c;
         }
+
+        throw new IllegalArgumentException("Unsupported cross-play language: " + languageStr);
     }
 }

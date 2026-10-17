@@ -4,6 +4,7 @@ import battlecode.common.GameConstants;
 import battlecode.common.Team;
 import battlecode.crossplay.CrossPlay;
 import battlecode.crossplay.CrossPlayLanguage;
+import battlecode.crossplay.WasmCrossplayServer;
 import battlecode.instrumenter.InstrumentationException;
 import battlecode.instrumenter.TeamClassLoaderFactory;
 import battlecode.instrumenter.SandboxedRobotPlayer;
@@ -59,7 +60,7 @@ public class PlayerControlProvider implements RobotControlProvider {
     /**
      * A handle to the cross play server used for communicating with external bots
      */
-    private final CrossPlay crossPlayServer;
+    private final WasmCrossplayServer crossPlayServer;
 
     /**
      * The printstream robots should write to (besides System.out).
@@ -99,7 +100,7 @@ public class PlayerControlProvider implements RobotControlProvider {
     public PlayerControlProvider(Team team,
                                  String teamPackage,
                                  CrossPlayLanguage teamLanguage,
-                                 CrossPlay crossPlayServer,
+                                 WasmCrossplayServer crossPlayServer,
                                  String teamURL,
                                  OutputStream robotOut,
                                  boolean profilingEnabled) {

@@ -50,6 +50,11 @@ public class Config {
         defaults.setProperty("bc.server.validate-maps", "true");
         defaults.setProperty("bc.server.alternate-order", "false");
 
+        // Define where to find crossplay Wasm file.
+        defaults.setProperty("bc.server.team-a-language", "false");
+        defaults.setProperty("bc.server.team-b-language", "true");
+        // defaults.setProperty("bc.server.crossplay-team-a-path", "");
+        defaults.setProperty("bc.server.team-b-crossplay-path", "/team-b/bot.wasm");
 
 
         // Whether to write robot player output to match files / system out
@@ -70,6 +75,7 @@ public class Config {
         defaults.setProperty("bc.game.state", "0,0");
 
         defaults.setProperty("match.zombie-armageddon", "false");
+
 
         // Command-line options.
         options = new Options();
