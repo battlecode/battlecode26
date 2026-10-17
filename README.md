@@ -34,13 +34,13 @@ The replay file will be in `/matches`. Use `headlessX` for bots that are in `bat
 
 (Make sure you have a recent version of `npm`: `sudo npm cache clean -f && sudo npm install -g n && sudo n stable && PATH="$PATH"`.)
 
-Navigate to the `client` folder and run `npm run install-all`. You can then run
+Navigate to the `client` folder and run `npm install --allow-git=all`. (npm 12+ blocks git dependencies by default, and the client depends on `where-is-it` from GitHub.) You can then run
 
 ```
 npm run watch
 ```
 
-which will launch the client on http://localhost:8080 (if available).
+which will launch the client on http://localhost:3000 (if available).
 
 ## Notes for porting to a new repo
 
